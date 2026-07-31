@@ -4,149 +4,161 @@ on:
   push:
     tags:
       - 'v*'
-  release:
-    types: [published, created]
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build-linux:
+  build-linux-amd64:
     name: Build Linux amd64
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - name: Setup Go
-        uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5
         with:
           go-version: '1.23'
-
       - name: Install Linux GUI Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libwebkit2gtk-4.0-dev
-
       - name: Build Frontend
         run: |
           cd frontend
           yarn install
           yarn build
-
-      - name: Build Linux Binary
+      - name: Build & Package
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           if [ -z "$VERSION" ] || [ "$VERSION" = "main" ]; then VERSION="0.0.43"; fi
-          mkdir -p bin
+          mkdir -p bin release_dist
           go build -tags production -trimpath -ldflags="-w -s -X cursor/internal/buildinfo.Version=${VERSION}" -o bin/cursor-byok .
-
-      - name: Create Linux Tarball Archive
-        run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          if [ -z "$VERSION" ] || [ "$VERSION" = "main" ]; then VERSION="0.0.43"; fi
-          mkdir -p release_dist
           tar -czf "release_dist/cursor-byok-${VERSION}-linux-amd64.tar.gz" -C bin cursor-byok
-
-      - name: Upload Linux Asset to GitHub Release
-        uses: softprops/action-gh-release@v2
+      - uses: actions/upload-artifact@v4
         with:
-          files: release_dist/cursor-byok-*-linux-amd64.tar.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: asset-linux-amd64
+          path: release_dist/cursor-byok-*-linux-amd64.tar.gz
 
-  build-windows:
+  build-windows-amd64:
     name: Build Windows amd64
     runs-on: windows-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - name: Setup Go
-        uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5
         with:
           go-version: '1.23'
-
       - name: Build Frontend
+        shell: pwsh
         run: |
           cd frontend
           yarn install
           yarn build
-
-      - name: Build Windows Binary
+      - name: Build & Package
         shell: pwsh
         run: |
           $ver = "${env:GITHUB_REF_NAME}".TrimStart("v")
           if (-not $ver -or $ver -eq "main") { $ver = "0.0.43" }
-          New-Item -ItemType Directory -Path bin -Force
+          New-Item -ItemType Directory -Path bin, release_dist -Force
           go build -tags production -trimpath -ldflags="-w -s -H windowsgui -X cursor/internal/buildinfo.Version=$ver" -o bin/cursor-byok.exe .
-
-      - name: Create Windows Zip Archive
-        shell: pwsh
-        run: |
-          $ver = "${env:GITHUB_REF_NAME}".TrimStart("v")
-          if (-not $ver -or $ver -eq "main") { $ver = "0.0.43" }
-          New-Item -ItemType Directory -Path release_dist -Force
           Compress-Archive -Path bin/cursor-byok.exe -DestinationPath "release_dist/cursor-byok-$ver-windows-amd64.zip"
-
-      - name: Upload Windows Asset to GitHub Release
-        uses: softprops/action-gh-release@v2
+      - uses: actions/upload-artifact@v4
         with:
-          files: release_dist/cursor-byok-*-windows-amd64.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: asset-windows-amd64
+          path: release_dist/cursor-byok-*-windows-amd64.zip
 
-  build-macos:
+  build-macos-arm64:
     name: Build macOS arm64
     runs-on: macos-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - name: Setup Go
-        uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5
         with:
           go-version: '1.23'
-
       - name: Build Frontend
         run: |
           cd frontend
           yarn install
           yarn build
-
-      - name: Build macOS Binary
+      - name: Build & Package
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           if [ -z "$VERSION" ] || [ "$VERSION" = "main" ]; then VERSION="0.0.43"; fi
-          mkdir -p bin
-          go build -tags production -trimpath -ldflags="-w -s -X cursor/internal/buildinfo.Version=${VERSION}" -o bin/cursor-byok .
-
-      - name: Create macOS Tarball Archive
-        run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          if [ -z "$VERSION" ] || [ "$VERSION" = "main" ]; then VERSION="0.0.43"; fi
-          mkdir -p release_dist
+          mkdir -p bin release_dist
+          GOARCH=arm64 go build -tags production -trimpath -ldflags="-w -s -X cursor/internal/buildinfo.Version=${VERSION}" -o bin/cursor-byok .
           tar -czf "release_dist/cursor-byok-${VERSION}-macos-arm64.tar.gz" -C bin cursor-byok
+      - uses: actions/upload-artifact@v4
+        with:
+          name: asset-macos-arm64
+          path: release_dist/cursor-byok-*-macos-arm64.tar.gz
 
-      - name: Upload macOS Asset to GitHub Release
+  build-macos-amd64:
+    name: Build macOS amd64
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+      - name: Build Frontend
+        run: |
+          cd frontend
+          yarn install
+          yarn build
+      - name: Build & Package
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          if [ -z "$VERSION" ] || [ "$VERSION" = "main" ]; then VERSION="0.0.43"; fi
+          mkdir -p bin release_dist
+          GOARCH=amd64 go build -tags production -trimpath -ldflags="-w -s -X cursor/internal/buildinfo.Version=${VERSION}" -o bin/cursor-byok .
+          tar -czf "release_dist/cursor-byok-${VERSION}-macos-amd64.tar.gz" -C bin cursor-byok
+      - uses: actions/upload-artifact@v4
+        with:
+          name: asset-macos-amd64
+          path: release_dist/cursor-byok-*-macos-amd64.tar.gz
+
+  publish-release:
+    name: Publish All Release Assets & update.json
+    needs: [build-linux-amd64, build-windows-amd64, build-macos-arm64, build-macos-amd64]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Download all built artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release_dist
+          pattern: asset-*
+          merge-multiple: true
+
+      - name: Generate update.json Manifest
+        run: |
+          go run ./scripts/release manifest \
+            -config ./build/config.yml \
+            -assets-dir release_dist \
+            -out release_dist/update.json \
+            -repo "${{ github.repository }}" \
+            -base-name cursor-byok \
+            -notes release-notes.md
+          cat release_dist/update.json
+
+      - name: Upload All Assets and update.json to Release
         uses: softprops/action-gh-release@v2
         with:
-          files: release_dist/cursor-byok-*-macos-arm64.tar.gz
+          files: release_dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

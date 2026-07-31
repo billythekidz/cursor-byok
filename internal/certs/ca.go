@@ -9,7 +9,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
-	_ "embed"
 	"encoding/hex"
 	"encoding/pem"
 	"errors"
@@ -25,16 +24,6 @@ import (
 	"cursor/internal/appdata"
 	"cursor/internal/logger"
 )
-
-// embeddedCACertPEM 表示备用 embeddedCACertPEM 状态值。
-//
-//go:embed ca.crt
-var embeddedCACertPEM []byte
-
-// embeddedCAKeyPEM 表示备用 embeddedCAKeyPEM 状态值。
-//
-//go:embed ca.key
-var embeddedCAKeyPEM []byte
 
 // Manager 定义了当前模块中的 Manager 类型。
 type Manager struct {
@@ -83,11 +72,11 @@ func EnsureLocalCA() (*Manager, []byte, error) {
 		return nil, nil, fmt.Errorf("create CA directory failed: %w", err)
 	}
 
-	if err := os.WriteFile(certPath, certPEM, 0o644); err != nil {
+	if err := writePrivateCAFile(certPath, certPEM, 0o644); err != nil {
 		return nil, nil, fmt.Errorf("write local CA cert failed: %w", err)
 	}
 
-	if err := os.WriteFile(keyPath, keyPEM, 0o600); err != nil {
+	if err := writePrivateCAFile(keyPath, keyPEM, 0o600); err != nil {
 		return nil, nil, fmt.Errorf("write local CA key failed: %w", err)
 	}
 
@@ -140,34 +129,18 @@ func GenerateUniqueCA() ([]byte, []byte, error) {
 	return certPEM, keyPEM, nil
 }
 
-// NewEmbeddedManager 用于优先加载或动态生成本地独一无二的 CA 实例。
+// NewEmbeddedManager 保留旧 API 名称，但只使用本地生成/持久化的 CA。
 func NewEmbeddedManager() (*Manager, error) {
 	mgr, _, err := EnsureLocalCA()
-	if err != nil && len(embeddedCACertPEM) > 0 && len(embeddedCAKeyPEM) > 0 {
-		return NewManagerFromPEM(embeddedCACertPEM, embeddedCAKeyPEM)
-	}
 	return mgr, err
 }
 
-// EmbeddedCACertPEM 返回本地动态生成的 CA 证书 PEM 内容。
+// EmbeddedCACertPEM 保留旧 API 名称，但返回本地唯一 CA 的公钥证书。
 func EmbeddedCACertPEM() []byte {
-	certPath := appdata.CACertFilePath()
-	if data, err := os.ReadFile(certPath); err == nil && len(data) > 0 {
-		return data
-	}
 	if _, certPEM, err := EnsureLocalCA(); err == nil && len(certPEM) > 0 {
 		return certPEM
 	}
-	return cloneBytes(embeddedCACertPEM)
-}
-
-// EmbeddedCAKeyPEM 用于处理与 EmbeddedCAKeyPEM 相关的逻辑。
-func EmbeddedCAKeyPEM() []byte {
-	keyPath := appdata.CAKeyFilePath()
-	if data, err := os.ReadFile(keyPath); err == nil && len(data) > 0 {
-		return data
-	}
-	return cloneBytes(embeddedCAKeyPEM)
+	return nil
 }
 
 // NewManagerFromPEM 用于处理与 NewManagerFromPEM 相关的逻辑。
@@ -324,10 +297,16 @@ func loadCAFromPEM(certPEM, keyPEM []byte) (*x509.Certificate, crypto.PrivateKey
 		if err != nil {
 			return nil, nil, err
 		}
+		if err := validateCAKeyPair(caCert, key); err != nil {
+			return nil, nil, err
+		}
 		return caCert, key, nil
 	case "EC PRIVATE KEY":
 		key, err := x509.ParseECPrivateKey(keyBlock.Bytes)
 		if err != nil {
+			return nil, nil, err
+		}
+		if err := validateCAKeyPair(caCert, key); err != nil {
 			return nil, nil, err
 		}
 		return caCert, key, nil
@@ -336,10 +315,46 @@ func loadCAFromPEM(certPEM, keyPEM []byte) (*x509.Certificate, crypto.PrivateKey
 		if err != nil {
 			return nil, nil, err
 		}
+		if err := validateCAKeyPair(caCert, key); err != nil {
+			return nil, nil, err
+		}
 		return caCert, key, nil
 	default:
 		return nil, nil, errors.New("unsupported CA key format")
 	}
+}
+
+func validateCAKeyPair(cert *x509.Certificate, key crypto.PrivateKey) error {
+	if cert == nil || !cert.IsCA || !cert.BasicConstraintsValid {
+		return errors.New("CA certificate is not a valid CA")
+	}
+	if err := cert.CheckSignatureFrom(cert); err != nil {
+		return fmt.Errorf("CA certificate is not self-signed: %w", err)
+	}
+	privateKey, ok := key.(crypto.Signer)
+	if !ok || !publicKeysEqual(cert.PublicKey, privateKey.Public()) {
+		return errors.New("CA certificate and private key do not match")
+	}
+	return nil
+}
+
+func publicKeysEqual(left, right crypto.PublicKey) bool {
+	leftDER, leftErr := x509.MarshalPKIXPublicKey(left)
+	rightDER, rightErr := x509.MarshalPKIXPublicKey(right)
+	return leftErr == nil && rightErr == nil && string(leftDER) == string(rightDER)
+}
+
+func writePrivateCAFile(path string, data []byte, mode os.FileMode) error {
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, mode)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	if err := file.Chmod(mode); err != nil {
+		return err
+	}
+	_, err = file.Write(data)
+	return err
 }
 
 // normalizeHost 用于处理与 normalizeHost 相关的逻辑。
@@ -355,8 +370,3 @@ func normalizeHost(serverName string) string {
 }
 
 // cloneBytes 用于处理与 cloneBytes 相关的逻辑。
-func cloneBytes(src []byte) []byte {
-	dst := make([]byte, len(src))
-	copy(dst, src)
-	return dst
-}
