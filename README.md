@@ -1,7 +1,3 @@
-## Community Group
-https://t.me/cursor_byok
-
-
 ## Why Build This Project
 
 Companies like to lock Agent services into specific models, forcing users to use tools only with designated models, specific subscriptions, and predefined billing models.
