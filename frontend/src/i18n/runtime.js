@@ -77,18 +77,16 @@ function resolveSystemLocale() {
 
 function resolveInitialLocale() {
   if (typeof window === "undefined" || typeof window.localStorage === "undefined") {
-    return resolveSystemLocale();
+    return DEFAULT_LOCALE;
   }
 
   const storedLocale = window.localStorage.getItem(LOCALE_STORAGE_KEY);
   const storedSource = window.localStorage.getItem(LOCALE_STORAGE_SOURCE_KEY);
   if (storedSource === "manual") {
-    return matchSupportedLocale(storedLocale) || resolveSystemLocale();
+    return matchSupportedLocale(storedLocale) || DEFAULT_LOCALE;
   }
 
-  window.localStorage.removeItem(LOCALE_STORAGE_KEY);
-  window.localStorage.removeItem(LOCALE_STORAGE_SOURCE_KEY);
-  return resolveSystemLocale();
+  return DEFAULT_LOCALE;
 }
 
 function applyLocaleToDocument(locale) {

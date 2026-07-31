@@ -70,3 +70,9 @@ func LogsRootPath() string {
 func CACertFilePath() string {
 	return filepath.Join(DataRootPath(), "ca.crt")
 }
+
+// CAKeyFilePath 返回注入给宿主的 CA 私钥文件路径。
+func CAKeyFilePath() string {
+	return filepath.Join(DataRootPath(), "ca.key")
+}
+

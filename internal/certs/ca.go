@@ -10,22 +10,28 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	_ "embed"
+	"encoding/hex"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"math/big"
 	"net"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"cursor/internal/appdata"
+	"cursor/internal/logger"
 )
 
-// embeddedCACertPEM 表示当前模块中的 embeddedCACertPEM 状态值。
+// embeddedCACertPEM 表示备用 embeddedCACertPEM 状态值。
 //
 //go:embed ca.crt
 var embeddedCACertPEM []byte
 
-// embeddedCAKeyPEM 表示当前模块中的 embeddedCAKeyPEM 状态值。
+// embeddedCAKeyPEM 表示备用 embeddedCAKeyPEM 状态值。
 //
 //go:embed ca.key
 var embeddedCAKeyPEM []byte
@@ -52,18 +58,115 @@ func NewManager(caCertPath, caKeyPath string) (*Manager, error) {
 	return NewManagerFromPEM(certPEM, keyPEM)
 }
 
-// NewEmbeddedManager 用于处理与 NewEmbeddedManager 相关的逻辑。
-func NewEmbeddedManager() (*Manager, error) {
-	return NewManagerFromPEM(embeddedCACertPEM, embeddedCAKeyPEM)
+// EnsureLocalCA 检查本地 appdata 中是否存在唯一的 CA 证书和私钥。
+// 如果不存在，则动态生成一套全系统唯一的 2048-bit RSA Self-Signed Root CA 证书与私钥，
+// 并保存到本地 user appdata 目录中。这样每个安装实例都有自己独一无二的私钥，彻底消除公共私钥泄漏带来的 MITM 风险。
+func EnsureLocalCA() (*Manager, []byte, error) {
+	certPath := appdata.CACertFilePath()
+	keyPath := appdata.CAKeyFilePath()
+
+	certPEM, keyPEM, err := loadCAPEMFromFiles(certPath, keyPath)
+	if err == nil && len(certPEM) > 0 && len(keyPEM) > 0 {
+		mgr, err := NewManagerFromPEM(certPEM, keyPEM)
+		if err == nil {
+			return mgr, certPEM, nil
+		}
+	}
+
+	logger.Infof("EnsureLocalCA: Generating a unique local Root CA cert and private key...")
+	certPEM, keyPEM, err = GenerateUniqueCA()
+	if err != nil {
+		return nil, nil, fmt.Errorf("generate unique local CA failed: %w", err)
+	}
+
+	if err := os.MkdirAll(filepath.Dir(certPath), 0o700); err != nil {
+		return nil, nil, fmt.Errorf("create CA directory failed: %w", err)
+	}
+
+	if err := os.WriteFile(certPath, certPEM, 0o644); err != nil {
+		return nil, nil, fmt.Errorf("write local CA cert failed: %w", err)
+	}
+
+	if err := os.WriteFile(keyPath, keyPEM, 0o600); err != nil {
+		return nil, nil, fmt.Errorf("write local CA key failed: %w", err)
+	}
+
+	mgr, err := NewManagerFromPEM(certPEM, keyPEM)
+	if err != nil {
+		return nil, nil, fmt.Errorf("load generated local CA failed: %w", err)
+	}
+
+	return mgr, certPEM, nil
 }
 
-// EmbeddedCACertPEM 用于处理与 EmbeddedCACertPEM 相关的逻辑。
+// GenerateUniqueCA 动态生成 2048-bit RSA Self-Signed Root CA 证书与私钥 PEM。
+func GenerateUniqueCA() ([]byte, []byte, error) {
+	priv, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	serialNumber, err := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	suffix := make([]byte, 4)
+	_, _ = rand.Read(suffix)
+	commonName := "Cursor Local Proxy CA (" + hex.EncodeToString(suffix) + ")"
+
+	template := &x509.Certificate{
+		SerialNumber: serialNumber,
+		Subject: pkix.Name{
+			CommonName:   commonName,
+			Organization: []string{"Cursor Local Proxy"},
+		},
+		NotBefore:             time.Now().Add(-24 * time.Hour),
+		NotAfter:              time.Now().Add(10 * 365 * 24 * time.Hour),
+		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageCRLSign | x509.KeyUsageDigitalSignature,
+		BasicConstraintsValid: true,
+		IsCA:                  true,
+		MaxPathLen:            1,
+	}
+
+	derBytes, err := x509.CreateCertificate(rand.Reader, template, template, &priv.PublicKey, priv)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	certPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
+	keyPEM := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(priv)})
+
+	return certPEM, keyPEM, nil
+}
+
+// NewEmbeddedManager 用于优先加载或动态生成本地独一无二的 CA 实例。
+func NewEmbeddedManager() (*Manager, error) {
+	mgr, _, err := EnsureLocalCA()
+	if err != nil && len(embeddedCACertPEM) > 0 && len(embeddedCAKeyPEM) > 0 {
+		return NewManagerFromPEM(embeddedCACertPEM, embeddedCAKeyPEM)
+	}
+	return mgr, err
+}
+
+// EmbeddedCACertPEM 返回本地动态生成的 CA 证书 PEM 内容。
 func EmbeddedCACertPEM() []byte {
+	certPath := appdata.CACertFilePath()
+	if data, err := os.ReadFile(certPath); err == nil && len(data) > 0 {
+		return data
+	}
+	if _, certPEM, err := EnsureLocalCA(); err == nil && len(certPEM) > 0 {
+		return certPEM
+	}
 	return cloneBytes(embeddedCACertPEM)
 }
 
 // EmbeddedCAKeyPEM 用于处理与 EmbeddedCAKeyPEM 相关的逻辑。
 func EmbeddedCAKeyPEM() []byte {
+	keyPath := appdata.CAKeyFilePath()
+	if data, err := os.ReadFile(keyPath); err == nil && len(data) > 0 {
+		return data
+	}
 	return cloneBytes(embeddedCAKeyPEM)
 }
 
@@ -75,6 +178,7 @@ func NewManagerFromPEM(caCertPEM, caKeyPEM []byte) (*Manager, error) {
 	}
 	return &Manager{caCert: caCert, caKey: caKey, cache: make(map[string]*tls.Certificate)}, nil
 }
+
 
 // CATLSCertificate 用于处理与 CATLSCertificate 相关的逻辑。
 func (m *Manager) CATLSCertificate() (*tls.Certificate, error) {

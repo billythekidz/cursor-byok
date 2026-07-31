@@ -1,90 +1,90 @@
-# Contribution Guide
+# 贡献指南
 
 > English version: [CONTRIBUTING_EN.md](./CONTRIBUTING_EN.md)
 
-Thank you for considering contributing to cursor-byok!
+感谢你考虑为 cursor-byok 做出贡献！
 
-## Development Environment
+## 开发环境
 
-| Dependency | Version Requirement |
-|------------|---------------------|
+| 依赖 | 版本要求 |
+|------|---------|
 | Go | >= 1.25 |
 | Node.js | >= 20 |
 | Yarn | 1.x (classic) |
 | [Task](https://taskfile.dev) | >= 3 |
 | [Wails v3 CLI](https://v3alpha.wails.dev) | alpha.74+ |
 
-Linux extra dependencies: `libgtk-3-dev`, `libwebkit2gtk-4.1-dev` (required by Wails runtime).
+Linux 额外依赖：`libgtk-3-dev`、`libwebkit2gtk-4.1-dev`（Wails 运行时需要）。
 
-## Quick Start
+## 快速开始
 
 ```bash
-# Install frontend dependencies
+# 安装前端依赖
 cd frontend && yarn install --frozen-lockfile && cd ..
 
-# Start dev mode (hot reload)
+# 启动开发模式（热重载）
 task dev
 
-# Build current platform distribution package
+# 构建当前平台分发包
 task build
 ```
 
-## Project Structure
+## 项目结构
 
 ```
-├── main.go                 # Entrypoint
-├── internal/               # Go backend (proxy, forwarding, client management, etc.)
-├── frontend/               # Vue 3 + Vite + Tailwind frontend
+├── main.go                 # 入口
+├── internal/               # Go 后端（代理、转发、客户端管理等）
+├── frontend/               # Vue 3 + Vite + Tailwind 前端
 │   ├── src/
-│   │   ├── views/          # Views/Pages
-│   │   ├── components/     # Components
-│   │   ├── i18n/           # Internationalization (zh-CN / en-US / ja-JP / ru-RU)
-│   │   └── state/          # Global state
-│   └── plugins/            # Vite plugins (i18n static scanner, etc.)
-├── prompt/                 # Built-in Agent prompt templates
-├── proto/                  # Protobuf definitions
-├── build/                  # Build configs & platform Taskfiles
-├── scripts/                # Utility scripts (release, metrics)
-└── Taskfile.yml            # Top-level task orchestration
+│   │   ├── views/          # 页面
+│   │   ├── components/     # 组件
+│   │   ├── i18n/           # 国际化（zh-CN / en-US / ja-JP / ru-RU）
+│   │   └── state/          # 全局状态
+│   └── plugins/            # Vite 插件（i18n 静态扫描等）
+├── prompt/                 # 内置 Agent prompt 模板
+├── proto/                  # Protobuf 定义
+├── build/                  # 构建配置与平台 Taskfile
+├── scripts/                # 辅助脚本（release、metrics）
+└── Taskfile.yml            # 顶层任务编排
 ```
 
-## Development Guidelines
+## 开发规范
 
-### Commit Messages
+### 提交信息
 
-Use the [Conventional Commits](https://www.conventionalcommits.org/en/) style:
+采用 [Conventional Commits](https://www.conventionalcommits.org/zh-hans/) 风格：
 
 ```
-feat(proxy): support custom upstream timeout
-fix(i18n): complete missing Japanese translation keys
+feat(proxy): 支持自定义 upstream 超时
+fix(i18n): 补全日语翻译缺失 key
 release: 0.0.42
 ```
 
-### Code Style
+### 代码风格
 
-- Go: Follow `gofmt` / `go vet`, no extra linter configuration introduced.
-- Frontend: Vue SFC + Composition API, prioritize Tailwind utility classes.
-- New UI text must update all locale files simultaneously (`frontend/src/i18n/locales/`).
+- Go：遵循 `gofmt` / `go vet`，不引入额外 linter 配置。
+- 前端：Vue SFC + Composition API，Tailwind 工具类优先。
+- 新增 UI 文案必须同步更新所有 locale 文件（`frontend/src/i18n/locales/`）。
 
-### Branching & PRs
+### 分支与 PR
 
-1. Create feature branches from `main`: `feat/xxx`, `fix/xxx`.
-2. Keep PRs small and focused; one PR addresses one issue.
-3. Explain motivation and testing methods in PR descriptions.
+1. 从 `main` 创建功能分支：`feat/xxx`、`fix/xxx`。
+2. 保持 PR 小而聚焦，一个 PR 解决一个问题。
+3. PR 描述中说明动机和测试方式。
 
-## Build and Release
+## 构建与发布
 
 ```bash
-# Build for all platforms (macOS host only)
+# 构建全平台（仅 macOS 主机）
 task build:all
 
-# Prepare release assets
+# 准备发布资产
 task release:prepare
 
-# Publish to GitHub Releases
+# 发布到 GitHub Releases
 task release:github
 ```
 
-## License
+## 许可证
 
-By submitting code, you agree to license your contribution under the [MIT License](./LICENSE).
+提交代码即表示你同意以 [MIT License](./LICENSE) 授权你的贡献。

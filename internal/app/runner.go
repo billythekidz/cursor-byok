@@ -185,19 +185,7 @@ func Run(resources EmbeddedResources) error {
 		}()
 	}
 	startAdRefreshLoop := func(ctx context.Context) {
-		go func() {
-			refreshAd(ctx)
-			ticker := time.NewTicker(adRefreshInterval)
-			defer ticker.Stop()
-			for {
-				select {
-				case <-ctx.Done():
-					return
-				case <-ticker.C:
-					refreshAd(ctx)
-				}
-			}
-		}()
+		// 已禁用后台广告与 Telemetry 轮询
 	}
 
 	updateManager = updater.NewManager(app)
@@ -264,27 +252,27 @@ func Run(resources EmbeddedResources) error {
 
 	systray := app.SystemTray.New()
 	menu := app.Menu.New()
-	statusItem := menu.Add("状态：未启动").SetEnabled(false)
+	statusItem := menu.Add("Status: Not Started").SetEnabled(false)
 	menu.AddSeparator()
-	startItem := menu.Add("启动服务")
-	stopItem := menu.Add("停止服务")
-	updateItem := menu.Add("检查更新").OnClick(func(ctx *application.Context) {
+	startItem := menu.Add("Start Service")
+	stopItem := menu.Add("Stop Service")
+	updateItem := menu.Add("Check for Updates").OnClick(func(ctx *application.Context) {
 		updateManager.CheckNow(true)
 	})
 	menu.AddSeparator()
-	showItem := menu.Add("显示窗口").OnClick(func(ctx *application.Context) {
+	showItem := menu.Add("Show Window").OnClick(func(ctx *application.Context) {
 		showMainWindow()
 	})
-	hideItem := menu.Add("隐藏窗口").OnClick(func(ctx *application.Context) {
+	hideItem := menu.Add("Hide Window").OnClick(func(ctx *application.Context) {
 		window.Hide()
 	})
 	menu.AddSeparator()
-	quitItem := menu.Add("退出").OnClick(func(ctx *application.Context) {
+	quitItem := menu.Add("Exit").OnClick(func(ctx *application.Context) {
 		proxyService.ShutdownForQuit()
 		app.Quit()
 	})
 
-	var currentLocale = "zh-CN"
+	var currentLocale = "en-US"
 
 	updateTrayLabels := func(locale string) {
 		currentLocale = locale

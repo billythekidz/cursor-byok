@@ -170,82 +170,12 @@ func (service *Service) Refresh(parent context.Context) (Runtime, bool, error) {
 }
 
 func (service *Service) FetchOnce(ctx context.Context) (FetchResult, error) {
-	if service == nil {
-		return FetchResult{}, fmt.Errorf("ad service is nil")
-	}
-	var output FetchResult
-	var firstErr error
-	var succeeded bool
-	for _, slot := range Slots {
-		result, err := service.fetchSlotOnce(ctx, slot)
-		if err != nil {
-			if firstErr == nil {
-				firstErr = err
-			}
-			continue
-		}
-		succeeded = true
-		if result.Changed {
-			output.Changed = true
-		}
-		if output.Hash == "" {
-			output.Hash = result.Hash
-		}
-	}
-	if !succeeded && firstErr != nil {
-		return FetchResult{}, firstErr
-	}
-	return output, nil
+	// 已完全禁用远程广告与 Telemetry 抓取
+	return FetchResult{Changed: false}, nil
 }
 
 func (service *Service) fetchSlotOnce(ctx context.Context, slot Slot) (FetchResult, error) {
-	slotID := normalizeSlotID(slot.ID)
-	fetchURL := strings.TrimSpace(slot.FetchURL)
-	if fetchURL == "" {
-		return FetchResult{}, nil
-	}
-	inspection := service.inspectSlotPackage(ctx, slotID)
-	currentHash := ""
-	if inspection.state == packageValid {
-		currentHash = strings.TrimSpace(inspection.pkg.Hash)
-	}
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, fetchURL, nil)
-	if err != nil {
-		return FetchResult{}, err
-	}
-	service.applyReportHeaders(ctx, request, currentHash)
-	response, err := service.httpClient.Do(request)
-	if err != nil {
-		return FetchResult{}, err
-	}
-	defer response.Body.Close()
-	if response.StatusCode == noAdStatusCode {
-		changed, err := service.clearPackage(ctx, slotID)
-		if err != nil {
-			return FetchResult{}, err
-		}
-		return FetchResult{Changed: changed}, nil
-	}
-	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
-		return FetchResult{}, fmt.Errorf("广告拉取返回状态码 %d", response.StatusCode)
-	}
-	body, err := readLimited(response.Body, maxZipBytes, "广告压缩包")
-	if err != nil {
-		return FetchResult{}, err
-	}
-	hashBytes := sha256.Sum256(body)
-	hash := slotStorageHash(slotID, hex.EncodeToString(hashBytes[:]))
-	if inspection.state == packageValid && strings.EqualFold(hash, currentHash) {
-		return FetchResult{Hash: hash, Changed: false}, nil
-	}
-	parsed, err := parsePackage(hash, body)
-	if err != nil {
-		return FetchResult{}, err
-	}
-	if err := service.replacePackage(ctx, slotID, parsed); err != nil {
-		return FetchResult{}, err
-	}
-	return FetchResult{Hash: hash, Changed: true}, nil
+	return FetchResult{Changed: false}, nil
 }
 
 func (service *Service) CurrentHash(ctx context.Context) (string, error) {
@@ -332,36 +262,8 @@ func (service *Service) LoadAsset(ctx context.Context, rawPath string) (parsedAs
 }
 
 func (service *Service) applyReportHeaders(ctx context.Context, request *http.Request, currentHash string) {
-	if request == nil {
-		return
-	}
-	version := firstNonEmpty(service.appVersion, "0.0.0")
-	request.Header.Set("Accept", "application/zip, application/octet-stream, */*")
-	request.Header.Set("User-Agent", "cursor-local-assistant/"+headerValue(version))
-	request.Header.Set("X-Cursor-Assistant-Version", headerValue(version))
-	request.Header.Set("X-Cursor-Assistant-OS", headerValue(displayOSName()))
-	request.Header.Set("X-Cursor-Assistant-OS-Version", headerValue(displayOSVersion()))
-	request.Header.Set("X-Cursor-Assistant-Arch", headerValue(runtime.GOARCH))
-	request.Header.Set("X-Cursor-Assistant-Current-Ad-Hash", headerValue(stripSlotStorageHash(currentHash)))
-	if service.deviceID != nil {
-		if value, err := service.deviceID(); err == nil {
-			request.Header.Set("X-Cursor-Assistant-Device-ID", headerValue(value))
-		}
-	}
-	if service.metrics != nil {
-		if metrics, err := service.metrics(ctx); err == nil {
-			request.Header.Set("X-Cursor-Assistant-Turns", strconv.Itoa(metrics.TurnsTotal))
-			request.Header.Set("X-Cursor-Assistant-Request-Tokens", strconv.FormatInt(metrics.RequestTokensTotal, 10))
-			request.Header.Set("X-Cursor-Assistant-Prompt-Tokens", strconv.FormatInt(metrics.PromptTokensTotal, 10))
-			request.Header.Set("X-Cursor-Assistant-Cache-Read-Tokens", strconv.FormatInt(metrics.CacheReadTokens, 10))
-			request.Header.Set("X-Cursor-Assistant-Cache-Write-Tokens", strconv.FormatInt(metrics.CacheWriteTokens, 10))
-		}
-	}
-	if service.providerCount != nil {
-		if count, err := service.providerCount(ctx); err == nil {
-			request.Header.Set("X-Cursor-Assistant-Provider-Count", strconv.Itoa(maxInt(count, 0)))
-		}
-	}
+	// 已禁用所有 Telemetry / 设备 ID / Token 统计数据上报 Headers
+	return
 }
 
 func (service *Service) currentPackage(ctx context.Context, slotID string) (adPackageFile, bool, error) {
