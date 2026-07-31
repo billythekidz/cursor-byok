@@ -1,3 +1,6 @@
+-------0.0.43------
+- Security: Blocked telemetry/ads connections to external servers
+- Security: Dynamically generate unique local Root CA certificate and private key per installation
 -------0.0.42------
 - Fixed grep or read blocking for long periods @liorxuan
 -------0.0.41------
