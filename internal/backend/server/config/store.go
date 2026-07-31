@@ -126,8 +126,11 @@ func (store *Store) saveLocked(normalized Config) error {
 	}
 
 	tempPath := store.path + ".tmp"
-	if err := os.WriteFile(tempPath, data, 0o644); err != nil {
+	if err := os.WriteFile(tempPath, data, 0o600); err != nil {
 		return fmt.Errorf("写入临时配置失败: %w", err)
+	}
+	if err := os.Chmod(tempPath, 0o600); err != nil {
+		return fmt.Errorf("设置配置文件权限失败: %w", err)
 	}
 	if err := os.Rename(tempPath, store.path); err != nil {
 		return fmt.Errorf("保存用户配置失败: %w", err)

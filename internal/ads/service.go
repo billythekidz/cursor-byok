@@ -238,27 +238,9 @@ func (service *Service) getSlotRuntime(ctx context.Context, slotID string) (Slot
 }
 
 func (service *Service) LoadAsset(ctx context.Context, rawPath string) (parsedAsset, string, bool, error) {
-	slotID, assetPath, err := normalizeRequestAssetPath(rawPath)
-	if err != nil {
-		return parsedAsset{}, "", false, err
-	}
-	inspection := service.inspectSlotPackage(ctx, slotID)
-	if inspection.state != packageValid {
-		return parsedAsset{}, "", false, nil
-	}
-	ref, ok := inspection.pkg.Assets[assetPath]
-	if !ok {
-		return parsedAsset{}, inspection.pkg.Hash, false, nil
-	}
-	data, ok, err := service.readAssetFile(slotID, assetPath, ref)
-	if err != nil || !ok {
-		return parsedAsset{}, inspection.pkg.Hash, false, nil
-	}
-	return parsedAsset{
-		path:        assetPath,
-		contentType: ref.ContentType,
-		data:        data,
-	}, inspection.pkg.Hash, true, nil
+	// Remote ads and their cached JavaScript are disabled. Do not serve legacy
+	// cache contents left by an older version of the application.
+	return parsedAsset{}, "", false, nil
 }
 
 func (service *Service) applyReportHeaders(ctx context.Context, request *http.Request, currentHash string) {

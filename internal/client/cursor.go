@@ -1,6 +1,7 @@
 package client
 
 import (
+	"errors"
 	"fmt"
 	goruntime "runtime"
 
@@ -45,13 +46,19 @@ func (s *ProxyService) ApplyCursorSettings() error {
 
 // ClearCursorSettings 用于处理与 ClearCursorSettings 相关的逻辑。
 func (s *ProxyService) ClearCursorSettings() error {
+	var cleanupErr error
 	if goruntime.GOOS == "darwin" {
-		if err := cursor.ClearSystemNodeExtraCACerts(); err != nil {
-			return err
-		}
+		cleanupErr = errors.Join(cleanupErr, cursor.ClearSystemNodeExtraCACerts())
 	}
-	if err := cursor.ClearUserProxySettings(); err != nil {
-		return err
+	if goruntime.GOOS == "windows" {
+		cleanupErr = errors.Join(cleanupErr, cursor.RemoveCACertFromWindowsStore(s.caCertPEM))
+	}
+	if goruntime.GOOS == "darwin" {
+		cleanupErr = errors.Join(cleanupErr, cursor.RemoveCACertFromDarwinKeychain(s.caCertPEM))
+	}
+	cleanupErr = errors.Join(cleanupErr, cursor.ClearUserProxySettings())
+	if cleanupErr != nil {
+		return cleanupErr
 	}
 	s.setCursorSettingsApplied(false)
 	return nil

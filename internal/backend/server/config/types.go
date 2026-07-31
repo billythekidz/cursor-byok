@@ -246,11 +246,23 @@ func normalizeListenAddr(value string, defaultValue string, fieldName string) (s
 	if strings.TrimSpace(host) == "" {
 		return "", fmt.Errorf("%s host 不能为空", fieldName)
 	}
+	if !isLoopbackHost(host) {
+		return "", fmt.Errorf("%s 仅允许绑定 loopback 地址（127.0.0.1/::1/localhost）", fieldName)
+	}
 	parsedPort, err := strconv.Atoi(port)
 	if err != nil || parsedPort < 1 || parsedPort > 65535 {
 		return "", fmt.Errorf("%s port 必须在 1-65535 之间", fieldName)
 	}
 	return net.JoinHostPort(host, strconv.Itoa(parsedPort)), nil
+}
+
+func isLoopbackHost(host string) bool {
+	value := strings.TrimSpace(strings.Trim(host, "[]"))
+	if strings.EqualFold(value, "localhost") {
+		return true
+	}
+	ip := net.ParseIP(value)
+	return ip != nil && ip.IsLoopback()
 }
 
 func normalizeProviderStreamIdleTimeout(value int) int {

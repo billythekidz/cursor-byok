@@ -9,20 +9,37 @@ import (
 
 func ensureAssistantHome() error {
 	migrateLegacyAssistantHome()
-	if err := os.MkdirAll(RootDir(), 0o755); err != nil {
+	if err := ensurePrivateDir(RootDir()); err != nil {
 		return fmt.Errorf("create assistant home: %w", err)
 	}
-	if err := os.MkdirAll(DataRootPath(), 0o755); err != nil {
+	if err := ensurePrivateDir(DataRootPath()); err != nil {
 		return fmt.Errorf("create data root: %w", err)
 	}
-	if err := os.MkdirAll(HistoryRootPath(), 0o755); err != nil {
+	if err := ensurePrivateDir(HistoryRootPath()); err != nil {
 		return fmt.Errorf("create history root: %w", err)
 	}
-	if err := os.MkdirAll(RulesRootPath(), 0o755); err != nil {
+	if err := ensurePrivateDir(RulesRootPath()); err != nil {
 		return fmt.Errorf("create rules root: %w", err)
 	}
-	if err := os.MkdirAll(LogsRootPath(), 0o755); err != nil {
+	if err := ensurePrivateDir(LogsRootPath()); err != nil {
 		return fmt.Errorf("create logs root: %w", err)
+	}
+	if err := ensurePrivateFile(ConfigFilePath(), 0o600); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("harden config file: %w", err)
+	}
+	return nil
+}
+
+func ensurePrivateDir(path string) error {
+	if err := os.MkdirAll(path, 0o700); err != nil {
+		return err
+	}
+	return os.Chmod(path, 0o700)
+}
+
+func ensurePrivateFile(path string, mode os.FileMode) error {
+	if err := os.Chmod(path, mode); err != nil {
+		return err
 	}
 	return nil
 }

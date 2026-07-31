@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -24,7 +25,7 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
-const checkInterval = 20 * time.Minute
+const maxUpdateArchiveBytes int64 = 512 << 20
 
 type State string
 
@@ -89,7 +90,6 @@ func NewManager(app *application.App) *Manager {
 
 func (m *Manager) Start() {
 	m.emitState(StateIdle, nil, "", "", false, "")
-	go m.loop()
 }
 
 func (m *Manager) Shutdown() {
@@ -102,22 +102,6 @@ func (m *Manager) CheckNow(manual bool) {
 
 func (m *Manager) InstallReadyUpdate() error {
 	return m.installReadyUpdate()
-}
-
-func (m *Manager) loop() {
-	m.checkNow(false)
-
-	ticker := time.NewTicker(checkInterval)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-m.ctx.Done():
-			return
-		case <-ticker.C:
-			m.checkNow(false)
-		}
-	}
 }
 
 func (m *Manager) checkNow(manual bool) {
@@ -216,6 +200,9 @@ func (m *Manager) fetchUpdateInfo(ctx context.Context) (*UpdateInfo, error) {
 	if !ok {
 		return nil, errNoSupportedAsset
 	}
+	if err := validateUpdateAsset(asset); err != nil {
+		return nil, err
+	}
 
 	return &UpdateInfo{
 		Version:      strings.TrimSpace(data.Version),
@@ -228,6 +215,12 @@ func (m *Manager) fetchUpdateInfo(ctx context.Context) (*UpdateInfo, error) {
 }
 
 func (m *Manager) downloadUpdate(ctx context.Context, info *UpdateInfo) (string, error) {
+	if info == nil {
+		return "", errors.New("update info is nil")
+	}
+	if err := validateUpdateAsset(info.Asset); err != nil {
+		return "", err
+	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, info.Asset.URL, nil)
 	if err != nil {
 		return "", err
@@ -241,6 +234,9 @@ func (m *Manager) downloadUpdate(ctx context.Context, info *UpdateInfo) (string,
 
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("download request failed: %s", resp.Status)
+	}
+	if resp.ContentLength > maxUpdateArchiveBytes || (info.Asset.Size > 0 && resp.ContentLength > 0 && resp.ContentLength != info.Asset.Size) {
+		return "", fmt.Errorf("update archive size mismatch or exceeds limit")
 	}
 
 	tempFile, err := os.CreateTemp("", "cursor-byok-update-*"+archiveSuffix(info.Asset.URL))
@@ -260,9 +256,14 @@ func (m *Manager) downloadUpdate(ctx context.Context, info *UpdateInfo) (string,
 		m.emitProgress(info, downloaded, total)
 	})
 	m.emitProgress(info, 0, total)
-	if _, err := io.Copy(io.MultiWriter(tempFile, hasher, progress), resp.Body); err != nil {
+	written, err := io.Copy(io.MultiWriter(tempFile, hasher, progress), io.LimitReader(resp.Body, maxUpdateArchiveBytes+1))
+	if err != nil {
 		_ = os.Remove(tempFile.Name())
 		return "", err
+	}
+	if written > maxUpdateArchiveBytes || (info.Asset.Size > 0 && written != info.Asset.Size) {
+		_ = os.Remove(tempFile.Name())
+		return "", fmt.Errorf("update archive size mismatch or exceeds limit")
 	}
 	m.emitProgress(info, total, total)
 
@@ -275,6 +276,27 @@ func (m *Manager) downloadUpdate(ctx context.Context, info *UpdateInfo) (string,
 
 	logger.Infof("更新包下载完成：version=%s path=%s", info.Version, tempFile.Name())
 	return tempFile.Name(), nil
+}
+
+func validateUpdateAsset(asset manifestPlatform) error {
+	assetURL, err := url.Parse(strings.TrimSpace(asset.URL))
+	if err != nil || assetURL.Scheme != "https" || !strings.EqualFold(assetURL.Hostname(), "github.com") || assetURL.User != nil {
+		return errors.New("update asset URL must be HTTPS on github.com")
+	}
+	if !strings.HasPrefix(assetURL.Path, "/leookun/cursor-byok/releases/download/") {
+		return errors.New("update asset URL is outside the trusted release path")
+	}
+	if asset.Size <= 0 || asset.Size > maxUpdateArchiveBytes {
+		return errors.New("update asset has an invalid size")
+	}
+	checksum := strings.TrimSpace(strings.TrimPrefix(asset.Checksum, "sha256:"))
+	if len(checksum) != sha256.Size*2 {
+		return errors.New("update asset must provide a SHA-256 checksum")
+	}
+	if _, err := hex.DecodeString(checksum); err != nil {
+		return errors.New("update asset checksum is not valid SHA-256")
+	}
+	return nil
 }
 
 func (m *Manager) installReadyUpdate() error {

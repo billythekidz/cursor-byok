@@ -17,6 +17,7 @@ import (
 
 const (
 	windowsRootStoreName  = "Root"
+	windowsUserStoreFlag  = "-user"
 	windowsCertutilExe    = "certutil.exe"
 	windowsPowerShellExe  = "powershell.exe"
 	windowsUserCancelCode = 1223
@@ -52,7 +53,7 @@ func isCACertInstalled(certPEM []byte) (bool, error) {
 		return false, fmt.Errorf("获取证书指纹失败: %w", err)
 	}
 
-	cmd := exec.Command(windowsCertutilExe, "-verifystore", windowsRootStoreName, thumbprint)
+	cmd := exec.Command(windowsCertutilExe, windowsUserStoreFlag, "-verifystore", windowsRootStoreName, thumbprint)
 	cmd.SysProcAttr = hideWindow()
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -129,8 +130,11 @@ func installCACertToWindowsStore(certPEM []byte, certPath string) error {
 
 	logger.Infof("installCACertToWindowsStore: installing cert into system store, path=%s thumbprint=%s", certPath, thumbprint)
 
-	if err := runElevatedCertutil("-addstore", windowsRootStoreName, certPath); err != nil {
-		return err
+	cmd := exec.Command(windowsCertutilExe, windowsUserStoreFlag, "-addstore", windowsRootStoreName, certPath)
+	cmd.SysProcAttr = hideWindow()
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("写入当前用户 Windows 信任存储失败: %w: %s", err, strings.TrimSpace(string(output)))
 	}
 
 	installed, err := isCACertInstalled(certPEM)
@@ -142,6 +146,21 @@ func installCACertToWindowsStore(certPEM []byte, certPath string) error {
 	}
 
 	logger.Infof("installCACertToWindowsStore: cert installed successfully into system store, thumbprint=%s", thumbprint)
+	return nil
+}
+
+// RemoveCACertFromWindowsStore 删除本应用当前用户 Root store 中的 CA。
+func RemoveCACertFromWindowsStore(certPEM []byte) error {
+	thumbprint, err := getCertThumbprint(certPEM)
+	if err != nil {
+		return err
+	}
+	cmd := exec.Command(windowsCertutilExe, windowsUserStoreFlag, "-delstore", windowsRootStoreName, thumbprint)
+	cmd.SysProcAttr = hideWindow()
+	output, err := cmd.CombinedOutput()
+	if err != nil && !strings.Contains(strings.ToLower(string(output)), "not found") {
+		return fmt.Errorf("删除当前用户 Windows CA 失败: %w: %s", err, strings.TrimSpace(string(output)))
+	}
 	return nil
 }
 

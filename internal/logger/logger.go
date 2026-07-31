@@ -180,11 +180,16 @@ func (writer *lineWindowFileWriter) Write(payload []byte) (int, error) {
 }
 
 func (writer *lineWindowFileWriter) openLocked() error {
-	file, err := os.OpenFile(writer.path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	file, err := os.OpenFile(writer.path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)
 	if err != nil {
 		return err
 	}
 	writer.file = file
+	if err := file.Chmod(0o600); err != nil {
+		_ = file.Close()
+		writer.file = nil
+		return err
+	}
 	logFile = file
 	return nil
 }
@@ -204,7 +209,7 @@ func (writer *lineWindowFileWriter) trimToLastLinesLocked(targetLines int) error
 		return err
 	}
 	trimmed, lineCount := lastLinesBytes(payload, targetLines)
-	if err := os.WriteFile(writer.path, trimmed, 0o644); err != nil {
+	if err := os.WriteFile(writer.path, trimmed, 0o600); err != nil {
 		if reopenErr := writer.openLocked(); reopenErr != nil {
 			return errors.Join(err, reopenErr)
 		}

@@ -31,7 +31,7 @@ var injectedCursorSettingsKeys = []string{
 func EnsureCACertFile(certPEM []byte, currentPath string) (string, error) {
 	certPath := appdata.CACertFilePath()
 	if samePath(strings.TrimSpace(currentPath), certPath) {
-		if _, err := os.Stat(certPath); err == nil {
+		if existing, err := os.ReadFile(certPath); err == nil && bytes.Equal(existing, certPEM) {
 			logger.Infof("ensureCACertFile: reusing path=%s", certPath)
 			return certPath, nil
 		}

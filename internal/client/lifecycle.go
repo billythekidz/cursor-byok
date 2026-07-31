@@ -102,6 +102,7 @@ func (s *ProxyService) StartProxy() (ProxyState, error) {
 	if err := s.ApplyCursorSettings(); err != nil {
 		stopCtx, stopCancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer stopCancel()
+		_ = s.ClearCursorSettings()
 		if s.proxy != nil {
 			_ = s.proxy.Stop(stopCtx)
 		}
