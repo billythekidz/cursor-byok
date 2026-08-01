@@ -1,3 +1,6 @@
+-------0.0.44------
+- Translated CJK and Vietnamese strings to English across Go backend, Vue frontend UI, Taskfiles, and agent skills
+- Audited API contracts and state keys with rollback checkpointing
 -------0.0.43------
 - Security: Blocked telemetry/ads connections to external servers
 - Security: Dynamically generate unique local Root CA certificate and private key per installation
