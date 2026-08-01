@@ -1,4 +1,4 @@
-// recorder.go 实现 pending assistant 输出记录的解析与构造。
+// recorder.go implements parsing and construction of pending assistant output records.
 package step
 
 import (
@@ -9,64 +9,64 @@ import (
 )
 
 const (
-	// defaultTextPreviewLimit 表示文本摘要允许保留的最大 rune 数。
+	// defaultTextPreviewLimit is the maximum number of runes allowed in a text summary preview.
 	defaultTextPreviewLimit = 120
 )
 
-// assistantMessage 表示 `pending_tool_calls` 中常见的 assistant message 结构。
+// assistantMessage represents the common assistant message structure found in `pending_tool_calls`.
 type assistantMessage struct {
-	// ID 是 message 级别的标识，当前抓包中常见值为 1。
+	// ID is the message-level id; in current captures the common value is 1.
 	ID string `json:"id,omitempty"`
-	// Role 是当前 message 的角色，当前常见值为 assistant。
+	// Role is the role of the current message; the common current value is assistant.
 	Role string `json:"role,omitempty"`
-	// Content 保存该 message 的内容块列表。
+	// Content holds the content block list of the message.
 	Content []assistantContent `json:"content,omitempty"`
 }
 
-// assistantContent 表示 assistant message 内的单个内容块。
+// assistantContent represents a single content block within an assistant message.
 type assistantContent struct {
-	// Type 表示内容块类型，例如 text、reasoning 或 tool-call。
+	// Type is the content block type, e.g. text, reasoning, or tool-call.
 	Type string `json:"type,omitempty"`
-	// Text 保存文本内容块文本。
+	// Text holds the text of a text content block.
 	Text string `json:"text,omitempty"`
-	// ToolCallID 保存工具调用标识。
+	// ToolCallID holds the tool call identifier.
 	ToolCallID string `json:"toolCallId,omitempty"`
-	// ToolName 保存工具名称。
+	// ToolName holds the tool name.
 	ToolName string `json:"toolName,omitempty"`
-	// Args 保存工具调用参数原文。
+	// Args holds the raw tool call arguments.
 	Args json.RawMessage `json:"args,omitempty"`
-	// Result 保存工具调用结果原文。
+	// Result holds the raw tool call result.
 	Result json.RawMessage `json:"result,omitempty"`
 }
 
-// Recorder 负责解析与构造 pending assistant 输出记录。
+// Recorder is responsible for parsing and constructing pending assistant output records.
 type Recorder struct {
 }
 
-// StepRecorder 定义运行时依赖的 step 记录接口。
+// StepRecorder defines the step recording interface the runtime depends on.
 type StepRecorder interface {
-	// ParsePendingAssistantOutputs 解析一组原始 pending assistant 输出记录。
+	// ParsePendingAssistantOutputs parses a set of raw pending assistant output records.
 	ParsePendingAssistantOutputs(rawValues []string) []runtimecore.PendingAssistantOutput
-	// ParsePendingAssistantOutput 解析单条原始 assistant 输出记录。
+	// ParsePendingAssistantOutput parses a single raw assistant output record.
 	ParsePendingAssistantOutput(raw string) runtimecore.PendingAssistantOutput
-	// BuildTextAssistantOutput 构造一条只包含文本的 assistant 输出记录。
+	// BuildTextAssistantOutput constructs an assistant output record containing only text.
 	BuildTextAssistantOutput(text string) (string, runtimecore.PendingAssistantOutput, error)
-	// StartAssistantOutput 创建一个新的 assistant 输出构造器。
+	// StartAssistantOutput creates a new assistant output builder.
 	StartAssistantOutput() *AssistantOutputBuilder
 }
 
-// NewRecorder 创建 assistant 输出记录整理器。
+// NewRecorder creates an assistant output record organizer.
 func NewRecorder() *Recorder {
 	return &Recorder{}
 }
 
-// AssistantOutputBuilder 表示一条 assistant 输出记录的构造器。
+// AssistantOutputBuilder is a builder for one assistant output record.
 type AssistantOutputBuilder struct {
-	// message 保存当前正在构造的原始 assistant message。
+	// message holds the raw assistant message currently being constructed.
 	message assistantMessage
 }
 
-// ParsePendingAssistantOutputs 解析一组原始 `pending_tool_calls` 字符串。
+// ParsePendingAssistantOutputs parses a set of raw `pending_tool_calls` strings.
 func (recorder *Recorder) ParsePendingAssistantOutputs(rawValues []string) []runtimecore.PendingAssistantOutput {
 	if len(rawValues) == 0 {
 		return nil
@@ -79,7 +79,7 @@ func (recorder *Recorder) ParsePendingAssistantOutputs(rawValues []string) []run
 	return outputs
 }
 
-// ParsePendingAssistantOutput 解析单条原始 assistant 输出记录。
+// ParsePendingAssistantOutput parses a single raw assistant output record.
 func (recorder *Recorder) ParsePendingAssistantOutput(raw string) runtimecore.PendingAssistantOutput {
 	output := runtimecore.PendingAssistantOutput{
 		RawMessage: strings.TrimSpace(raw),
@@ -122,7 +122,7 @@ func (recorder *Recorder) ParsePendingAssistantOutput(raw string) runtimecore.Pe
 	return output
 }
 
-// BuildTextAssistantOutput 构造一条只包含文本的 assistant 输出记录。
+// BuildTextAssistantOutput constructs an assistant output record containing only text.
 func (recorder *Recorder) BuildTextAssistantOutput(text string) (string, runtimecore.PendingAssistantOutput, error) {
 	message := assistantMessage{
 		ID:   "1",
@@ -144,7 +144,7 @@ func (recorder *Recorder) BuildTextAssistantOutput(text string) (string, runtime
 	return raw, recorder.ParsePendingAssistantOutput(raw), nil
 }
 
-// StartAssistantOutput 创建一个新的 assistant 输出构造器。
+// StartAssistantOutput creates a new assistant output builder.
 func (recorder *Recorder) StartAssistantOutput() *AssistantOutputBuilder {
 	return &AssistantOutputBuilder{
 		message: assistantMessage{
@@ -155,7 +155,7 @@ func (recorder *Recorder) StartAssistantOutput() *AssistantOutputBuilder {
 	}
 }
 
-// AppendTextDelta 追加一段文本内容。
+// AppendTextDelta appends a text segment.
 func (builder *AssistantOutputBuilder) AppendTextDelta(text string) {
 	if builder == nil {
 		return
@@ -166,7 +166,7 @@ func (builder *AssistantOutputBuilder) AppendTextDelta(text string) {
 	})
 }
 
-// AppendReasoningDelta 追加一段推理内容，供 reasoning 模型在续跑时回放。
+// AppendReasoningDelta appends a reasoning segment, for replay by reasoning models when resuming.
 func (builder *AssistantOutputBuilder) AppendReasoningDelta(text string) {
 	if builder == nil {
 		return
@@ -177,7 +177,7 @@ func (builder *AssistantOutputBuilder) AppendReasoningDelta(text string) {
 	})
 }
 
-// OpenToolCall 追加一个尚未完成的工具调用块。
+// OpenToolCall appends a not-yet-completed tool call block.
 func (builder *AssistantOutputBuilder) OpenToolCall(toolCall runtimecore.ToolInvocation) {
 	if builder == nil {
 		return
@@ -190,7 +190,7 @@ func (builder *AssistantOutputBuilder) OpenToolCall(toolCall runtimecore.ToolInv
 	})
 }
 
-// CompleteToolCall 为指定工具调用补充结果内容。
+// CompleteToolCall fills in the result content for the specified tool call.
 func (builder *AssistantOutputBuilder) CompleteToolCall(toolCallID string, resultJSON []byte) {
 	if builder == nil {
 		return
@@ -207,7 +207,7 @@ func (builder *AssistantOutputBuilder) CompleteToolCall(toolCallID string, resul
 	}
 }
 
-// SnapshotRaw 输出当前 builder 的原始 JSON 和解析结果。
+// SnapshotRaw outputs the current builder's raw JSON and parsed result.
 func (builder *AssistantOutputBuilder) SnapshotRaw(recorder *Recorder) (string, runtimecore.PendingAssistantOutput, error) {
 	if builder == nil {
 		return "", runtimecore.PendingAssistantOutput{}, nil
@@ -223,7 +223,7 @@ func (builder *AssistantOutputBuilder) SnapshotRaw(recorder *Recorder) (string, 
 	return raw, recorder.ParsePendingAssistantOutput(raw), nil
 }
 
-// truncateText 按 rune 数截断文本，避免在多字节字符中间截断。
+// truncateText truncates text by rune count to avoid cutting in the middle of a multi-byte character.
 func truncateText(text string, maxRunes int) string {
 	trimmed := strings.TrimSpace(text)
 	if maxRunes <= 0 || trimmed == "" {

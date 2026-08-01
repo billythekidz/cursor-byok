@@ -9,7 +9,7 @@ import (
 	"cursor/gen/agentv1"
 )
 
-// DecodeCreatePlanArgsJSON 解析 CreatePlan 参数，并兼容字符串形式的 todo status。
+// DecodeCreatePlanArgsJSON phân tích tham số CreatePlan và tương thích với todo status dạng chuỗi.
 func DecodeCreatePlanArgsJSON(raw []byte) (*agentv1.CreatePlanArgs, error) {
 	if len(strings.TrimSpace(string(raw))) == 0 {
 		return &agentv1.CreatePlanArgs{}, nil

@@ -1,4 +1,4 @@
-// events.go 负责构造对外兼容的 legacy RunSSE 消息。
+// events.go builds legacy RunSSE messages that remain compatible with the client.
 package forwarder
 
 import (
@@ -13,7 +13,7 @@ import (
 	runtimecore "cursor/internal/backend/agent/core"
 )
 
-// buildHeartbeatMessage 构造一个服务端心跳消息。
+// buildHeartbeatMessage builds a server heartbeat message.
 func buildHeartbeatMessage() *agentv1.AgentServerMessage {
 	return &agentv1.AgentServerMessage{
 		Message: &agentv1.AgentServerMessage_InteractionUpdate{
@@ -26,7 +26,7 @@ func buildHeartbeatMessage() *agentv1.AgentServerMessage {
 	}
 }
 
-// buildTextDeltaMessage 构造文本增量消息。
+// buildTextDeltaMessage builds a text delta message.
 func buildTextDeltaMessage(text string) *agentv1.AgentServerMessage {
 	return &agentv1.AgentServerMessage{
 		Message: &agentv1.AgentServerMessage_InteractionUpdate{
@@ -39,7 +39,7 @@ func buildTextDeltaMessage(text string) *agentv1.AgentServerMessage {
 	}
 }
 
-// buildThinkingDeltaMessage 构造思考文本增量消息。
+// buildThinkingDeltaMessage builds a thinking text delta message.
 func buildThinkingDeltaMessage(text string, style agentv1.ThinkingStyle) *agentv1.AgentServerMessage {
 	styleCopy := style
 	return &agentv1.AgentServerMessage{
@@ -56,7 +56,7 @@ func buildThinkingDeltaMessage(text string, style agentv1.ThinkingStyle) *agentv
 	}
 }
 
-// buildThinkingCompletedMessage 构造思考阶段结束消息。
+// buildThinkingCompletedMessage builds a thinking-phase-completed message.
 func buildThinkingCompletedMessage(durationMS int32) *agentv1.AgentServerMessage {
 	return &agentv1.AgentServerMessage{
 		Message: &agentv1.AgentServerMessage_InteractionUpdate{
@@ -71,7 +71,7 @@ func buildThinkingCompletedMessage(durationMS int32) *agentv1.AgentServerMessage
 	}
 }
 
-// buildSummaryStartedMessage 构造摘要开始消息。
+// buildSummaryStartedMessage builds a summary-started message.
 func buildSummaryStartedMessage() *agentv1.AgentServerMessage {
 	return &agentv1.AgentServerMessage{
 		Message: &agentv1.AgentServerMessage_InteractionUpdate{
@@ -84,7 +84,7 @@ func buildSummaryStartedMessage() *agentv1.AgentServerMessage {
 	}
 }
 
-// buildSummaryMessage 构造摘要增量/完成内容消息。
+// buildSummaryMessage builds a summary delta/completion content message.
 func buildSummaryMessage(summary string) *agentv1.AgentServerMessage {
 	return &agentv1.AgentServerMessage{
 		Message: &agentv1.AgentServerMessage_InteractionUpdate{
@@ -97,9 +97,9 @@ func buildSummaryMessage(summary string) *agentv1.AgentServerMessage {
 	}
 }
 
-// buildSummaryCompletedMessage 构造摘要完成消息。
-// field 11 在 legacy aiserver 协议里会被客户端按 GetThoughtAnnotationRequest 解码，
-// 所以这里需要把 request_id 写入 field 1，驱动客户端继续查询 "Chat context summarized" 注解。
+// buildSummaryCompletedMessage builds a summary-completed message.
+// field 11 is decoded by the client as GetThoughtAnnotationRequest in the legacy aiserver protocol,
+// so request_id must be written into field 1 here to drive the client into querying the "Chat context summarized" annotation.
 func buildSummaryCompletedMessage(requestID string) *agentv1.AgentServerMessage {
 	var message *string
 	if strings.TrimSpace(requestID) != "" {
@@ -119,7 +119,7 @@ func buildSummaryCompletedMessage(requestID string) *agentv1.AgentServerMessage 
 	}
 }
 
-// buildToolCallStartedMessage 构造工具调用开始消息。
+// buildToolCallStartedMessage builds a tool call started message.
 func buildToolCallStartedMessage(callID string, modelCallID string, toolCall *agentv1.ToolCall) *agentv1.AgentServerMessage {
 	return &agentv1.AgentServerMessage{
 		Message: &agentv1.AgentServerMessage_InteractionUpdate{
@@ -136,7 +136,7 @@ func buildToolCallStartedMessage(callID string, modelCallID string, toolCall *ag
 	}
 }
 
-// buildPartialToolCallMessage 构造工具调用参数流式生成中的兼容消息。
+// buildPartialToolCallMessage builds a compatibility message emitted while tool call arguments are still being streamed.
 func buildPartialToolCallMessage(callID string, modelCallID string, toolCall *agentv1.ToolCall, argsTextDelta string) *agentv1.AgentServerMessage {
 	return &agentv1.AgentServerMessage{
 		Message: &agentv1.AgentServerMessage_InteractionUpdate{
@@ -154,7 +154,7 @@ func buildPartialToolCallMessage(callID string, modelCallID string, toolCall *ag
 	}
 }
 
-// buildToolCallDeltaMessage 构造工具调用流式增量消息。
+// buildToolCallDeltaMessage builds a streaming delta message for tool calls.
 func buildToolCallDeltaMessage(callID string, modelCallID string, delta *agentv1.ToolCallDelta) *agentv1.AgentServerMessage {
 	return &agentv1.AgentServerMessage{
 		Message: &agentv1.AgentServerMessage_InteractionUpdate{
@@ -171,7 +171,7 @@ func buildToolCallDeltaMessage(callID string, modelCallID string, delta *agentv1
 	}
 }
 
-// buildToolCallCompletedMessage 构造工具调用完成消息。
+// buildToolCallCompletedMessage builds a tool call completed message.
 func buildToolCallCompletedMessage(callID string, modelCallID string, toolCall *agentv1.ToolCall) *agentv1.AgentServerMessage {
 	return &agentv1.AgentServerMessage{
 		Message: &agentv1.AgentServerMessage_InteractionUpdate{
@@ -188,7 +188,7 @@ func buildToolCallCompletedMessage(callID string, modelCallID string, toolCall *
 	}
 }
 
-// buildShellOutputDeltaMessage 把 shell 流输出包装成兼容消息。
+// buildShellOutputDeltaMessage wraps shell stream output into a compatibility message.
 func buildShellOutputDeltaMessage(delta *agentv1.ShellOutputDeltaUpdate) *agentv1.AgentServerMessage {
 	return &agentv1.AgentServerMessage{
 		Message: &agentv1.AgentServerMessage_InteractionUpdate{
@@ -201,7 +201,7 @@ func buildShellOutputDeltaMessage(delta *agentv1.ShellOutputDeltaUpdate) *agentv
 	}
 }
 
-// buildTurnEndedMessage 构造 turn 结束消息，并携带标准化后的 token 统计。
+// buildTurnEndedMessage builds a turn-ended message carrying normalized token statistics.
 func buildTurnEndedMessage(inputTokens int64, outputTokens int64, cacheReadTokens int64, cacheWriteTokens int64) *agentv1.AgentServerMessage {
 	inputTokensValue := inputTokens
 	outputTokensValue := outputTokens
@@ -223,7 +223,7 @@ func buildTurnEndedMessage(inputTokens int64, outputTokens int64, cacheReadToken
 	}
 }
 
-// buildCheckpointMessage 根据投影出的状态生成 legacy checkpoint 消息。
+// buildCheckpointMessage generates a legacy checkpoint message from the projected state.
 func buildCheckpointMessage(state *agentv1.ConversationStateStructure) *agentv1.AgentServerMessage {
 	cloned := &agentv1.ConversationStateStructure{}
 	if state != nil {
@@ -245,7 +245,7 @@ func buildCheckpointMessage(state *agentv1.ConversationStateStructure) *agentv1.
 	}
 }
 
-// buildExecAbortMessage 构造对客户端执行桥的 abort 控制消息。
+// buildExecAbortMessage builds an abort control message for the client execution bridge.
 func buildExecAbortMessage(pending runtimecore.PendingExec) *agentv1.AgentServerMessage {
 	return &agentv1.AgentServerMessage{
 		Message: &agentv1.AgentServerMessage_ExecServerControlMessage{
@@ -260,7 +260,7 @@ func buildExecAbortMessage(pending runtimecore.PendingExec) *agentv1.AgentServer
 	}
 }
 
-// buildStartedToolCall 把工具意图映射为可发送给客户端的 started ToolCall 结构。
+// buildStartedToolCall maps a tool intent into a started ToolCall struct that can be sent to the client.
 func buildStartedToolCall(invocation runtimecore.ToolInvocation) *agentv1.ToolCall {
 	switch strings.TrimSpace(invocation.ToolName) {
 	case "Glob":
@@ -564,7 +564,7 @@ func forwarderStructValueMap(items map[string]any) map[string]*structpb.Value {
 	return result
 }
 
-// stringPtr 在字符串非空时返回指针，避免把空串写入 optional 字段。
+// stringPtr returns a pointer when the string is non-empty, avoiding empty strings in optional fields.
 func buildShellOutputNotificationConfig(input *struct {
 	Pattern           string   `json:"pattern"`
 	Reason            string   `json:"reason"`

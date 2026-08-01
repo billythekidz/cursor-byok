@@ -18,7 +18,7 @@ import (
 	"cursor/internal/logger"
 )
 
-// injectedCursorSettingsKeys 表示当前模块中的 injectedCursorSettingsKeys 状态值。
+// injectedCursorSettingsKeys represents the injectedCursorSettingsKeys state value in this module.
 var injectedCursorSettingsKeys = []string{
 	"http.proxy",
 	"http.proxyKerberosServicePrincipal",
@@ -27,7 +27,7 @@ var injectedCursorSettingsKeys = []string{
 	"http.experimental.systemCertificatesV2",
 }
 
-// EnsureCACertFile 用于处理与 EnsureCACertFile 相关的逻辑。
+// EnsureCACertFile handles logic related to EnsureCACertFile.
 func EnsureCACertFile(certPEM []byte, currentPath string) (string, error) {
 	certPath := appdata.CACertFilePath()
 	if samePath(strings.TrimSpace(currentPath), certPath) {
@@ -68,7 +68,7 @@ func samePath(left string, right string) bool {
 	return filepath.Clean(left) == filepath.Clean(right)
 }
 
-// SetSystemNodeExtraCACerts 用于处理与 SetSystemNodeExtraCACerts 相关的逻辑。
+// SetSystemNodeExtraCACerts handles logic related to SetSystemNodeExtraCACerts.
 func SetSystemNodeExtraCACerts(caCertPath string) error {
 	caCertPath = strings.TrimSpace(caCertPath)
 	if caCertPath == "" {
@@ -85,7 +85,7 @@ func SetSystemNodeExtraCACerts(caCertPath string) error {
 			return fmt.Errorf("写入 macOS 用户环境变量失败: %v: %s", err, strings.TrimSpace(string(out)))
 		}
 	case "linux":
-		// Linux 发行版环境变量持久化方式差异较大，这里先确保当前进程生效。
+		// Linux distros differ greatly in how they persist environment variables; here we only ensure the current process takes effect.
 		logger.Infof("setSystemNodeExtraCACerts: linux detected, applied to current process only")
 	default:
 		return fmt.Errorf("不支持的系统: %s", runtime.GOOS)
@@ -95,7 +95,7 @@ func SetSystemNodeExtraCACerts(caCertPath string) error {
 	return nil
 }
 
-// ClearSystemNodeExtraCACerts 用于处理与 ClearSystemNodeExtraCACerts 相关的逻辑。
+// ClearSystemNodeExtraCACerts handles logic related to ClearSystemNodeExtraCACerts.
 func ClearSystemNodeExtraCACerts() error {
 	if err := os.Unsetenv("NODE_EXTRA_CA_CERTS"); err != nil {
 		return fmt.Errorf("清理进程环境变量失败: %w", err)
@@ -117,7 +117,7 @@ func ClearSystemNodeExtraCACerts() error {
 	return nil
 }
 
-// WriteUserProxySettings 用于处理与 WriteUserProxySettings 相关的逻辑。
+// WriteUserProxySettings handles logic related to WriteUserProxySettings.
 func WriteUserProxySettings(proxyURL string) error {
 	proxyURL = strings.TrimSpace(proxyURL)
 	if proxyURL == "" {
@@ -180,7 +180,7 @@ func WriteUserProxySettings(proxyURL string) error {
 	return nil
 }
 
-// ClearUserProxySettings 用于处理与 ClearUserProxySettings 相关的逻辑。
+// ClearUserProxySettings handles logic related to ClearUserProxySettings.
 func ClearUserProxySettings() error {
 	settingsPath, err := resolveCursorSettingsPath()
 	if err != nil {
@@ -234,7 +234,7 @@ func ClearUserProxySettings() error {
 	return nil
 }
 
-// resolveCursorSettingsPath 用于处理与 resolveCursorSettingsPath 相关的逻辑。
+// resolveCursorSettingsPath handles logic related to resolveCursorSettingsPath.
 func resolveCursorSettingsPath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -261,7 +261,7 @@ func resolveCursorSettingsPath() (string, error) {
 	}
 }
 
-// decodeCursorSettingsJSONC 用于处理与 decodeCursorSettingsJSONC 相关的逻辑。
+// decodeCursorSettingsJSONC handles logic related to decodeCursorSettingsJSONC.
 func decodeCursorSettingsJSONC(data []byte) (map[string]any, error) {
 	result := make(map[string]any)
 	normalized, err := normalizeJSONC(data)
@@ -278,7 +278,7 @@ func decodeCursorSettingsJSONC(data []byte) (map[string]any, error) {
 	return result, nil
 }
 
-// normalizeJSONC 用于处理与 normalizeJSONC 相关的逻辑。
+// normalizeJSONC handles logic related to normalizeJSONC.
 func normalizeJSONC(data []byte) ([]byte, error) {
 	if len(data) >= 3 && data[0] == 0xEF && data[1] == 0xBB && data[2] == 0xBF {
 		data = data[3:]
@@ -290,7 +290,7 @@ func normalizeJSONC(data []byte) ([]byte, error) {
 	return stripJSONCTrailingCommas(withoutComments), nil
 }
 
-// stripJSONCComments 用于处理与 stripJSONCComments 相关的逻辑。
+// stripJSONCComments handles logic related to stripJSONCComments.
 func stripJSONCComments(data []byte) ([]byte, error) {
 	out := make([]byte, 0, len(data))
 	inString := false
@@ -362,7 +362,7 @@ func stripJSONCComments(data []byte) ([]byte, error) {
 	return out, nil
 }
 
-// stripJSONCTrailingCommas 用于处理与 stripJSONCTrailingCommas 相关的逻辑。
+// stripJSONCTrailingCommas handles logic related to stripJSONCTrailingCommas.
 func stripJSONCTrailingCommas(data []byte) []byte {
 	out := make([]byte, 0, len(data))
 	inString := false
@@ -408,12 +408,12 @@ func stripJSONCTrailingCommas(data []byte) []byte {
 	return out
 }
 
-// isJSONWhitespace 用于处理与 isJSONWhitespace 相关的逻辑。
+// isJSONWhitespace handles logic related to isJSONWhitespace.
 func isJSONWhitespace(ch byte) bool {
 	return ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n'
 }
 
-// ProxyURLFromListenAddr 用于处理与 ProxyURLFromListenAddr 相关的逻辑。
+// ProxyURLFromListenAddr handles logic related to ProxyURLFromListenAddr.
 func ProxyURLFromListenAddr(listenAddr string) string {
 	addr := strings.TrimSpace(listenAddr)
 	if addr == "" {

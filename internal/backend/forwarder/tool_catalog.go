@@ -1,4 +1,4 @@
-// tool_catalog.go 负责从静态 prompt 资产中装载并筛选 canonical tool catalog。
+// tool_catalog.go loads and filters the canonical tool catalog from static prompt assets.
 package forwarder
 
 import (
@@ -13,12 +13,12 @@ import (
 type DefaultToolCatalog struct {
 }
 
-// NewToolCatalog 创建默认工具目录实现。
+// NewToolCatalog creates the default tool catalog implementation.
 func NewToolCatalog() *DefaultToolCatalog {
 	return &DefaultToolCatalog{}
 }
 
-// Load 按 mode 读取工具资产，并过滤出当前阶段真正允许暴露的工具。
+// Load reads the tool assets per mode and filters out the tools actually allowed to be exposed at the current stage.
 func (catalog *DefaultToolCatalog) Load(mode agentv1.AgentMode, subagentTypeName string) ([]json.RawMessage, []string, error) {
 	assetMode, err := toolAssetModeForConversation(mode, subagentTypeName)
 	if err != nil {
@@ -243,7 +243,7 @@ func promptAssetModeForConversation(mode agentv1.AgentMode, subagentTypeName str
 	return mapPromptMode(mode)
 }
 
-// mapPromptMode 把协议 mode 映射为静态 prompt 资产对应的目录名。
+// mapPromptMode maps a protocol mode to the directory name of the corresponding static prompt asset.
 func mapPromptMode(mode agentv1.AgentMode) (promptassets.Mode, error) {
 	switch normalizeMode(mode) {
 	case agentv1.AgentMode_AGENT_MODE_AGENT:
@@ -261,7 +261,7 @@ func mapPromptMode(mode agentv1.AgentMode) (promptassets.Mode, error) {
 	}
 }
 
-// extractToolName 从原始 tool descriptor JSON 中提取函数名。
+// extractToolName extracts the function name from the raw tool descriptor JSON.
 func extractToolName(raw json.RawMessage) (string, error) {
 	var wrapper struct {
 		Function struct {
@@ -278,7 +278,7 @@ func extractToolName(raw json.RawMessage) (string, error) {
 	return name, nil
 }
 
-// sanitizePromptAsset 去掉资产文件中的说明性标题，只保留真正的 prompt 文本。
+// sanitizePromptAsset strips descriptive titles from asset files, keeping only the actual prompt text.
 func sanitizePromptAsset(text string, modelName string) string {
 	lines := strings.Split(text, "\n")
 	filtered := make([]string, 0, len(lines))

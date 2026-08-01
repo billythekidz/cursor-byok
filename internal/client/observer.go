@@ -6,7 +6,7 @@ import (
 	localruntime "cursor/internal/runtime"
 )
 
-// runtimeConfigSnapshot 用于处理与 runtimeConfigSnapshot 相关的逻辑。
+// runtimeConfigSnapshot handles logic related to runtimeConfigSnapshot.
 func (s *ProxyService) runtimeConfigSnapshot(_ context.Context) (localruntime.RuntimeConfigSnapshot, error) {
 	if s == nil {
 		return localruntime.RuntimeConfigSnapshot{}, nil

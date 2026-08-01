@@ -25,48 +25,48 @@ import (
 )
 
 const (
-	// HeaderServerUpstreamURL 表示转发给 backend server 时携带的原始上游地址。
+	// HeaderServerUpstreamURL is the header carrying the original upstream address when forwarding to the backend server.
 	HeaderServerUpstreamURL = "X-Server-Upstream-URL"
 )
 
-// ProxyServer 定义了当前模块中的 ProxyServer 类型。
+// ProxyServer defines the ProxyServer type in this module.
 type ProxyServer struct {
-	// addr 表示当前声明中的 addr。
+	// addr represents the addr field in this declaration.
 	addr string
-	// baseURL 表示当前声明中的 baseURL。
+	// baseURL represents the baseURL field in this declaration.
 	baseURL string
-	// certManager 表示当前声明中的 certManager。
+	// certManager represents the certManager field in this declaration.
 	certManager *certs.Manager
-	// baseEndpoint 表示当前声明中的 baseEndpoint。
+	// baseEndpoint represents the baseEndpoint field in this declaration.
 	baseEndpoint *url.URL
-	// baseMu 表示当前声明中的 baseMu。
+	// baseMu represents the baseMu field in this declaration.
 	baseMu sync.RWMutex
 
-	// upstreamClient 表示当前声明中的 upstreamClient。
+	// upstreamClient represents the upstreamClient field in this declaration.
 	upstreamClient *http.Client
 
-	// proxy 表示当前声明中的 proxy。
+	// proxy represents the proxy field in this declaration.
 	proxy *goproxy.ProxyHttpServer
 
-	// runMu 表示当前声明中的 runMu。
+	// runMu represents the runMu field in this declaration.
 	runMu sync.RWMutex
-	// httpServer 表示当前声明中的 httpServer。
+	// httpServer represents the httpServer field in this declaration.
 	httpServer *http.Server
-	// serveErrCh 表示当前声明中的 serveErrCh。
+	// serveErrCh represents the serveErrCh field in this declaration.
 	serveErrCh chan error
 }
 
-// Snapshot 定义了当前模块中的 Snapshot 类型。
+// Snapshot defines the Snapshot type in this module.
 type Snapshot struct {
-	// ListenAddr 表示当前声明中的 ListenAddr。
+	// ListenAddr represents the ListenAddr field in this declaration.
 	ListenAddr string `json:"listenAddr"`
-	// BaseURL 表示当前声明中的 BaseURL。
+	// BaseURL represents the BaseURL field in this declaration.
 	BaseURL string `json:"baseUrl"`
-	// Running 表示当前声明中的 Running。
+	// Running represents the Running field in this declaration.
 	Running bool `json:"running"`
 }
 
-// hopByHopHeaders 表示当前模块中的 hopByHopHeaders 状态值。
+// hopByHopHeaders represents the hopByHopHeaders state value in this module.
 var hopByHopHeaders = map[string]struct{}{
 	"Connection":          {},
 	"Proxy-Connection":    {},
@@ -177,7 +177,7 @@ func logSuppressedProxyMessages(prefix string, suppressed int) {
 	logger.Infof("%s: suppressed %d repeated messages in last %s", prefix, suppressed, proxyLogRateLimitWindow)
 }
 
-// NewProxyServer 用于处理与 NewProxyServer 相关的逻辑。
+// NewProxyServer handles logic related to NewProxyServer.
 func NewProxyServer(addr, baseURL, _ string, _ string, certManager *certs.Manager) (*ProxyServer, error) {
 	u, normalizedBaseURL, err := parseBaseURL(baseURL)
 	if err != nil {
@@ -205,7 +205,7 @@ func NewProxyServer(addr, baseURL, _ string, _ string, certManager *certs.Manage
 	return s, nil
 }
 
-// parseBaseURL 用于处理与 parseBaseURL 相关的逻辑。
+// parseBaseURL handles logic related to parseBaseURL.
 func parseBaseURL(baseURL string) (*url.URL, string, error) {
 	baseURL = strings.TrimSpace(baseURL)
 	if baseURL == "" {
@@ -235,7 +235,7 @@ func parseBaseURL(baseURL string) (*url.URL, string, error) {
 	return &base, normalizedBaseURL, nil
 }
 
-// UpdateBaseURL 用于处理与 UpdateBaseURL 相关的逻辑。
+// UpdateBaseURL handles logic related to UpdateBaseURL.
 func (s *ProxyServer) UpdateBaseURL(baseURL string) error {
 	u, normalizedBaseURL, err := parseBaseURL(baseURL)
 	if err != nil {
@@ -248,7 +248,7 @@ func (s *ProxyServer) UpdateBaseURL(baseURL string) error {
 	return nil
 }
 
-// ListenAndServe 用于处理与 ListenAndServe 相关的逻辑。
+// ListenAndServe handles logic related to ListenAndServe.
 func (s *ProxyServer) ListenAndServe() error {
 	if err := s.Start(); err != nil {
 		return err
@@ -262,7 +262,7 @@ func (s *ProxyServer) ListenAndServe() error {
 	return <-errCh
 }
 
-// Start 用于处理与 Start 相关的逻辑。
+// Start handles logic related to Start.
 func (s *ProxyServer) Start() error {
 	s.runMu.Lock()
 	defer s.runMu.Unlock()
@@ -306,7 +306,7 @@ func (s *ProxyServer) Start() error {
 	return nil
 }
 
-// Stop 用于处理与 Stop 相关的逻辑。
+// Stop handles logic related to Stop.
 func (s *ProxyServer) Stop(ctx context.Context) error {
 	s.runMu.Lock()
 	httpServer := s.httpServer
@@ -319,7 +319,7 @@ func (s *ProxyServer) Stop(ctx context.Context) error {
 	return httpServer.Shutdown(ctx)
 }
 
-// IsRunning 用于处理与 IsRunning 相关的逻辑。
+// IsRunning handles logic related to IsRunning.
 func (s *ProxyServer) IsRunning() bool {
 	s.runMu.RLock()
 	running := s.httpServer != nil
@@ -327,7 +327,7 @@ func (s *ProxyServer) IsRunning() bool {
 	return running
 }
 
-// Snapshot 用于处理与 Snapshot 相关的逻辑。
+// Snapshot handles logic related to Snapshot.
 func (s *ProxyServer) Snapshot() Snapshot {
 	baseURL := s.currentBaseURL()
 	return Snapshot{
@@ -337,7 +337,7 @@ func (s *ProxyServer) Snapshot() Snapshot {
 	}
 }
 
-// currentBaseURL 用于处理与 currentBaseURL 相关的逻辑。
+// currentBaseURL handles logic related to currentBaseURL.
 func (s *ProxyServer) currentBaseURL() string {
 	s.baseMu.RLock()
 	baseURL := s.baseURL
@@ -345,7 +345,7 @@ func (s *ProxyServer) currentBaseURL() string {
 	return baseURL
 }
 
-// currentBaseEndpoint 用于处理与 currentBaseEndpoint 相关的逻辑。
+// currentBaseEndpoint handles logic related to currentBaseEndpoint.
 func (s *ProxyServer) currentBaseEndpoint() *url.URL {
 	s.baseMu.RLock()
 	endpoint := s.baseEndpoint
@@ -357,7 +357,7 @@ func (s *ProxyServer) currentBaseEndpoint() *url.URL {
 	return &clone
 }
 
-// newGoproxyHandler 用于处理与 newGoproxyHandler 相关的逻辑。
+// newGoproxyHandler handles logic related to newGoproxyHandler.
 func (s *ProxyServer) newGoproxyHandler() *goproxy.ProxyHttpServer {
 	proxy := goproxy.NewProxyHttpServer()
 	proxy.Verbose = false
@@ -423,7 +423,7 @@ func (s *ProxyServer) newGoproxyHandler() *goproxy.ProxyHttpServer {
 		return mitmAction, host
 	}))
 
-	// MITM 解密后：Cursor 白名单域名转发到 backend server，其余请求由 goproxy 直连回源。
+	// After MITM decryption: Cursor whitelisted domains are forwarded to the backend server, while other requests are directly proxied upstream by goproxy.
 	proxy.OnRequest().DoFunc(func(req *http.Request, _ *goproxy.ProxyCtx) (*http.Request, *http.Response) {
 		req.Header.Del(HeaderServerUpstreamURL)
 
@@ -450,7 +450,7 @@ func (s *ProxyServer) newGoproxyHandler() *goproxy.ProxyHttpServer {
 	return proxy
 }
 
-// forwardToServer 用于处理与 forwardToServer 相关的逻辑。
+// forwardToServer handles logic related to forwardToServer.
 func (s *ProxyServer) forwardToServer(incoming *http.Request) (*http.Response, error) {
 	if incoming == nil {
 		return nil, errors.New("nil request")
@@ -487,7 +487,7 @@ func (s *ProxyServer) forwardToServer(incoming *http.Request) (*http.Response, e
 	return resp, nil
 }
 
-// requestHost 用于处理与 requestHost 相关的逻辑。
+// requestHost handles logic related to requestHost.
 func requestHost(ctx *goproxy.ProxyCtx) string {
 	if ctx == nil || ctx.Req == nil {
 		return ""
@@ -501,7 +501,7 @@ func requestHost(ctx *goproxy.ProxyCtx) string {
 	return ""
 }
 
-// requestRemoteAddr 用于处理与 requestRemoteAddr 相关的逻辑。
+// requestRemoteAddr handles logic related to requestRemoteAddr.
 func requestRemoteAddr(ctx *goproxy.ProxyCtx) string {
 	if ctx == nil || ctx.Req == nil {
 		return "-"
@@ -513,7 +513,7 @@ func requestRemoteAddr(ctx *goproxy.ProxyCtx) string {
 	return remoteAddr
 }
 
-// requestUserAgent 用于处理与 requestUserAgent 相关的逻辑。
+// requestUserAgent handles logic related to requestUserAgent.
 func requestUserAgent(ctx *goproxy.ProxyCtx) string {
 	if ctx == nil || ctx.Req == nil {
 		return "-"
@@ -525,7 +525,7 @@ func requestUserAgent(ctx *goproxy.ProxyCtx) string {
 	return ua
 }
 
-// requestURL 用于处理与 requestURL 相关的逻辑。
+// requestURL handles logic related to requestURL.
 func requestURL(req *http.Request) string {
 	if req == nil || req.URL == nil {
 		return ""
@@ -537,7 +537,7 @@ func requestURL(req *http.Request) string {
 	return u
 }
 
-// rawURLForRelay 用于处理与 rawURLForRelay 相关的逻辑。
+// rawURLForRelay handles logic related to rawURLForRelay.
 func rawURLForRelay(r *http.Request) (string, error) {
 	if r == nil {
 		return "", errors.New("nil request")
@@ -567,7 +567,7 @@ func rawURLForRelay(r *http.Request) (string, error) {
 	return scheme + "://" + host + path, nil
 }
 
-// copyHeaders 用于处理与 copyHeaders 相关的逻辑。
+// copyHeaders handles logic related to copyHeaders.
 func copyHeaders(dst, src http.Header) {
 	removeHopByHop(src)
 	for k, vv := range src {
@@ -577,7 +577,7 @@ func copyHeaders(dst, src http.Header) {
 	}
 }
 
-// removeHopByHop 用于处理与 removeHopByHop 相关的逻辑。
+// removeHopByHop handles logic related to removeHopByHop.
 func removeHopByHop(h http.Header) {
 	if h == nil {
 		return
@@ -596,7 +596,7 @@ func removeHopByHop(h http.Header) {
 	}
 }
 
-// trimForLog 用于处理与 trimForLog 相关的逻辑。
+// trimForLog handles logic related to trimForLog.
 func trimForLog(text string, limit int) string {
 	text = strings.TrimSpace(text)
 	if limit <= 0 {
@@ -609,7 +609,7 @@ func trimForLog(text string, limit int) string {
 	return string(runes[:limit]) + "..."
 }
 
-// normalizeConnectHost 用于处理与 normalizeConnectHost 相关的逻辑。
+// normalizeConnectHost handles logic related to normalizeConnectHost.
 func normalizeConnectHost(host string) string {
 	host = strings.TrimSpace(host)
 	if host == "" {
@@ -618,7 +618,7 @@ func normalizeConnectHost(host string) string {
 	return host
 }
 
-// hostFromHTTPRequest 用于处理与 hostFromHTTPRequest 相关的逻辑。
+// hostFromHTTPRequest handles logic related to hostFromHTTPRequest.
 func hostFromHTTPRequest(req *http.Request) string {
 	if req == nil {
 		return ""
@@ -632,7 +632,7 @@ func hostFromHTTPRequest(req *http.Request) string {
 	return ""
 }
 
-// isWhitelistedRelayHost 用于处理与 isWhitelistedRelayHost 相关的逻辑。
+// isWhitelistedRelayHost handles logic related to isWhitelistedRelayHost.
 func isWhitelistedRelayHost(host string) bool {
 	host = strings.TrimSpace(strings.ToLower(host))
 	if host == "" {
@@ -657,7 +657,7 @@ func isWhitelistedRelayHost(host string) bool {
 	return false
 }
 
-// mitmCertStore 缓存 goproxy 为站点动态签发的证书，避免同一 host 重复执行 RSA/x509 签发。
+// mitmCertStore caches certificates dynamically issued by goproxy for sites, avoiding repeated RSA/x509 issuance for the same host.
 type mitmCertStore struct {
 	mu    sync.Mutex
 	certs map[string]*tls.Certificate
@@ -687,7 +687,7 @@ func (store *mitmCertStore) Fetch(hostname string, gen func() (*tls.Certificate,
 	return cert, nil
 }
 
-// shouldHandleLocalCORSPreflight 用于处理与 shouldHandleLocalCORSPreflight 相关的逻辑。
+// shouldHandleLocalCORSPreflight handles logic related to shouldHandleLocalCORSPreflight.
 func shouldHandleLocalCORSPreflight(req *http.Request) bool {
 	if req == nil {
 		return false
@@ -704,7 +704,7 @@ func shouldHandleLocalCORSPreflight(req *http.Request) bool {
 	return true
 }
 
-// buildLocalCORSPreflightResponse 用于处理与 buildLocalCORSPreflightResponse 相关的逻辑。
+// buildLocalCORSPreflightResponse handles logic related to buildLocalCORSPreflightResponse.
 func buildLocalCORSPreflightResponse(req *http.Request) *http.Response {
 	allowOrigin := "*"
 	if req != nil {
@@ -734,10 +734,10 @@ func buildLocalCORSPreflightResponse(req *http.Request) *http.Response {
 	}
 }
 
-// httpErrorFilterWriter 定义了当前模块中的 httpErrorFilterWriter 类型。
+// httpErrorFilterWriter defines the httpErrorFilterWriter type in this module.
 type httpErrorFilterWriter struct{}
 
-// Write 用于处理与 Write 相关的逻辑。
+// Write handles logic related to Write.
 func (w *httpErrorFilterWriter) Write(p []byte) (int, error) {
 	msg := strings.TrimSpace(string(p))
 	if msg == "" {
@@ -758,10 +758,10 @@ func (w *httpErrorFilterWriter) Write(p []byte) (int, error) {
 	return len(p), nil
 }
 
-// goproxyLogAdapter 定义了当前模块中的 goproxyLogAdapter 类型。
+// goproxyLogAdapter defines the goproxyLogAdapter type in this module.
 type goproxyLogAdapter struct{}
 
-// Printf 用于处理与 Printf 相关的逻辑。
+// Printf handles logic related to Printf.
 func (l *goproxyLogAdapter) Printf(format string, args ...interface{}) {
 	msg := strings.TrimSpace(fmt.Sprintf(format, args...))
 	if msg == "" {
@@ -834,7 +834,7 @@ func normalizeGoproxyRequestIDForLogKey(value string) string {
 	return "[*]" + value[end+1:]
 }
 
-// logMITMCAInfo 用于处理与 logMITMCAInfo 相关的逻辑。
+// logMITMCAInfo handles logic related to logMITMCAInfo.
 func logMITMCAInfo(caTLS *tls.Certificate) {
 	if caTLS == nil || len(caTLS.Certificate) == 0 {
 		logger.Errorf("MITM CA info unavailable: empty certificate chain")

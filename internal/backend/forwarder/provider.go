@@ -1,4 +1,4 @@
-// provider.go 把 forwarder 的 canonical 请求转交给现有的 provider adapter 层。
+// provider.go hands forwarder canonical requests over to the existing provider adapter layer.
 package forwarder
 
 import (
@@ -13,14 +13,14 @@ type DefaultProviderGateway struct {
 	router modeladapter.ModelAdapterRouter
 }
 
-// NewProviderGateway 创建默认 provider 网关。
+// NewProviderGateway creates the default provider gateway.
 func NewProviderGateway(resolver modeladapter.ChannelResolver) *DefaultProviderGateway {
 	return &DefaultProviderGateway{
 		router: modeladapter.NewRouter(resolver),
 	}
 }
 
-// StartStream 把 forwarder 的 provider 请求翻译成 modeladapter.StreamRequest 并发起流式调用。
+// StartStream translates the forwarder's provider request into a modeladapter.StreamRequest and starts a streaming call.
 func (gateway *DefaultProviderGateway) StartStream(ctx context.Context, req ProviderRequest, sink func(modeladapter.ModelEvent) error) error {
 	if ctx == nil {
 		ctx = context.Background()

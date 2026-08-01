@@ -1,4 +1,4 @@
-// reasoning_metadata.go 保存 history/replay 共用的 reasoning metadata 判定。
+// reasoning_metadata.go holds the reasoning metadata decisions shared by history and replay.
 package forwarder
 
 import (

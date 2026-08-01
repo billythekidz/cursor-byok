@@ -1,0 +1,916 @@
+{"file":"internal/ads/service.go","line":172,"prefix":"\t// ","text":"已完全禁用远程广告与 Telemetry 抓取","raw":"\t// 已完全禁用远程广告与 Telemetry 抓取"}
+{"file":"internal/ads/service.go","line":246,"prefix":"\t// ","text":"已禁用所有 Telemetry / 设备 ID / Token 统计数据上报 Headers","raw":"\t// 已禁用所有 Telemetry / 设备 ID / Token 统计数据上报 Headers"}
+{"file":"internal/ads/types.go","line":4,"prefix":"\t// ","text":"FetchURL 已禁用远程广告拉取。","raw":"\t// FetchURL 已禁用远程广告拉取。"}
+{"file":"internal/app/doc.go","line":1,"prefix":"// ","text":"Package app 负责组装桌面应用入口、窗口、托盘和 Wails 服务。","raw":"// Package app 负责组装桌面应用入口、窗口、托盘和 Wails 服务。"}
+{"file":"internal/app/runner.go","line":36,"prefix":"\t// ","text":"appName 表示当前模块中的 appName 状态值。","raw":"\t// appName 表示当前模块中的 appName 状态值。"}
+{"file":"internal/app/runner.go","line":38,"prefix":"\t// ","text":"adRefreshInterval 表示后台广告拉取间隔。","raw":"\t// adRefreshInterval 表示后台广告拉取间隔。"}
+{"file":"internal/app/runner.go","line":42,"prefix":"// ","text":"EmbeddedResources 定义了当前模块中的 EmbeddedResources 类型。","raw":"// EmbeddedResources 定义了当前模块中的 EmbeddedResources 类型。"}
+{"file":"internal/app/runner.go","line":44,"prefix":"\t// ","text":"Assets 表示当前声明中的 Assets。","raw":"\t// Assets 表示当前声明中的 Assets。"}
+{"file":"internal/app/runner.go","line":46,"prefix":"\t// ","text":"AppIcon 表示当前声明中的 AppIcon。","raw":"\t// AppIcon 表示当前声明中的 AppIcon。"}
+{"file":"internal/app/runner.go","line":48,"prefix":"\t// ","text":"TrayIcon 表示当前声明中的 TrayIcon。","raw":"\t// TrayIcon 表示当前声明中的 TrayIcon。"}
+{"file":"internal/app/runner.go","line":52,"prefix":"// ","text":"init 用于处理与 init 相关的逻辑。","raw":"// init 用于处理与 init 相关的逻辑。"}
+{"file":"internal/app/runner.go","line":64,"prefix":"// ","text":"Run 用于处理与 Run 相关的逻辑。","raw":"// Run 用于处理与 Run 相关的逻辑。"}
+{"file":"internal/app/runner.go","line":152,"prefix":"\t\t\t\t// ","text":"不激活窗口，避免干扰用户工作","raw":"\t\t\t\t// 不激活窗口，避免干扰用户工作"}
+{"file":"internal/app/runner.go","line":188,"prefix":"\t\t// ","text":"已禁用后台广告与 Telemetry 轮询","raw":"\t\t// 已禁用后台广告与 Telemetry 轮询"}
+{"file":"internal/app/runner.go","line":418,"prefix":"// ","text":"logEmbeddedCAInfo 用于处理与 logEmbeddedCAInfo 相关的逻辑。","raw":"// logEmbeddedCAInfo 用于处理与 logEmbeddedCAInfo 相关的逻辑。"}
+{"file":"internal/app/runner.go","line":439,"prefix":"// ","text":"parseEmbeddedCert 用于处理与 parseEmbeddedCert 相关的逻辑。","raw":"// parseEmbeddedCert 用于处理与 parseEmbeddedCert 相关的逻辑。"}
+{"file":"internal/appdata/paths.go","line":14,"prefix":"// ","text":"RootDir 返回应用配置根目录。","raw":"// RootDir 返回应用配置根目录。"}
+{"file":"internal/appdata/paths.go","line":31,"prefix":"// ","text":"ConfigFilePath 返回统一用户配置文件路径。","raw":"// ConfigFilePath 返回统一用户配置文件路径。"}
+{"file":"internal/appdata/paths.go","line":64,"prefix":"// ","text":"LogsRootPath 返回统一日志根目录路径。","raw":"// LogsRootPath 返回统一日志根目录路径。"}
+{"file":"internal/appdata/paths.go","line":69,"prefix":"// ","text":"CACertFilePath 返回注入给宿主的 CA 文件路径。","raw":"// CACertFilePath 返回注入给宿主的 CA 文件路径。"}
+{"file":"internal/appdata/paths.go","line":74,"prefix":"// ","text":"CAKeyFilePath 返回注入给宿主的 CA 私钥文件路径。","raw":"// CAKeyFilePath 返回注入给宿主的 CA 私钥文件路径。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1,"prefix":"// ","text":"bridge.go 实现 MVP 阶段的执行桥协议映射。","raw":"// bridge.go 实现 MVP 阶段的执行桥协议映射。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":20,"prefix":"// ","text":"ExecApplyResult 表示一次执行桥结果归一化后的最小产物。","raw":"// ExecApplyResult 表示一次执行桥结果归一化后的最小产物。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":22,"prefix":"\t// ","text":"ToolCallID 表示结果所属工具调用标识。","raw":"\t// ToolCallID 表示结果所属工具调用标识。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":24,"prefix":"\t// ","text":"ExecID 表示结果所属执行桥标识。","raw":"\t// ExecID 表示结果所属执行桥标识。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":26,"prefix":"\t// ","text":"IsTerminal 表示该执行桥是否已经收口。","raw":"\t// IsTerminal 表示该执行桥是否已经收口。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":28,"prefix":"\t// ","text":"ShellOutputDelta 保存 shell 流输出的增量事件。","raw":"\t// ShellOutputDelta 保存 shell 流输出的增量事件。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":30,"prefix":"\t// ","text":"ToolResultPayload 保存可回写给模型的工具结果摘要。","raw":"\t// ToolResultPayload 保存可回写给模型的工具结果摘要。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":32,"prefix":"\t// ","text":"ToolCall 保存可用于发 ToolCallCompletedUpdate 的工具调用对象；当前仅对支持 ToolCall 的执行型工具可用。","raw":"\t// ToolCall 保存可用于发 ToolCallCompletedUpdate 的工具调用对象；当前仅对支持 ToolCall 的执行型工具可用。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":34,"prefix":"\t// ","text":"ExecuteHookResponse 保存 execute hook 的结构化响应。","raw":"\t// ExecuteHookResponse 保存 execute hook 的结构化响应。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":38,"prefix":"// ","text":"OpenExecContext 表示执行桥打开请求时需要的最小上下文。","raw":"// OpenExecContext 表示执行桥打开请求时需要的最小上下文。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":45,"prefix":"// ","text":"ExecBridge 定义执行桥接口。","raw":"// ExecBridge 定义执行桥接口。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":47,"prefix":"\t// ","text":"OpenExec 打开一条执行桥请求。","raw":"\t// OpenExec 打开一条执行桥请求。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":49,"prefix":"\t// ","text":"OpenExecuteHook 打开一条 execute hook 请求。","raw":"\t// OpenExecuteHook 打开一条 execute hook 请求。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":51,"prefix":"\t// ","text":"ApplyExecClientMessage 处理客户端执行结果。","raw":"\t// ApplyExecClientMessage 处理客户端执行结果。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":53,"prefix":"\t// ","text":"ApplyExecClientControl 处理客户端执行控制消息。","raw":"\t// ApplyExecClientControl 处理客户端执行控制消息。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":57,"prefix":"// ","text":"Bridge 实现当前 MVP 阶段的执行桥。","raw":"// Bridge 实现当前 MVP 阶段的执行桥。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":59,"prefix":"\t// ","text":"nextMessageID 生成 uint32 级别的桥消息编号。","raw":"\t// nextMessageID 生成 uint32 级别的桥消息编号。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":63,"prefix":"// ","text":"NewBridge 创建一个执行桥实例。","raw":"// NewBridge 创建一个执行桥实例。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":68,"prefix":"// ","text":"OpenExec 打开一条执行型工具调用。","raw":"// OpenExec 打开一条执行型工具调用。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":104,"prefix":"// ","text":"OpenExecuteHook 打开一条 execute hook 请求。","raw":"// OpenExecuteHook 打开一条 execute hook 请求。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":133,"prefix":"// ","text":"ApplyExecClientMessage 处理客户端执行结果消息。","raw":"// ApplyExecClientMessage 处理客户端执行结果消息。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":297,"prefix":"// ","text":"ApplyExecClientControl 处理客户端执行控制消息。","raw":"// ApplyExecClientControl 处理客户端执行控制消息。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":333,"prefix":"// ","text":"isStreamingExecKind 判断当前 exec kind 是否属于依赖后续数据面终态的流式执行桥。","raw":"// isStreamingExecKind 判断当前 exec kind 是否属于依赖后续数据面终态的流式执行桥。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":343,"prefix":"// ","text":"nextID 返回下一个桥消息编号。","raw":"// nextID 返回下一个桥消息编号。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":382,"prefix":"// ","text":"openRead 构造 Read 对应的执行桥请求。","raw":"// openRead 构造 Read 对应的执行桥请求。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":417,"prefix":"// ","text":"openWrite 构造 Write 对应的执行桥请求。","raw":"// openWrite 构造 Write 对应的执行桥请求。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":456,"prefix":"// ","text":"openDelete 构造 Delete 对应的执行桥请求。","raw":"// openDelete 构造 Delete 对应的执行桥请求。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":490,"prefix":"// ","text":"openGlob 构造 Glob 对应的执行桥请求；当前通过 grep files mode 交给本地宿主处理。","raw":"// openGlob 构造 Glob 对应的执行桥请求；当前通过 grep files mode 交给本地宿主处理。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":613,"prefix":"// ","text":"openShell 构造 Shell 对应的流式执行桥请求。","raw":"// openShell 构造 Shell 对应的流式执行桥请求。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":763,"prefix":"// ","text":"openTask 构造 Task 对应的执行桥请求。","raw":"// openTask 构造 Task 对应的执行桥请求。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":824,"prefix":"// ","text":"openGrep 构造 Grep 对应的执行桥请求。","raw":"// openGrep 构造 Grep 对应的执行桥请求。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":854,"prefix":"// ","text":"openReadLints 构造 ReadLints 对应的执行桥请求。","raw":"// openReadLints 构造 ReadLints 对应的执行桥请求。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":891,"prefix":"// ","text":"openLs 构造 Ls 对应的执行桥请求。","raw":"// openLs 构造 Ls 对应的执行桥请求。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":928,"prefix":"// ","text":"openMcp 构造 CallMcpTool 对应的执行桥请求。","raw":"// openMcp 构造 CallMcpTool 对应的执行桥请求。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":974,"prefix":"// ","text":"openListMcpResources 构造 ListMcpResources 对应的执行桥请求。","raw":"// openListMcpResources 构造 ListMcpResources 对应的执行桥请求。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1007,"prefix":"// ","text":"openReadMcpResource 构造 FetchMcpResource 对应的执行桥请求。","raw":"// openReadMcpResource 构造 FetchMcpResource 对应的执行桥请求。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1085,"prefix":"// ","text":"summarizeReadResult 生成 Read 结果摘要。","raw":"// summarizeReadResult 生成 Read 结果摘要。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1115,"prefix":"// ","text":"summarizeWriteResult 生成 Write 结果摘要。","raw":"// summarizeWriteResult 生成 Write 结果摘要。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1139,"prefix":"// ","text":"summarizeDiagnosticsResult 生成 ReadLints 对应的执行结果摘要。","raw":"// summarizeDiagnosticsResult 生成 ReadLints 对应的执行结果摘要。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1160,"prefix":"// ","text":"summarizeSubagentResult 生成 Task 对应的执行结果摘要。","raw":"// summarizeSubagentResult 生成 Task 对应的执行结果摘要。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1185,"prefix":"// ","text":"summarizeDeleteResult 生成 Delete 结果摘要。","raw":"// summarizeDeleteResult 生成 Delete 结果摘要。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1210,"prefix":"// ","text":"summarizeGrepResult 生成 Grep 结果摘要。","raw":"// summarizeGrepResult 生成 Grep 结果摘要。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1257,"prefix":"// ","text":"summarizeLsResult 生成 Ls 结果摘要。","raw":"// summarizeLsResult 生成 Ls 结果摘要。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1276,"prefix":"// ","text":"summarizeMcpResult 生成 MCP 执行结果摘要。","raw":"// summarizeMcpResult 生成 MCP 执行结果摘要。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1295,"prefix":"// ","text":"convertMcpResult 把 ExecClientMessage 中的 McpResult 映射为 ToolCall 使用的 McpToolResult。","raw":"// convertMcpResult 把 ExecClientMessage 中的 McpResult 映射为 ToolCall 使用的 McpToolResult。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1411,"prefix":"// ","text":"summarizeListMcpResourcesResult 生成 MCP 资源列表结果摘要。","raw":"// summarizeListMcpResourcesResult 生成 MCP 资源列表结果摘要。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1428,"prefix":"// ","text":"summarizeReadMcpResourceResult 生成读取 MCP 资源结果摘要。","raw":"// summarizeReadMcpResourceResult 生成读取 MCP 资源结果摘要。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1519,"prefix":"// ","text":"buildReadCompletedToolCall 构造 Read 对应的完成态 ToolCall。","raw":"// buildReadCompletedToolCall 构造 Read 对应的完成态 ToolCall。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1538,"prefix":"// ","text":"buildDeleteCompletedToolCall 构造 Delete 对应的完成态 ToolCall。","raw":"// buildDeleteCompletedToolCall 构造 Delete 对应的完成态 ToolCall。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1553,"prefix":"// ","text":"buildGlobCompletedToolCall 构造 Glob 对应的完成态 ToolCall。","raw":"// buildGlobCompletedToolCall 构造 Glob 对应的完成态 ToolCall。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1721,"prefix":"// ","text":"buildWriteCompletedToolCall 构造 Write 对应的完成态 ToolCall。","raw":"// buildWriteCompletedToolCall 构造 Write 对应的完成态 ToolCall。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1738,"prefix":"// ","text":"buildReadLintsCompletedToolCall 构造 ReadLints 对应的完成态 ToolCall。","raw":"// buildReadLintsCompletedToolCall 构造 ReadLints 对应的完成态 ToolCall。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1753,"prefix":"// ","text":"buildTaskCompletedToolCall 构造 Task 对应的完成态 ToolCall。","raw":"// buildTaskCompletedToolCall 构造 Task 对应的完成态 ToolCall。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1805,"prefix":"// ","text":"buildShellCompletedToolCall 构造 Shell 对应的完成态 ToolCall。","raw":"// buildShellCompletedToolCall 构造 Shell 对应的完成态 ToolCall。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1857,"prefix":"// ","text":"buildShellBackgroundedToolCall 构造 Shell 被转入后台时的完成态 ToolCall。","raw":"// buildShellBackgroundedToolCall 构造 Shell 被转入后台时的完成态 ToolCall。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1901,"prefix":"// ","text":"buildShellSuccessPayload 构造 shell 终态结果。","raw":"// buildShellSuccessPayload 构造 shell 终态结果。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1953,"prefix":"// ","text":"buildShellRejectedToolCall 构造 Shell 被拒绝时的完成态 ToolCall。","raw":"// buildShellRejectedToolCall 构造 Shell 被拒绝时的完成态 ToolCall。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":1977,"prefix":"// ","text":"buildShellPermissionDeniedToolCall 构造 Shell 权限拒绝时的完成态 ToolCall。","raw":"// buildShellPermissionDeniedToolCall 构造 Shell 权限拒绝时的完成态 ToolCall。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2001,"prefix":"// ","text":"buildSimpleShellCommands 生成最小 simple_commands 列表。","raw":"// buildSimpleShellCommands 生成最小 simple_commands 列表。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2010,"prefix":"// ","text":"buildShellParsingResultProto 生成最小 shell parsing_result。","raw":"// buildShellParsingResultProto 生成最小 shell parsing_result。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2042,"prefix":"// ","text":"summarizeShellTerminalPayload 返回 shell 对模型可消费的终态结果文本。","raw":"// summarizeShellTerminalPayload 返回 shell 对模型可消费的终态结果文本。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2085,"prefix":"// ","text":"decodeShellArgsForResult 解码 shell 参数，供完成态 ToolCall 复用。","raw":"// decodeShellArgsForResult 解码 shell 参数，供完成态 ToolCall 复用。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2101,"prefix":"// ","text":"shellTimeoutFromArgs 把工具 JSON 中的 block_until_ms 映射回 proto timeout。","raw":"// shellTimeoutFromArgs 把工具 JSON 中的 block_until_ms 映射回 proto timeout。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2112,"prefix":"// ","text":"buildWriteShellStdinCompletedToolCall 构造 WriteShellStdin 对应的完成态 ToolCall。","raw":"// buildWriteShellStdinCompletedToolCall 构造 WriteShellStdin 对应的完成态 ToolCall。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2169,"prefix":"// ","text":"buildGrepCompletedToolCall 构造 Grep 对应的完成态 ToolCall。","raw":"// buildGrepCompletedToolCall 构造 Grep 对应的完成态 ToolCall。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2185,"prefix":"// ","text":"buildLsCompletedToolCall 构造 Ls 对应的完成态 ToolCall。","raw":"// buildLsCompletedToolCall 构造 Ls 对应的完成态 ToolCall。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2206,"prefix":"// ","text":"buildMcpCompletedToolCall 构造 CallMcpTool 对应的完成态 ToolCall。","raw":"// buildMcpCompletedToolCall 构造 CallMcpTool 对应的完成态 ToolCall。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2248,"prefix":"// ","text":"buildListMcpResourcesCompletedToolCall 构造 ListMcpResources 对应的完成态 ToolCall。","raw":"// buildListMcpResourcesCompletedToolCall 构造 ListMcpResources 对应的完成态 ToolCall。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2266,"prefix":"// ","text":"buildReadMcpResourceCompletedToolCall 构造 FetchMcpResource 对应的完成态 ToolCall。","raw":"// buildReadMcpResourceCompletedToolCall 构造 FetchMcpResource 对应的完成态 ToolCall。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2288,"prefix":"// ","text":"convertReadResultToReadToolResult 把 `ReadResult` 映射为 `ReadToolResult`。","raw":"// convertReadResultToReadToolResult 把 `ReadResult` 映射为 `ReadToolResult`。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2374,"prefix":"// ","text":"convertGrepResultToGlobToolResult 把 grep files mode 结果映射为 GlobToolResult。","raw":"// convertGrepResultToGlobToolResult 把 grep files mode 结果映射为 GlobToolResult。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2600,"prefix":"// ","text":"firstGrepFilesResult 取 workspaceResults 中首个 files 结果。","raw":"// firstGrepFilesResult 取 workspaceResults 中首个 files 结果。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2645,"prefix":"// ","text":"convertWriteResultToEditResult 把 WriteResult 映射为 EditResult。","raw":"// convertWriteResultToEditResult 把 WriteResult 映射为 EditResult。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2710,"prefix":"// ","text":"convertDiagnosticsResultToReadLintsToolResult 把 DiagnosticsResult 映射为 ReadLintsToolResult。","raw":"// convertDiagnosticsResultToReadLintsToolResult 把 DiagnosticsResult 映射为 ReadLintsToolResult。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2756,"prefix":"// ","text":"convertDiagnostics 把 Diagnostic 转成 DiagnosticItem。","raw":"// convertDiagnostics 把 Diagnostic 转成 DiagnosticItem。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2781,"prefix":"// ","text":"convertSubagentResultToTaskResult 把 SubagentResult 映射为 TaskResult。","raw":"// convertSubagentResultToTaskResult 把 SubagentResult 映射为 TaskResult。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2850,"prefix":"// ","text":"DecodeGlobToolArgs 解析并归一化 Glob 参数，兼容历史与模型常见别名。","raw":"// DecodeGlobToolArgs 解析并归一化 Glob 参数，兼容历史与模型常见别名。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2941,"prefix":"// ","text":"stringPtr 在需要 optional string 时构造指针值。","raw":"// stringPtr 在需要 optional string 时构造指针值。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2957,"prefix":"// ","text":"DecodeShellStdout 直接返回 shell stream stdout 的文本内容。","raw":"// DecodeShellStdout 直接返回 shell stream stdout 的文本内容。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2965,"prefix":"// ","text":"int32Ptr 在需要 optional int32 时构造指针值。","raw":"// int32Ptr 在需要 optional int32 时构造指针值。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2970,"prefix":"// ","text":"uint32Ptr 在需要 optional uint32 时构造指针值。","raw":"// uint32Ptr 在需要 optional uint32 时构造指针值。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2975,"prefix":"// ","text":"uint64Ptr 在需要 optional uint64 时构造指针值。","raw":"// uint64Ptr 在需要 optional uint64 时构造指针值。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2980,"prefix":"// ","text":"shellAbortReasonPtr 在需要 optional ShellAbortReason 时构造指针值。","raw":"// shellAbortReasonPtr 在需要 optional ShellAbortReason 时构造指针值。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":2985,"prefix":"// ","text":"buildStructValueMap 把普通 JSON 对象映射为 protobuf Struct value 映射。","raw":"// buildStructValueMap 把普通 JSON 对象映射为 protobuf Struct value 映射。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":3001,"prefix":"// ","text":"decodeArgsMap 把工具 JSON 参数解析为通用 map。","raw":"// decodeArgsMap 把工具 JSON 参数解析为通用 map。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":3021,"prefix":"// ","text":"readStringArg 从参数映射中按多个候选键读取字符串。","raw":"// readStringArg 从参数映射中按多个候选键读取字符串。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":3026,"prefix":"// ","text":"readBoolArg 从参数映射中按多个候选键读取布尔值。","raw":"// readBoolArg 从参数映射中按多个候选键读取布尔值。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":3031,"prefix":"// ","text":"hasArgKey 判断参数映射中是否存在任一候选键。","raw":"// hasArgKey 判断参数映射中是否存在任一候选键。"}
+{"file":"internal/backend/agent/bridge/exec/bridge.go","line":3036,"prefix":"// ","text":"readStringSliceArg 读取字符串数组参数。","raw":"// readStringSliceArg 读取字符串数组参数。"}
+{"file":"internal/backend/agent/bridge/exec/doc.go","line":1,"prefix":"// ","text":"Package execbridge 负责把执行型工具调用映射为 ExecServerMessage，并归一化 ExecClientMessage 结果。","raw":"// Package execbridge 负责把执行型工具调用映射为 ExecServerMessage，并归一化 ExecClientMessage 结果。"}
+{"file":"internal/backend/agent/bridge/interaction/baidusearch.go","line":21,"prefix":"// ","text":"extractBaiduWebSearchReferences 从百度搜索结果页 HTML 中解析出搜索结果列表。","raw":"// extractBaiduWebSearchReferences 从百度搜索结果页 HTML 中解析出搜索结果列表。"}
+{"file":"internal/backend/agent/bridge/interaction/baidusearch.go","line":49,"prefix":"// ","text":"extractBaiduSearchResult 从单条百度搜索结果节点中提取标题、链接和摘要。","raw":"// extractBaiduSearchResult 从单条百度搜索结果节点中提取标题、链接和摘要。"}
+{"file":"internal/backend/agent/bridge/interaction/baidusearch.go","line":69,"prefix":"// ","text":"normalizeBaiduSearchURL 把百度返回的相对或协议省略链接归一化为绝对 URL。","raw":"// normalizeBaiduSearchURL 把百度返回的相对或协议省略链接归一化为绝对 URL。"}
+{"file":"internal/backend/agent/bridge/interaction/baidusearch.go","line":81,"prefix":"// ","text":"resolveBaiduWebSearchRedirects 把百度跳转链接解析为最终目标地址，就地更新引用列表。","raw":"// resolveBaiduWebSearchRedirects 把百度跳转链接解析为最终目标地址，就地更新引用列表。"}
+{"file":"internal/backend/agent/bridge/interaction/baidusearch.go","line":91,"prefix":"// ","text":"resolveBaiduRedirectURL 判断链接是否是百度跳转链接，并尝试解析出真实目标。","raw":"// resolveBaiduRedirectURL 判断链接是否是百度跳转链接，并尝试解析出真实目标。"}
+{"file":"internal/backend/agent/bridge/interaction/baidusearch.go","line":107,"prefix":"// ","text":"baiduRedirectHTTPClient 基于基础 client 构造一个不自动跟随重定向的短超时客户端。","raw":"// baiduRedirectHTTPClient 基于基础 client 构造一个不自动跟随重定向的短超时客户端。"}
+{"file":"internal/backend/agent/bridge/interaction/baidusearch.go","line":122,"prefix":"// ","text":"requestBaiduRedirectLocation 发起一次请求并读取响应头中的重定向目标地址。","raw":"// requestBaiduRedirectLocation 发起一次请求并读取响应头中的重定向目标地址。"}
+{"file":"internal/backend/agent/bridge/interaction/baidusearch.go","line":143,"prefix":"// ","text":"resolveBaiduLocationURL 把响应头里的相对重定向地址解析为绝对地址。","raw":"// resolveBaiduLocationURL 把响应头里的相对重定向地址解析为绝对地址。"}
+{"file":"internal/backend/agent/bridge/interaction/baidusearch.go","line":159,"prefix":"// ","text":"isBaiduRedirectURL 判断给定地址是否是百度域名下的跳转链接。","raw":"// isBaiduRedirectURL 判断给定地址是否是百度域名下的跳转链接。"}
+{"file":"internal/backend/agent/bridge/interaction/baidusearch.go","line":170,"prefix":"// ","text":"truncateBaiduSearchAbstract 按字符数截断摘要文本，避免结果过长。","raw":"// truncateBaiduSearchAbstract 按字符数截断摘要文本，避免结果过长。"}
+{"file":"internal/backend/agent/bridge/interaction/baidusearch.go","line":183,"prefix":"// ","text":"firstBaiduSearchLine 返回文本中第一个非空行。","raw":"// firstBaiduSearchLine 返回文本中第一个非空行。"}
+{"file":"internal/backend/agent/bridge/interaction/baidusearch.go","line":194,"prefix":"// ","text":"baiduSearchTextAfterFirstLine 返回除第一个非空行外剩余文本的拼接结果。","raw":"// baiduSearchTextAfterFirstLine 返回除第一个非空行外剩余文本的拼接结果。"}
+{"file":"internal/backend/agent/bridge/interaction/baidusearch.go","line":209,"prefix":"// ","text":"cleanBaiduSearchText 折叠多余空白并去除首尾空格。","raw":"// cleanBaiduSearchText 折叠多余空白并去除首尾空格。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":1,"prefix":"// ","text":"bridge.go 实现 MVP 阶段的交互桥协议映射。","raw":"// bridge.go 实现 MVP 阶段的交互桥协议映射。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":29,"prefix":"// ","text":"InteractionApplyResult 表示一次交互桥结果归一化后的最小产物。","raw":"// InteractionApplyResult 表示一次交互桥结果归一化后的最小产物。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":31,"prefix":"\t// ","text":"ToolCallID 表示该结果所属工具调用标识。","raw":"\t// ToolCallID 表示该结果所属工具调用标识。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":33,"prefix":"\t// ","text":"InteractionID 表示该结果所属交互桥标识。","raw":"\t// InteractionID 表示该结果所属交互桥标识。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":35,"prefix":"\t// ","text":"IsTerminal 表示交互桥是否已经收口。","raw":"\t// IsTerminal 表示交互桥是否已经收口。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":37,"prefix":"\t// ","text":"ToolResultPayload 表示可继续喂给模型的结果摘要。","raw":"\t// ToolResultPayload 表示可继续喂给模型的结果摘要。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":39,"prefix":"\t// ","text":"ToolCall 保存可用于发 ToolCallCompletedUpdate 的工具调用对象。","raw":"\t// ToolCall 保存可用于发 ToolCallCompletedUpdate 的工具调用对象。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":43,"prefix":"// ","text":"InteractionBridge 定义交互桥接口。","raw":"// InteractionBridge 定义交互桥接口。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":45,"prefix":"\t// ","text":"OpenQuery 打开一条交互型工具调用。","raw":"\t// OpenQuery 打开一条交互型工具调用。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":47,"prefix":"\t// ","text":"ApplyInteractionResponse 处理交互响应。","raw":"\t// ApplyInteractionResponse 处理交互响应。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":51,"prefix":"// ","text":"Bridge 实现 MVP 阶段的交互桥。","raw":"// Bridge 实现 MVP 阶段的交互桥。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":53,"prefix":"\t// ","text":"nextID 生成交互消息编号。","raw":"\t// nextID 生成交互消息编号。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":55,"prefix":"\t// ","text":"httpClient 负责执行 web search / web fetch 等需要外网的操作。","raw":"\t// httpClient 负责执行 web search / web fetch 等需要外网的操作。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":59,"prefix":"// ","text":"NewBridge 创建一个交互桥实例。","raw":"// NewBridge 创建一个交互桥实例。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":66,"prefix":"// ","text":"OpenQuery 打开一条交互型工具调用。","raw":"// OpenQuery 打开一条交互型工具调用。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":84,"prefix":"// ","text":"ApplyInteractionResponse 处理交互响应。","raw":"// ApplyInteractionResponse 处理交互响应。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":172,"prefix":"// ","text":"nextMessageID 返回下一个交互消息编号。","raw":"// nextMessageID 返回下一个交互消息编号。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":181,"prefix":"// ","text":"openAskQuestion 构造 AskQuestion 交互查询。","raw":"// openAskQuestion 构造 AskQuestion 交互查询。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":209,"prefix":"// ","text":"openCreatePlan 构造 CreatePlan 交互查询。","raw":"// openCreatePlan 构造 CreatePlan 交互查询。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":237,"prefix":"// ","text":"openWebSearch 构造 WebSearch 交互查询。","raw":"// openWebSearch 构造 WebSearch 交互查询。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":269,"prefix":"// ","text":"openWebFetch 构造 WebFetch 交互查询。","raw":"// openWebFetch 构造 WebFetch 交互查询。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":305,"prefix":"// ","text":"openSwitchMode 构造 SwitchMode 交互查询。","raw":"// openSwitchMode 构造 SwitchMode 交互查询。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":346,"prefix":"// ","text":"summarizeAskQuestionResponse 生成 AskQuestion 响应摘要。","raw":"// summarizeAskQuestionResponse 生成 AskQuestion 响应摘要。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":370,"prefix":"// ","text":"normalizeCreatePlanResult 兜底客户端 success 但未返回 planUri 的异常形态。","raw":"// normalizeCreatePlanResult 兜底客户端 success 但未返回 planUri 的异常形态。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":386,"prefix":"// ","text":"summarizeCreatePlanResult 生成 CreatePlan 响应摘要。","raw":"// summarizeCreatePlanResult 生成 CreatePlan 响应摘要。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":401,"prefix":"// ","text":"summarizeWebSearchResponse 生成 WebSearch 响应摘要。","raw":"// summarizeWebSearchResponse 生成 WebSearch 响应摘要。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":417,"prefix":"// ","text":"applyWebSearchResponse 把 WebSearch approval 响应转换成最终工具结果。","raw":"// applyWebSearchResponse 把 WebSearch approval 响应转换成最终工具结果。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":458,"prefix":"// ","text":"applyWebFetchResponse 把 WebFetch approval 响应转换成最终工具结果。","raw":"// applyWebFetchResponse 把 WebFetch approval 响应转换成最终工具结果。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":510,"prefix":"// ","text":"buildSwitchModeResult 把 SwitchMode approval 响应转换成最终工具结果。","raw":"// buildSwitchModeResult 把 SwitchMode approval 响应转换成最终工具结果。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":546,"prefix":"// ","text":"summarizeSwitchModeResponse 生成 SwitchMode 响应摘要。","raw":"// summarizeSwitchModeResponse 生成 SwitchMode 响应摘要。"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":589,"prefix":"\t// ","text":"先尝试百度搜索","raw":"\t// 先尝试百度搜索"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":595,"prefix":"\t// ","text":"百度失败，回退到 DuckDuckGo","raw":"\t// 百度失败，回退到 DuckDuckGo"}
+{"file":"internal/backend/agent/bridge/interaction/bridge.go","line":601,"prefix":"\t// ","text":"两者都失败，返回综合错误","raw":"\t// 两者都失败，返回综合错误"}
+{"file":"internal/backend/agent/bridge/interaction/doc.go","line":1,"prefix":"// ","text":"Package interaction 负责把交互型工具调用映射为 InteractionQuery，并归一化 InteractionResponse。","raw":"// Package interaction 负责把交互型工具调用映射为 InteractionQuery，并归一化 InteractionResponse。"}
+{"file":"internal/backend/agent/model/anthropic.go","line":1,"prefix":"// ","text":"anthropic.go 实现 Anthropic Messages 兼容流式适配器。","raw":"// anthropic.go 实现 Anthropic Messages 兼容流式适配器。"}
+{"file":"internal/backend/agent/model/anthropic.go","line":23,"prefix":"// ","text":"AnthropicAdapter 实现 Anthropic 兼容流式请求。","raw":"// AnthropicAdapter 实现 Anthropic 兼容流式请求。"}
+{"file":"internal/backend/agent/model/anthropic.go","line":25,"prefix":"\t// ","text":"client 负责发送 HTTP 请求。","raw":"\t// client 负责发送 HTTP 请求。"}
+{"file":"internal/backend/agent/model/anthropic.go","line":64,"prefix":"// ","text":"anthropicThinkTagParser 负责把 text_delta 里的 \u003cthink\u003e 标签拆回 reasoning 流。","raw":"// anthropicThinkTagParser 负责把 text_delta 里的 \u003cthink\u003e 标签拆回 reasoning 流。"}
+{"file":"internal/backend/agent/model/anthropic.go","line":144,"prefix":"// ","text":"NewAnthropicAdapter 创建一个 Anthropic 兼容适配器。","raw":"// NewAnthropicAdapter 创建一个 Anthropic 兼容适配器。"}
+{"file":"internal/backend/agent/model/anthropic.go","line":159,"prefix":"// ","text":"shouldRelocateAnthropicImages 判断是否需要把图片块搬运到末条 user 消息。","raw":"// shouldRelocateAnthropicImages 判断是否需要把图片块搬运到末条 user 消息。"}
+{"file":"internal/backend/agent/model/anthropic.go","line":161,"prefix":"// ","text":"官方 Anthropic 端点（api.anthropic.com）可正确处理任意位置的图片，保持原样；","raw":"// 官方 Anthropic 端点（api.anthropic.com）可正确处理任意位置的图片，保持原样；"}
+{"file":"internal/backend/agent/model/anthropic.go","line":162,"prefix":"// ","text":"其余第三方中转站默认启用搬运，规避「非末尾图片被丢弃」的转换问题。","raw":"// 其余第三方中转站默认启用搬运，规避「非末尾图片被丢弃」的转换问题。"}
+{"file":"internal/backend/agent/model/anthropic.go","line":171,"prefix":"// ","text":"ApplyAnthropicCompatibleAuthHeaders 同时兼容 Anthropic 原生 x-api-key 和 Bearer token 代理。","raw":"// ApplyAnthropicCompatibleAuthHeaders 同时兼容 Anthropic 原生 x-api-key 和 Bearer token 代理。"}
+{"file":"internal/backend/agent/model/anthropic.go","line":206,"prefix":"// ","text":"Stream 发送 Messages 流式请求，并解析统一模型事件。","raw":"// Stream 发送 Messages 流式请求，并解析统一模型事件。"}
+{"file":"internal/backend/agent/model/anthropic.go","line":283,"prefix":"\t// ","text":"applyAnthropicThinkingConfig 在 override 块之外无条件调用，确保 RequestBodyOverride","raw":"\t// applyAnthropicThinkingConfig 在 override 块之外无条件调用，确保 RequestBodyOverride"}
+{"file":"internal/backend/agent/model/anthropic.go","line":284,"prefix":"\t// ","text":"路径与正常构造路径行为一致：disabled 时强制 thinking:{type:disabled} 并清理冲突字段，","raw":"\t// 路径与正常构造路径行为一致：disabled 时强制 thinking:{type:disabled} 并清理冲突字段，"}
+{"file":"internal/backend/agent/model/anthropic.go","line":285,"prefix":"\t// ","text":"非 disabled 时按 AnthropicThinkingEffort 写 adaptive 配置。与 openai.go 的","raw":"\t// 非 disabled 时按 AnthropicThinkingEffort 写 adaptive 配置。与 openai.go 的"}
+{"file":"internal/backend/agent/model/anthropic.go","line":286,"prefix":"\t// ","text":"applyOpenAIThinkingDisable 对称——后者也是无条件在两条路径之后调用。","raw":"\t// applyOpenAIThinkingDisable 对称——后者也是无条件在两条路径之后调用。"}
+{"file":"internal/backend/agent/model/anthropic.go","line":640,"prefix":"\t\t\t// ","text":"当前 MVP 阶段只在 message_stop 时统一收口，不在这里重复发 turn finished。","raw":"\t\t\t// 当前 MVP 阶段只在 message_stop 时统一收口，不在这里重复发 turn finished。"}
+{"file":"internal/backend/agent/model/anthropic.go","line":1229,"prefix":"// ","text":"relocateAnthropicImagesToLastUserMessage 把所有 user 消息里的 image 块搬运到最后一条 user 消息的末尾。","raw":"// relocateAnthropicImagesToLastUserMessage 把所有 user 消息里的 image 块搬运到最后一条 user 消息的末尾。"}
+{"file":"internal/backend/agent/model/anthropic.go","line":1231,"prefix":"// ","text":"背景：部分第三方中转站（如 Bedrock 代理）在 Anthropic→上游 的消息转换中，","raw":"// 背景：部分第三方中转站（如 Bedrock 代理）在 Anthropic→上游 的消息转换中，"}
+{"file":"internal/backend/agent/model/anthropic.go","line":1232,"prefix":"// ","text":"会丢弃「后面还跟着大量文本/消息」的非末尾图片块。将图片统一移动到末条 user 消息","raw":"// 会丢弃「后面还跟着大量文本/消息」的非末尾图片块。将图片统一移动到末条 user 消息"}
+{"file":"internal/backend/agent/model/anthropic.go","line":1233,"prefix":"// ","text":"可规避该问题，同时保留图片信息本身。","raw":"// 可规避该问题，同时保留图片信息本身。"}
+{"file":"internal/backend/agent/model/anthropic.go","line":1235,"prefix":"// ","text":"数据流演变：","raw":"// 数据流演变："}
+{"file":"internal/backend/agent/model/anthropic.go","line":1240,"prefix":"// ","text":"搬运后若某条 user 消息 content 变空，则丢弃该消息，避免 Anthropic 拒绝空内容消息。","raw":"// 搬运后若某条 user 消息 content 变空，则丢弃该消息，避免 Anthropic 拒绝空内容消息。"}
+{"file":"internal/backend/agent/model/anthropic.go","line":1443,"prefix":"// ","text":"applyAnthropicThinkingConfig 在请求体构造完成后（含 RequestBodyOverride 路径）无条件调用，","raw":"// applyAnthropicThinkingConfig 在请求体构造完成后（含 RequestBodyOverride 路径）无条件调用，"}
+{"file":"internal/backend/agent/model/anthropic.go","line":1444,"prefix":"// ","text":"与 openai.go 的 applyOpenAIThinkingDisable 对称。它把 thinking 配置写入 body 并在 disabled","raw":"// 与 openai.go 的 applyOpenAIThinkingDisable 对称。它把 thinking 配置写入 body 并在 disabled"}
+{"file":"internal/backend/agent/model/anthropic.go","line":1445,"prefix":"// ","text":"时清理与之冲突的字段，确保两条构造路径行为一致：","raw":"// 时清理与之冲突的字段，确保两条构造路径行为一致："}
+{"file":"internal/backend/agent/model/anthropic.go","line":1446,"prefix":"// ","text":"  - disabled: 强制 thinking:{type:\"disabled\"}，删除 output_config / 残留 thinking adaptive 配置，","raw":"//   - disabled: 强制 thinking:{type:\"disabled\"}，删除 output_config / 残留 thinking adaptive 配置，"}
+{"file":"internal/backend/agent/model/anthropic.go","line":1447,"prefix":"// ","text":"    记录 thinking_disabled_provider_param=thinking.type knob","raw":"//     记录 thinking_disabled_provider_param=thinking.type knob"}
+{"file":"internal/backend/agent/model/anthropic.go","line":1448,"prefix":"// ","text":"  - adaptive: 按 AnthropicThinkingEffort 写 thinking:{type:adaptive,display:summarized} + output_config","raw":"//   - adaptive: 按 AnthropicThinkingEffort 写 thinking:{type:adaptive,display:summarized} + output_config"}
+{"file":"internal/backend/agent/model/anthropic.go","line":1450,"prefix":"// ","text":"在 override 路径下，上层若已在 override body 里塞了 thinking/output_config，disabled 时会被正确覆盖。","raw":"// 在 override 路径下，上层若已在 override body 里塞了 thinking/output_config，disabled 时会被正确覆盖。"}
+{"file":"internal/backend/agent/model/anthropic.go","line":1741,"prefix":"// ","text":"anthropicThinkingBudget 计算当前 Anthropic thinking 预算。","raw":"// anthropicThinkingBudget 计算当前 Anthropic thinking 预算。"}
+{"file":"internal/backend/agent/model/artifacts.go","line":9,"prefix":"// ","text":"recordLLMRequestArtifact 记录一次模型调用的原始请求工件。","raw":"// recordLLMRequestArtifact 记录一次模型调用的原始请求工件。"}
+{"file":"internal/backend/agent/model/artifacts.go","line":39,"prefix":"// ","text":"buildLLMSummaryPayload 生成 LLM 调用摘要工件内容。","raw":"// buildLLMSummaryPayload 生成 LLM 调用摘要工件内容。"}
+{"file":"internal/backend/agent/model/artifacts.go","line":79,"prefix":"// ","text":"appendLLMResponseArtifact 追加模型调用的原始响应文本。","raw":"// appendLLMResponseArtifact 追加模型调用的原始响应文本。"}
+{"file":"internal/backend/agent/model/artifacts.go","line":91,"prefix":"// ","text":"recordLLMSummaryArtifact 记录模型调用摘要。","raw":"// recordLLMSummaryArtifact 记录模型调用摘要。"}
+{"file":"internal/backend/agent/model/artifacts.go","line":102,"prefix":"// ","text":"summarizeTools 生成工具列表摘要。","raw":"// summarizeTools 生成工具列表摘要。"}
+{"file":"internal/backend/agent/model/artifacts.go","line":121,"prefix":"// ","text":"summarizeMessages 生成消息列表摘要。","raw":"// summarizeMessages 生成消息列表摘要。"}
+{"file":"internal/backend/agent/model/artifacts.go","line":157,"prefix":"// ","text":"normalizeModelArtifactTime 把时间格式化为 RFC3339Nano。","raw":"// normalizeModelArtifactTime 把时间格式化为 RFC3339Nano。"}
+{"file":"internal/backend/agent/model/artifacts.go","line":165,"prefix":"// ","text":"computeTTFTMS 计算首事件耗时。","raw":"// computeTTFTMS 计算首事件耗时。"}
+{"file":"internal/backend/agent/model/artifacts.go","line":177,"prefix":"// ","text":"computeDurationMS 计算调用总耗时。","raw":"// computeDurationMS 计算调用总耗时。"}
+{"file":"internal/backend/agent/model/artifacts.go","line":189,"prefix":"// ","text":"summarizeModelArtifactError 返回可安全落盘的错误文本。","raw":"// summarizeModelArtifactError 返回可安全落盘的错误文本。"}
+{"file":"internal/backend/agent/model/artifacts.go","line":197,"prefix":"// ","text":"firstNonEmptyString 返回第一个非空字符串。","raw":"// firstNonEmptyString 返回第一个非空字符串。"}
+{"file":"internal/backend/agent/model/http_error.go","line":12,"prefix":"\t// ","text":"maxErrorBodyBytes 表示错误响应体最多读取的字节数。","raw":"\t// maxErrorBodyBytes 表示错误响应体最多读取的字节数。"}
+{"file":"internal/backend/agent/model/http_error.go","line":16,"prefix":"// ","text":"buildHTTPStatusError 读取响应体摘要并生成带状态码的错误。","raw":"// buildHTTPStatusError 读取响应体摘要并生成带状态码的错误。"}
+{"file":"internal/backend/agent/model/openai.go","line":1833,"prefix":"\t\t// ","text":"开启 thinking 时，tool_calls 对应的 assistant message 也要显式携带空 reasoning_content。","raw":"\t\t// 开启 thinking 时，tool_calls 对应的 assistant message 也要显式携带空 reasoning_content。"}
+{"file":"internal/backend/agent/model/user_agent.go","line":4,"prefix":"\t// ","text":"ClaudeCodeUserAgent 用于将渠道模型请求伪装为 Claude Code 客户端。","raw":"\t// ClaudeCodeUserAgent 用于将渠道模型请求伪装为 Claude Code 客户端。"}
+{"file":"internal/backend/agent/model/user_agent.go","line":6,"prefix":"\t// ","text":"AnthropicClaudeCodeUserAgent 用于 Anthropic provider 的 Claude Code UA 兼容。","raw":"\t// AnthropicClaudeCodeUserAgent 用于 Anthropic provider 的 Claude Code UA 兼容。"}
+{"file":"internal/backend/agent/prompt/content_parts.go","line":3,"prefix":"// ","text":"ContentPart 表示一条消息中的结构化内容块。","raw":"// ContentPart 表示一条消息中的结构化内容块。"}
+{"file":"internal/backend/agent/prompt/content_parts.go","line":10,"prefix":"// ","text":"ImageContent 表示消息中携带的一张图片。","raw":"// ImageContent 表示消息中携带的一张图片。"}
+{"file":"internal/backend/agent/prompt/doc.go","line":1,"prefix":"// ","text":"Package promptengine 负责把静态 prompt 资产、会话状态与外部结果编译成模型请求输入。","raw":"// Package promptengine 负责把静态 prompt 资产、会话状态与外部结果编译成模型请求输入。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":1,"prefix":"// ","text":"engine.go 实现 MVP 阶段的 prompt 编译器与工具过滤逻辑。","raw":"// engine.go 实现 MVP 阶段的 prompt 编译器与工具过滤逻辑。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":21,"prefix":"// ","text":"Message 表示内部统一的模型消息结构。","raw":"// Message 表示内部统一的模型消息结构。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":23,"prefix":"\t// ","text":"Role 表示消息角色，例如 system、user、assistant。","raw":"\t// Role 表示消息角色，例如 system、user、assistant。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":25,"prefix":"\t// ","text":"Content 表示消息文本内容。","raw":"\t// Content 表示消息文本内容。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":27,"prefix":"\t// ","text":"ContentParts 表示消息中的结构化内容块，例如文本或图片。","raw":"\t// ContentParts 表示消息中的结构化内容块，例如文本或图片。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":29,"prefix":"\t// ","text":"ReasoningContent 表示推理内容（用于支持 reasoning 的模型）。","raw":"\t// ReasoningContent 表示推理内容（用于支持 reasoning 的模型）。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":31,"prefix":"\t// ","text":"ReasoningSignature 表示 provider 对推理内容签发的签名。","raw":"\t// ReasoningSignature 表示 provider 对推理内容签发的签名。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":33,"prefix":"\t// ","text":"ReasoningSignatureSource 表示 reasoning signature 的 provider 语义来源。","raw":"\t// ReasoningSignatureSource 表示 reasoning signature 的 provider 语义来源。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":35,"prefix":"\t// ","text":"OpenAIResponsesReasoningID 保存 Responses reasoning output item 的原始 id。","raw":"\t// OpenAIResponsesReasoningID 保存 Responses reasoning output item 的原始 id。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":37,"prefix":"\t// ","text":"OpenAIResponsesReasoningStatus 保存 Responses reasoning output item 的原始 status。","raw":"\t// OpenAIResponsesReasoningStatus 保存 Responses reasoning output item 的原始 status。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":39,"prefix":"\t// ","text":"OpenAIResponsesReasoningSummary 保存 Responses reasoning output item 的原始 summary。","raw":"\t// OpenAIResponsesReasoningSummary 保存 Responses reasoning output item 的原始 summary。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":41,"prefix":"\t// ","text":"ToolCalls 表示 assistant 消息中的函数调用。","raw":"\t// ToolCalls 表示 assistant 消息中的函数调用。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":43,"prefix":"\t// ","text":"ToolCallID 表示 tool role 关联的调用 id。","raw":"\t// ToolCallID 表示 tool role 关联的调用 id。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":45,"prefix":"\t// ","text":"Name 表示 tool role 工具名。","raw":"\t// Name 表示 tool role 工具名。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":64,"prefix":"// ","text":"CompileInput 描述一次 prompt 编译所需的最小输入。","raw":"// CompileInput 描述一次 prompt 编译所需的最小输入。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":66,"prefix":"\t// ","text":"Mode 表示当前运行模式。","raw":"\t// Mode 表示当前运行模式。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":68,"prefix":"\t// ","text":"RequestedModelName 表示当前请求实际使用的模型名称。","raw":"\t// RequestedModelName 表示当前请求实际使用的模型名称。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":70,"prefix":"\t// ","text":"ConversationState 表示当前会话结构化状态。","raw":"\t// ConversationState 表示当前会话结构化状态。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":72,"prefix":"\t// ","text":"RequestContext 表示本轮用户动作携带的 request_context。","raw":"\t// RequestContext 表示本轮用户动作携带的 request_context。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":74,"prefix":"\t// ","text":"PendingAssistantOutputs 表示尚未收口的 assistant 输出记录。","raw":"\t// PendingAssistantOutputs 表示尚未收口的 assistant 输出记录。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":76,"prefix":"\t// ","text":"HistoryTurns 保存当前回合历史文本摘要。","raw":"\t// HistoryTurns 保存当前回合历史文本摘要。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":78,"prefix":"\t// ","text":"LatestExternalResults 保存最近一次外部桥结果。","raw":"\t// LatestExternalResults 保存最近一次外部桥结果。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":80,"prefix":"\t// ","text":"CustomSystemPrompt 表示当前请求附带的自定义系统提示词。","raw":"\t// CustomSystemPrompt 表示当前请求附带的自定义系统提示词。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":82,"prefix":"\t// ","text":"CurrentUserMessageText 表示当前动作携带的用户文本。","raw":"\t// CurrentUserMessageText 表示当前动作携带的用户文本。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":86,"prefix":"// ","text":"CompiledPrompt 表示编译完成的一次模型输入。","raw":"// CompiledPrompt 表示编译完成的一次模型输入。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":88,"prefix":"\t// ","text":"Mode 表示编译结果对应的运行模式。","raw":"\t// Mode 表示编译结果对应的运行模式。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":90,"prefix":"\t// ","text":"Messages 表示按顺序排列的模型消息列表。","raw":"\t// Messages 表示按顺序排列的模型消息列表。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":92,"prefix":"\t// ","text":"Tools 表示过滤后的原始工具 JSON 列表。","raw":"\t// Tools 表示过滤后的原始工具 JSON 列表。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":94,"prefix":"\t// ","text":"RequestKnobs 表示模型调用的额外参数。","raw":"\t// RequestKnobs 表示模型调用的额外参数。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":96,"prefix":"\t// ","text":"CompileSummary 保存本轮编译摘要，便于调试与恢复。","raw":"\t// CompileSummary 保存本轮编译摘要，便于调试与恢复。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":100,"prefix":"// ","text":"PromptEngine 定义运行时依赖的 prompt 编译接口。","raw":"// PromptEngine 定义运行时依赖的 prompt 编译接口。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":102,"prefix":"\t// ","text":"Compile 根据输入编译一轮模型请求。","raw":"\t// Compile 根据输入编译一轮模型请求。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":106,"prefix":"// ","text":"Engine 实现当前 MVP 阶段的 prompt 编译器。","raw":"// Engine 实现当前 MVP 阶段的 prompt 编译器。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":110,"prefix":"// ","text":"NewEngine 创建一个 prompt 编译器实例。","raw":"// NewEngine 创建一个 prompt 编译器实例。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":115,"prefix":"// ","text":"Compile 编译一轮模式化 prompt。","raw":"// Compile 编译一轮模式化 prompt。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":197,"prefix":"// ","text":"countCommittedTurns 统计当前会话状态中的已提交 turn 数。","raw":"// countCommittedTurns 统计当前会话状态中的已提交 turn 数。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":205,"prefix":"// ","text":"buildMessagesFromStructuredState 把 summary / plan / todos 编译成下一轮模型可消费的消息。","raw":"// buildMessagesFromStructuredState 把 summary / plan / todos 编译成下一轮模型可消费的消息。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":237,"prefix":"// ","text":"buildMessagesFromRequestContext 把 request_context 中的用户环境信息编译成上游可消费消息。","raw":"// buildMessagesFromRequestContext 把 request_context 中的用户环境信息编译成上游可消费消息。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":253,"prefix":"// ","text":"BuildRequestContextReplayMessages 导出 request_context 的精简回放形状，供其他链路复用。","raw":"// BuildRequestContextReplayMessages 导出 request_context 的精简回放形状，供其他链路复用。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":304,"prefix":"// ","text":"buildRequestContextUserInfoSection 构造 \u003cuser_info\u003e 片段。","raw":"// buildRequestContextUserInfoSection 构造 \u003cuser_info\u003e 片段。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":341,"prefix":"// ","text":"buildWorkspacePathsSection 构造工作区路径片段。","raw":"// buildWorkspacePathsSection 构造工作区路径片段。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":343,"prefix":"// ","text":"渲染规则：","raw":"// 渲染规则："}
+{"file":"internal/backend/agent/prompt/engine.go","line":344,"prefix":"// ","text":"  - 单路径：`Workspace Path: \u003cpath\u003e`，与历史格式保持一致；","raw":"//   - 单路径：`Workspace Path: \u003cpath\u003e`，与历史格式保持一致；"}
+{"file":"internal/backend/agent/prompt/engine.go","line":345,"prefix":"// ","text":"  - 多路径：`Workspace Paths:` 起行，后续每行以 `- \u003cpath\u003e` 列出全部路径，顺序保留输入顺序。","raw":"//   - 多路径：`Workspace Paths:` 起行，后续每行以 `- \u003cpath\u003e` 列出全部路径，顺序保留输入顺序。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":367,"prefix":"// ","text":"buildRequestContextAgentTranscriptsSection 构造 \u003cagent_transcripts\u003e 片段。","raw":"// buildRequestContextAgentTranscriptsSection 构造 \u003cagent_transcripts\u003e 片段。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":383,"prefix":"// ","text":"buildRequestContextAgentSkillsSection 构造 \u003cagent_skills\u003e 片段。","raw":"// buildRequestContextAgentSkillsSection 构造 \u003cagent_skills\u003e 片段。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":426,"prefix":"// ","text":"buildRequestContextRulesSection 构造 \u003crules\u003e 片段。","raw":"// buildRequestContextRulesSection 构造 \u003crules\u003e 片段。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":451,"prefix":"// ","text":"buildRequestContextMCPFileSystemSection 构造 \u003cmcp_file_system\u003e 片段。","raw":"// buildRequestContextMCPFileSystemSection 构造 \u003cmcp_file_system\u003e 片段。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":643,"prefix":"// ","text":"escapePromptXML 对 prompt 片段做最小 XML 转义。","raw":"// escapePromptXML 对 prompt 片段做最小 XML 转义。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":684,"prefix":"// ","text":"formatRequestContextDate 返回与主项目对齐的日期格式。","raw":"// formatRequestContextDate 返回与主项目对齐的日期格式。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":689,"prefix":"// ","text":"buildMessagesFromPendingAssistantOutputs 把 `pending_tool_calls` 中的原始记录转换为安全的 assistant 文本消息。","raw":"// buildMessagesFromPendingAssistantOutputs 把 `pending_tool_calls` 中的原始记录转换为安全的 assistant 文本消息。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":694,"prefix":"// ","text":"buildMessagesFromCommittedTurns 把已提交的 `ConversationStateStructure.turns` 映射为有序 prompt 消息。","raw":"// buildMessagesFromCommittedTurns 把已提交的 `ConversationStateStructure.turns` 映射为有序 prompt 消息。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":745,"prefix":"// ","text":"buildMessagesFromConversationStep 把单个 ConversationStep 映射为 prompt 消息。","raw":"// buildMessagesFromConversationStep 把单个 ConversationStep 映射为 prompt 消息。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":761,"prefix":"// ","text":"mapPromptMode 将协议 mode 映射为静态 prompt 资产 mode。","raw":"// mapPromptMode 将协议 mode 映射为静态 prompt 资产 mode。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":779,"prefix":"// ","text":"sanitizePromptAsset 去除资产文件中的文档性标题，只保留真实 prompt 文本。","raw":"// sanitizePromptAsset 去除资产文件中的文档性标题，只保留真实 prompt 文本。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":795,"prefix":"// ","text":"decodeToolsFromBaseline 从原始工具 JSON 中按原始顺序解码工具列表与名称。","raw":"// decodeToolsFromBaseline 从原始工具 JSON 中按原始顺序解码工具列表与名称。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":797,"prefix":"// ","text":"当前约束：","raw":"// 当前约束："}
+{"file":"internal/backend/agent/prompt/engine.go","line":798,"prefix":"// ","text":"1. `tools.json` 就是该 mode 的工具暴露基线；","raw":"// 1. `tools.json` 就是该 mode 的工具暴露基线；"}
+{"file":"internal/backend/agent/prompt/engine.go","line":799,"prefix":"// ","text":"2. 必须保持原始顺序与原始工具描述结构，不得在 prompt 编译阶段做二次过滤；","raw":"// 2. 必须保持原始顺序与原始工具描述结构，不得在 prompt 编译阶段做二次过滤；"}
+{"file":"internal/backend/agent/prompt/engine.go","line":800,"prefix":"// ","text":"3. 未实现能力的显式错误语义必须由 runtime 负责，而不是由 prompt 编译器隐藏工具。","raw":"// 3. 未实现能力的显式错误语义必须由 runtime 负责，而不是由 prompt 编译器隐藏工具。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":820,"prefix":"// ","text":"extractToolName 从原始工具 JSON 中提取工具名称。","raw":"// extractToolName 从原始工具 JSON 中提取工具名称。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":837,"prefix":"// ","text":"extractPendingAssistantText 从单条 pending assistant 原始记录中提取文本内容。","raw":"// extractPendingAssistantText 从单条 pending assistant 原始记录中提取文本内容。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":991,"prefix":"// ","text":"decodeSummaryForPrompt 解码会话 summary，供 prompt 编译使用。","raw":"// decodeSummaryForPrompt 解码会话 summary，供 prompt 编译使用。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":1004,"prefix":"// ","text":"decodePlanForPrompt 解码会话 plan，供 prompt 编译使用。","raw":"// decodePlanForPrompt 解码会话 plan，供 prompt 编译使用。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":1017,"prefix":"// ","text":"decodeTodosForPrompt 解码会话 todos，供 prompt 编译使用。","raw":"// decodeTodosForPrompt 解码会话 todos，供 prompt 编译使用。"}
+{"file":"internal/backend/agent/prompt/engine.go","line":1039,"prefix":"// ","text":"todoStatusLabel 将 proto todo 状态转为 prompt 文本标签。","raw":"// todoStatusLabel 将 proto todo 状态转为 prompt 文本标签。"}
+{"file":"internal/backend/agent/prompt/replay.go","line":14,"prefix":"// ","text":"BuildUserQueryReplayMessage 构造一条可直接回放给模型的用户消息。","raw":"// BuildUserQueryReplayMessage 构造一条可直接回放给模型的用户消息。"}
+{"file":"internal/backend/agent/prompt/replay.go","line":19,"prefix":"// ","text":"BuildUserMessageReplayMessage 把包含 selected_context 的用户消息还原为 replay message。","raw":"// BuildUserMessageReplayMessage 把包含 selected_context 的用户消息还原为 replay message。"}
+{"file":"internal/backend/agent/prompt/replay.go","line":211,"prefix":"// ","text":"EncodeReplayMessages 把 canonical replay message 编码为 root_prompt_messages_json。","raw":"// EncodeReplayMessages 把 canonical replay message 编码为 root_prompt_messages_json。"}
+{"file":"internal/backend/agent/prompt/replay.go","line":265,"prefix":"// ","text":"DecodeReplayMessages 从 root_prompt_messages_json 解码 canonical replay message。","raw":"// DecodeReplayMessages 从 root_prompt_messages_json 解码 canonical replay message。"}
+{"file":"internal/backend/agent/prompt/replay.go","line":287,"prefix":"// ","text":"BuildReplayMessagesFromPendingAssistantOutputs 把 pending assistant raw 还原为 canonical replay message。","raw":"// BuildReplayMessagesFromPendingAssistantOutputs 把 pending assistant raw 还原为 canonical replay message。"}
+{"file":"internal/backend/agent/prompt/replay.go","line":299,"prefix":"// ","text":"BuildLegacyMessagesFromConversationStep 使用 legacy XML 文本形状回放单个 step。","raw":"// BuildLegacyMessagesFromConversationStep 使用 legacy XML 文本形状回放单个 step。"}
+{"file":"internal/backend/agent/prompt/replay.go","line":335,"prefix":"// ","text":"BuildToolCallReplayMessages 把已完成的 ToolCall step 还原为 native assistant/tool replay message。","raw":"// BuildToolCallReplayMessages 把已完成的 ToolCall step 还原为 native assistant/tool replay message。"}
+{"file":"internal/backend/agent/prompt/replay.go","line":351,"prefix":"// ","text":"BuildToolResultReplayMessage 从已完成的 ToolCall 中提取 tool replay message，","raw":"// BuildToolResultReplayMessage 从已完成的 ToolCall 中提取 tool replay message，"}
+{"file":"internal/backend/agent/prompt/replay.go","line":352,"prefix":"// ","text":"用于 history 已经单独记录过 assistant tool_call 时仅回放真实工具结果。","raw":"// 用于 history 已经单独记录过 assistant tool_call 时仅回放真实工具结果。"}
+{"file":"internal/backend/agent/prompt/replay.go","line":369,"prefix":"// ","text":"BuildAssistantToolCallReplayMessage 把未完成或已完成的 ToolCall 还原为 assistant tool-call replay message。","raw":"// BuildAssistantToolCallReplayMessage 把未完成或已完成的 ToolCall 还原为 assistant tool-call replay message。"}
+{"file":"internal/backend/agent/prompt/replay.go","line":382,"prefix":"// ","text":"BuildToolCallReplayDescriptor 从 ToolCall proto 提取 assistant replay 所需的工具调用描述。","raw":"// BuildToolCallReplayDescriptor 从 ToolCall proto 提取 assistant replay 所需的工具调用描述。"}
+{"file":"internal/backend/agent/protocol/doc.go","line":1,"prefix":"// ","text":"Package protocol 负责协议层解码、摘要与上行消息种类判断。","raw":"// Package protocol 负责协议层解码、摘要与上行消息种类判断。"}
+{"file":"internal/backend/agent/protocol/inbound.go","line":1,"prefix":"// ","text":"inbound.go 实现上行协议的解码、摘要与命令类型识别。","raw":"// inbound.go 实现上行协议的解码、摘要与命令类型识别。"}
+{"file":"internal/backend/agent/protocol/inbound.go","line":17,"prefix":"// ","text":"ReadAppendRequestID 从 BidiAppendRequest 中读取 request_id 文本。","raw":"// ReadAppendRequestID 从 BidiAppendRequest 中读取 request_id 文本。"}
+{"file":"internal/backend/agent/protocol/inbound.go","line":25,"prefix":"// ","text":"ReadBidiRequestID 从 BidiRequestId 结构中提取并去除首尾空白。","raw":"// ReadBidiRequestID 从 BidiRequestId 结构中提取并去除首尾空白。"}
+{"file":"internal/backend/agent/protocol/inbound.go","line":33,"prefix":"// ","text":"NormalizeRequestID 规范化请求标识并去除首尾空白。","raw":"// NormalizeRequestID 规范化请求标识并去除首尾空白。"}
+{"file":"internal/backend/agent/protocol/inbound.go","line":38,"prefix":"// ","text":"DecodeAgentClientMessage 解析 hex 文本为 AgentClientMessage，并返回消息类型标签。","raw":"// DecodeAgentClientMessage 解析 hex 文本为 AgentClientMessage，并返回消息类型标签。"}
+{"file":"internal/backend/agent/protocol/inbound.go","line":55,"prefix":"// ","text":"MapClientMessageToCommandKind 将上行协议消息映射为运行时命令类型。","raw":"// MapClientMessageToCommandKind 将上行协议消息映射为运行时命令类型。"}
+{"file":"internal/backend/agent/protocol/inbound.go","line":98,"prefix":"// ","text":"IsResumeRunRequest 判断当前消息是否为带 `resume_action` 的 `run_request`。","raw":"// IsResumeRunRequest 判断当前消息是否为带 `resume_action` 的 `run_request`。"}
+{"file":"internal/backend/agent/protocol/inbound.go","line":111,"prefix":"// ","text":"BuildClientHistoryEntry 将消息类型与负载摘要拼接成会话历史记录文本。","raw":"// BuildClientHistoryEntry 将消息类型与负载摘要拼接成会话历史记录文本。"}
+{"file":"internal/backend/agent/protocol/inbound.go","line":129,"prefix":"// ","text":"detectClientMessageKind 判断 oneof message 当前承载的消息分支类型。","raw":"// detectClientMessageKind 判断 oneof message 当前承载的消息分支类型。"}
+{"file":"internal/backend/agent/protocol/inbound.go","line":156,"prefix":"// ","text":"extractClientMessagePayload 从 oneof 分支中提取原始 bytes 负载。","raw":"// extractClientMessagePayload 从 oneof 分支中提取原始 bytes 负载。"}
+{"file":"internal/backend/agent/protocol/inbound.go","line":184,"prefix":"// ","text":"marshalProtoMessage 将 proto 消息重新编码为 bytes，用于调试摘要展示。","raw":"// marshalProtoMessage 将 proto 消息重新编码为 bytes，用于调试摘要展示。"}
+{"file":"internal/backend/agent/protocol/inbound.go","line":196,"prefix":"// ","text":"summarizePayload 生成可读摘要：优先文本，无法直接读时回退为 hex 片段。","raw":"// summarizePayload 生成可读摘要：优先文本，无法直接读时回退为 hex 片段。"}
+{"file":"internal/backend/agent/protocol/inbound.go","line":214,"prefix":"// ","text":"truncateText 按 rune 数截断文本，避免在多字节字符中间截断导致乱码。","raw":"// truncateText 按 rune 数截断文本，避免在多字节字符中间截断导致乱码。"}
+{"file":"internal/backend/agent/step/doc.go","line":1,"prefix":"// ","text":"Package step 负责 assistant 输出记录的整理、解析与最小构造。","raw":"// Package step 负责 assistant 输出记录的整理、解析与最小构造。"}
+{"file":"internal/backend/agent/step/recorder.go","line":1,"prefix":"// ","text":"recorder.go 实现 pending assistant 输出记录的解析与构造。","raw":"// recorder.go 实现 pending assistant 输出记录的解析与构造。"}
+{"file":"internal/backend/agent/step/recorder.go","line":12,"prefix":"\t// ","text":"defaultTextPreviewLimit 表示文本摘要允许保留的最大 rune 数。","raw":"\t// defaultTextPreviewLimit 表示文本摘要允许保留的最大 rune 数。"}
+{"file":"internal/backend/agent/step/recorder.go","line":16,"prefix":"// ","text":"assistantMessage 表示 `pending_tool_calls` 中常见的 assistant message 结构。","raw":"// assistantMessage 表示 `pending_tool_calls` 中常见的 assistant message 结构。"}
+{"file":"internal/backend/agent/step/recorder.go","line":18,"prefix":"\t// ","text":"ID 是 message 级别的标识，当前抓包中常见值为 1。","raw":"\t// ID 是 message 级别的标识，当前抓包中常见值为 1。"}
+{"file":"internal/backend/agent/step/recorder.go","line":20,"prefix":"\t// ","text":"Role 是当前 message 的角色，当前常见值为 assistant。","raw":"\t// Role 是当前 message 的角色，当前常见值为 assistant。"}
+{"file":"internal/backend/agent/step/recorder.go","line":22,"prefix":"\t// ","text":"Content 保存该 message 的内容块列表。","raw":"\t// Content 保存该 message 的内容块列表。"}
+{"file":"internal/backend/agent/step/recorder.go","line":26,"prefix":"// ","text":"assistantContent 表示 assistant message 内的单个内容块。","raw":"// assistantContent 表示 assistant message 内的单个内容块。"}
+{"file":"internal/backend/agent/step/recorder.go","line":28,"prefix":"\t// ","text":"Type 表示内容块类型，例如 text、reasoning 或 tool-call。","raw":"\t// Type 表示内容块类型，例如 text、reasoning 或 tool-call。"}
+{"file":"internal/backend/agent/step/recorder.go","line":30,"prefix":"\t// ","text":"Text 保存文本内容块文本。","raw":"\t// Text 保存文本内容块文本。"}
+{"file":"internal/backend/agent/step/recorder.go","line":32,"prefix":"\t// ","text":"ToolCallID 保存工具调用标识。","raw":"\t// ToolCallID 保存工具调用标识。"}
+{"file":"internal/backend/agent/step/recorder.go","line":34,"prefix":"\t// ","text":"ToolName 保存工具名称。","raw":"\t// ToolName 保存工具名称。"}
+{"file":"internal/backend/agent/step/recorder.go","line":36,"prefix":"\t// ","text":"Args 保存工具调用参数原文。","raw":"\t// Args 保存工具调用参数原文。"}
+{"file":"internal/backend/agent/step/recorder.go","line":38,"prefix":"\t// ","text":"Result 保存工具调用结果原文。","raw":"\t// Result 保存工具调用结果原文。"}
+{"file":"internal/backend/agent/step/recorder.go","line":42,"prefix":"// ","text":"Recorder 负责解析与构造 pending assistant 输出记录。","raw":"// Recorder 负责解析与构造 pending assistant 输出记录。"}
+{"file":"internal/backend/agent/step/recorder.go","line":46,"prefix":"// ","text":"StepRecorder 定义运行时依赖的 step 记录接口。","raw":"// StepRecorder 定义运行时依赖的 step 记录接口。"}
+{"file":"internal/backend/agent/step/recorder.go","line":48,"prefix":"\t// ","text":"ParsePendingAssistantOutputs 解析一组原始 pending assistant 输出记录。","raw":"\t// ParsePendingAssistantOutputs 解析一组原始 pending assistant 输出记录。"}
+{"file":"internal/backend/agent/step/recorder.go","line":50,"prefix":"\t// ","text":"ParsePendingAssistantOutput 解析单条原始 assistant 输出记录。","raw":"\t// ParsePendingAssistantOutput 解析单条原始 assistant 输出记录。"}
+{"file":"internal/backend/agent/step/recorder.go","line":52,"prefix":"\t// ","text":"BuildTextAssistantOutput 构造一条只包含文本的 assistant 输出记录。","raw":"\t// BuildTextAssistantOutput 构造一条只包含文本的 assistant 输出记录。"}
+{"file":"internal/backend/agent/step/recorder.go","line":54,"prefix":"\t// ","text":"StartAssistantOutput 创建一个新的 assistant 输出构造器。","raw":"\t// StartAssistantOutput 创建一个新的 assistant 输出构造器。"}
+{"file":"internal/backend/agent/step/recorder.go","line":58,"prefix":"// ","text":"NewRecorder 创建 assistant 输出记录整理器。","raw":"// NewRecorder 创建 assistant 输出记录整理器。"}
+{"file":"internal/backend/agent/step/recorder.go","line":63,"prefix":"// ","text":"AssistantOutputBuilder 表示一条 assistant 输出记录的构造器。","raw":"// AssistantOutputBuilder 表示一条 assistant 输出记录的构造器。"}
+{"file":"internal/backend/agent/step/recorder.go","line":65,"prefix":"\t// ","text":"message 保存当前正在构造的原始 assistant message。","raw":"\t// message 保存当前正在构造的原始 assistant message。"}
+{"file":"internal/backend/agent/step/recorder.go","line":69,"prefix":"// ","text":"ParsePendingAssistantOutputs 解析一组原始 `pending_tool_calls` 字符串。","raw":"// ParsePendingAssistantOutputs 解析一组原始 `pending_tool_calls` 字符串。"}
+{"file":"internal/backend/agent/step/recorder.go","line":82,"prefix":"// ","text":"ParsePendingAssistantOutput 解析单条原始 assistant 输出记录。","raw":"// ParsePendingAssistantOutput 解析单条原始 assistant 输出记录。"}
+{"file":"internal/backend/agent/step/recorder.go","line":125,"prefix":"// ","text":"BuildTextAssistantOutput 构造一条只包含文本的 assistant 输出记录。","raw":"// BuildTextAssistantOutput 构造一条只包含文本的 assistant 输出记录。"}
+{"file":"internal/backend/agent/step/recorder.go","line":147,"prefix":"// ","text":"StartAssistantOutput 创建一个新的 assistant 输出构造器。","raw":"// StartAssistantOutput 创建一个新的 assistant 输出构造器。"}
+{"file":"internal/backend/agent/step/recorder.go","line":158,"prefix":"// ","text":"AppendTextDelta 追加一段文本内容。","raw":"// AppendTextDelta 追加一段文本内容。"}
+{"file":"internal/backend/agent/step/recorder.go","line":169,"prefix":"// ","text":"AppendReasoningDelta 追加一段推理内容，供 reasoning 模型在续跑时回放。","raw":"// AppendReasoningDelta 追加一段推理内容，供 reasoning 模型在续跑时回放。"}
+{"file":"internal/backend/agent/step/recorder.go","line":180,"prefix":"// ","text":"OpenToolCall 追加一个尚未完成的工具调用块。","raw":"// OpenToolCall 追加一个尚未完成的工具调用块。"}
+{"file":"internal/backend/agent/step/recorder.go","line":193,"prefix":"// ","text":"CompleteToolCall 为指定工具调用补充结果内容。","raw":"// CompleteToolCall 为指定工具调用补充结果内容。"}
+{"file":"internal/backend/agent/step/recorder.go","line":210,"prefix":"// ","text":"SnapshotRaw 输出当前 builder 的原始 JSON 和解析结果。","raw":"// SnapshotRaw 输出当前 builder 的原始 JSON 和解析结果。"}
+{"file":"internal/backend/agent/step/recorder.go","line":226,"prefix":"// ","text":"truncateText 按 rune 数截断文本，避免在多字节字符中间截断。","raw":"// truncateText 按 rune 数截断文本，避免在多字节字符中间截断。"}
+{"file":"internal/backend/forwarder/artifacts.go","line":14,"prefix":"// ","text":"artifactRecorder 只缓存当前 provider call 的请求摘要，用于本轮内 usage/model 信息补齐。","raw":"// artifactRecorder 只缓存当前 provider call 的请求摘要，用于本轮内 usage/model 信息补齐。"}
+{"file":"internal/backend/forwarder/artifacts.go","line":15,"prefix":"// ","text":"对话恢复事实只存在 state.json 与 context.json。","raw":"// 对话恢复事实只存在 state.json 与 context.json。"}
+{"file":"internal/backend/forwarder/broker.go","line":1,"prefix":"// ","text":"broker.go 负责 request 维度活动流的订阅、广播、取消和终态收口。","raw":"// broker.go 负责 request 维度活动流的订阅、广播、取消和终态收口。"}
+{"file":"internal/backend/forwarder/broker.go","line":25,"prefix":"// ","text":"NewStreamBroker 创建活动流注册表。","raw":"// NewStreamBroker 创建活动流注册表。"}
+{"file":"internal/backend/forwarder/broker.go","line":32,"prefix":"// ","text":"OpenStream 打开或复用指定 request 的活动流，并刷新其最新上下文。","raw":"// OpenStream 打开或复用指定 request 的活动流，并刷新其最新上下文。"}
+{"file":"internal/backend/forwarder/broker.go","line":112,"prefix":"// ","text":"Get 返回指定 request 对应的活动流句柄。","raw":"// Get 返回指定 request 对应的活动流句柄。"}
+{"file":"internal/backend/forwarder/broker.go","line":123,"prefix":"// ","text":"Subscribe 为指定 request 注册一个新订阅者，并返回用于唤醒 backlog 消费的信号通道。","raw":"// Subscribe 为指定 request 注册一个新订阅者，并返回用于唤醒 backlog 消费的信号通道。"}
+{"file":"internal/backend/forwarder/broker.go","line":131,"prefix":"\t\t// ","text":"RunSSE 可能先于 BidiAppend 到达。此时先创建一个占位活动流，","raw":"\t\t// RunSSE 可能先于 BidiAppend 到达。此时先创建一个占位活动流，"}
+{"file":"internal/backend/forwarder/broker.go","line":132,"prefix":"\t\t// ","text":"等待后续上行把真实 conversation/model/mode 信息补齐。","raw":"\t\t// 等待后续上行把真实 conversation/model/mode 信息补齐。"}
+{"file":"internal/backend/forwarder/broker.go","line":162,"prefix":"// ","text":"Unsubscribe 移除并关闭指定订阅者，并返回移除后的剩余订阅者数量。","raw":"// Unsubscribe 移除并关闭指定订阅者，并返回移除后的剩余订阅者数量。"}
+{"file":"internal/backend/forwarder/broker.go","line":266,"prefix":"// ","text":"RemoveIfIdle 在没有订阅者时移除终态流，或移除仍为空壳的占位流。","raw":"// RemoveIfIdle 在没有订阅者时移除终态流，或移除仍为空壳的占位流。"}
+{"file":"internal/backend/forwarder/broker.go","line":302,"prefix":"// ","text":"Publish 把一个事件写入 backlog，并唤醒当前所有订阅者读取 backlog。","raw":"// Publish 把一个事件写入 backlog，并唤醒当前所有订阅者读取 backlog。"}
+{"file":"internal/backend/forwarder/broker.go","line":333,"prefix":"// ","text":"ReadFromCursor 返回从 cursor 开始尚未消费的 backlog 事件副本。","raw":"// ReadFromCursor 返回从 cursor 开始尚未消费的 backlog 事件副本。"}
+{"file":"internal/backend/forwarder/broker.go","line":350,"prefix":"// ","text":"Complete 把活动流标记为成功完成，并发布一个成功 endstream 事件。","raw":"// Complete 把活动流标记为成功完成，并发布一个成功 endstream 事件。"}
+{"file":"internal/backend/forwarder/broker.go","line":379,"prefix":"// ","text":"Fail 把活动流标记为失败，并发布一个失败 endstream 事件。","raw":"// Fail 把活动流标记为失败，并发布一个失败 endstream 事件。"}
+{"file":"internal/backend/forwarder/broker.go","line":404,"prefix":"// ","text":"Cancel 主动取消活动流，并发布 canceled endstream。","raw":"// Cancel 主动取消活动流，并发布 canceled endstream。"}
+{"file":"internal/backend/forwarder/broker.go","line":434,"prefix":"// ","text":"firstNonEmpty 返回第一个非空白字符串。","raw":"// firstNonEmpty 返回第一个非空白字符串。"}
+{"file":"internal/backend/forwarder/compiler.go","line":1,"prefix":"// ","text":"compiler.go 负责把固定 prompt、自然历史和 tool catalog 编译成 provider 请求。","raw":"// compiler.go 负责把固定 prompt、自然历史和 tool catalog 编译成 provider 请求。"}
+{"file":"internal/backend/forwarder/compiler.go","line":25,"prefix":"// ","text":"NewPromptCompiler 创建默认 prompt 编译器。","raw":"// NewPromptCompiler 创建默认 prompt 编译器。"}
+{"file":"internal/backend/forwarder/compiler.go","line":35,"prefix":"// ","text":"Compile 生成当前 turn 应发送给 provider 的消息和工具集合。","raw":"// Compile 生成当前 turn 应发送给 provider 的消息和工具集合。"}
+{"file":"internal/backend/forwarder/compiler.go","line":191,"prefix":"// ","text":"filterNonEmpty 过滤掉空白字符串，便于安全拼接 system prompt 片段。","raw":"// filterNonEmpty 过滤掉空白字符串，便于安全拼接 system prompt 片段。"}
+{"file":"internal/backend/forwarder/events.go","line":1,"prefix":"// ","text":"events.go 负责构造对外兼容的 legacy RunSSE 消息。","raw":"// events.go 负责构造对外兼容的 legacy RunSSE 消息。"}
+{"file":"internal/backend/forwarder/events.go","line":16,"prefix":"// ","text":"buildHeartbeatMessage 构造一个服务端心跳消息。","raw":"// buildHeartbeatMessage 构造一个服务端心跳消息。"}
+{"file":"internal/backend/forwarder/events.go","line":29,"prefix":"// ","text":"buildTextDeltaMessage 构造文本增量消息。","raw":"// buildTextDeltaMessage 构造文本增量消息。"}
+{"file":"internal/backend/forwarder/events.go","line":42,"prefix":"// ","text":"buildThinkingDeltaMessage 构造思考文本增量消息。","raw":"// buildThinkingDeltaMessage 构造思考文本增量消息。"}
+{"file":"internal/backend/forwarder/events.go","line":59,"prefix":"// ","text":"buildThinkingCompletedMessage 构造思考阶段结束消息。","raw":"// buildThinkingCompletedMessage 构造思考阶段结束消息。"}
+{"file":"internal/backend/forwarder/events.go","line":74,"prefix":"// ","text":"buildSummaryStartedMessage 构造摘要开始消息。","raw":"// buildSummaryStartedMessage 构造摘要开始消息。"}
+{"file":"internal/backend/forwarder/events.go","line":87,"prefix":"// ","text":"buildSummaryMessage 构造摘要增量/完成内容消息。","raw":"// buildSummaryMessage 构造摘要增量/完成内容消息。"}
+{"file":"internal/backend/forwarder/events.go","line":100,"prefix":"// ","text":"buildSummaryCompletedMessage 构造摘要完成消息。","raw":"// buildSummaryCompletedMessage 构造摘要完成消息。"}
+{"file":"internal/backend/forwarder/events.go","line":101,"prefix":"// ","text":"field 11 在 legacy aiserver 协议里会被客户端按 GetThoughtAnnotationRequest 解码，","raw":"// field 11 在 legacy aiserver 协议里会被客户端按 GetThoughtAnnotationRequest 解码，"}
+{"file":"internal/backend/forwarder/events.go","line":102,"prefix":"// ","text":"所以这里需要把 request_id 写入 field 1，驱动客户端继续查询 \"Chat context summarized\" 注解。","raw":"// 所以这里需要把 request_id 写入 field 1，驱动客户端继续查询 \"Chat context summarized\" 注解。"}
+{"file":"internal/backend/forwarder/events.go","line":122,"prefix":"// ","text":"buildToolCallStartedMessage 构造工具调用开始消息。","raw":"// buildToolCallStartedMessage 构造工具调用开始消息。"}
+{"file":"internal/backend/forwarder/events.go","line":139,"prefix":"// ","text":"buildPartialToolCallMessage 构造工具调用参数流式生成中的兼容消息。","raw":"// buildPartialToolCallMessage 构造工具调用参数流式生成中的兼容消息。"}
+{"file":"internal/backend/forwarder/events.go","line":157,"prefix":"// ","text":"buildToolCallDeltaMessage 构造工具调用流式增量消息。","raw":"// buildToolCallDeltaMessage 构造工具调用流式增量消息。"}
+{"file":"internal/backend/forwarder/events.go","line":174,"prefix":"// ","text":"buildToolCallCompletedMessage 构造工具调用完成消息。","raw":"// buildToolCallCompletedMessage 构造工具调用完成消息。"}
+{"file":"internal/backend/forwarder/events.go","line":191,"prefix":"// ","text":"buildShellOutputDeltaMessage 把 shell 流输出包装成兼容消息。","raw":"// buildShellOutputDeltaMessage 把 shell 流输出包装成兼容消息。"}
+{"file":"internal/backend/forwarder/events.go","line":204,"prefix":"// ","text":"buildTurnEndedMessage 构造 turn 结束消息，并携带标准化后的 token 统计。","raw":"// buildTurnEndedMessage 构造 turn 结束消息，并携带标准化后的 token 统计。"}
+{"file":"internal/backend/forwarder/events.go","line":226,"prefix":"// ","text":"buildCheckpointMessage 根据投影出的状态生成 legacy checkpoint 消息。","raw":"// buildCheckpointMessage 根据投影出的状态生成 legacy checkpoint 消息。"}
+{"file":"internal/backend/forwarder/events.go","line":248,"prefix":"// ","text":"buildExecAbortMessage 构造对客户端执行桥的 abort 控制消息。","raw":"// buildExecAbortMessage 构造对客户端执行桥的 abort 控制消息。"}
+{"file":"internal/backend/forwarder/events.go","line":263,"prefix":"// ","text":"buildStartedToolCall 把工具意图映射为可发送给客户端的 started ToolCall 结构。","raw":"// buildStartedToolCall 把工具意图映射为可发送给客户端的 started ToolCall 结构。"}
+{"file":"internal/backend/forwarder/events.go","line":567,"prefix":"// ","text":"stringPtr 在字符串非空时返回指针，避免把空串写入 optional 字段。","raw":"// stringPtr 在字符串非空时返回指针，避免把空串写入 optional 字段。"}
+{"file":"internal/backend/forwarder/file_store.go","line":1,"prefix":"// ","text":"file_store.go 负责 conversation 的两份持久化事实：state.json 与 context.json。","raw":"// file_store.go 负责 conversation 的两份持久化事实：state.json 与 context.json。"}
+{"file":"internal/backend/forwarder/file_store.go","line":55,"prefix":"// ","text":"NewConversationFileStore 创建 JSON history 文件存储。","raw":"// NewConversationFileStore 创建 JSON history 文件存储。"}
+{"file":"internal/backend/forwarder/file_store.go","line":60,"prefix":"// ","text":"HistoryDir 返回 history 根路径。","raw":"// HistoryDir 返回 history 根路径。"}
+{"file":"internal/backend/forwarder/file_store.go","line":68,"prefix":"// ","text":"CreateConversation 确保指定会话对应的 state/context 文件存在并完成元数据初始化。","raw":"// CreateConversation 确保指定会话对应的 state/context 文件存在并完成元数据初始化。"}
+{"file":"internal/backend/forwarder/file_store.go","line":113,"prefix":"// ","text":"LoadConversation 读取 state.json + context.json。","raw":"// LoadConversation 读取 state.json + context.json。"}
+{"file":"internal/backend/forwarder/file_store.go","line":121,"prefix":"// ","text":"AppendEntries 把已经发生的语义事件追加到 context.json，并同步 state.json。","raw":"// AppendEntries 把已经发生的语义事件追加到 context.json，并同步 state.json。"}
+{"file":"internal/backend/forwarder/file_store.go","line":212,"prefix":"// ","text":"UpdateConversationMeta 更新 state.json；context.json 保持不变。","raw":"// UpdateConversationMeta 更新 state.json；context.json 保持不变。"}
+{"file":"internal/backend/forwarder/file_store.go","line":256,"prefix":"// ","text":"ReplaceEntries 原子替换 context.json，并同步 state.json 中的 sequence/version 状态。","raw":"// ReplaceEntries 原子替换 context.json，并同步 state.json 中的 sequence/version 状态。"}
+{"file":"internal/backend/forwarder/file_store.go","line":305,"prefix":"// ","text":"GetConversationSummary 返回轻量会话摘要。","raw":"// GetConversationSummary 返回轻量会话摘要。"}
+{"file":"internal/backend/forwarder/file_store.go","line":321,"prefix":"// ","text":"ListConversationIDs 返回 history 根目录下包含 state/context 的 conversation id。","raw":"// ListConversationIDs 返回 history 根目录下包含 state/context 的 conversation id。"}
+{"file":"internal/backend/forwarder/legacy_stream.go","line":1,"prefix":"// ","text":"legacy_stream.go 提供兼容 Cursor legacy RunSSE 响应头的 HTTP 包装器。","raw":"// legacy_stream.go 提供兼容 Cursor legacy RunSSE 响应头的 HTTP 包装器。"}
+{"file":"internal/backend/forwarder/legacy_stream.go","line":16,"prefix":"// ","text":"NewLegacyRunSSEHandler 构造一个对外表现为 text/event-stream 的 Connect ServerStream 处理器。","raw":"// NewLegacyRunSSEHandler 构造一个对外表现为 text/event-stream 的 Connect ServerStream 处理器。"}
+{"file":"internal/backend/forwarder/legacy_stream.go","line":28,"prefix":"// ","text":"legacyRunSSEHeaderWriter 在真正写出 header 时覆盖 Content-Type。","raw":"// legacyRunSSEHeaderWriter 在真正写出 header 时覆盖 Content-Type。"}
+{"file":"internal/backend/forwarder/legacy_stream.go","line":34,"prefix":"// ","text":"newLegacyRunSSEHeaderWriter 创建一个响应头包装器。","raw":"// newLegacyRunSSEHeaderWriter 创建一个响应头包装器。"}
+{"file":"internal/backend/forwarder/legacy_stream.go","line":39,"prefix":"// ","text":"WriteHeader 在输出状态码前补齐 legacy 所需响应头。","raw":"// WriteHeader 在输出状态码前补齐 legacy 所需响应头。"}
+{"file":"internal/backend/forwarder/legacy_stream.go","line":46,"prefix":"// ","text":"Write 在首次写 body 时懒加载 header。","raw":"// Write 在首次写 body 时懒加载 header。"}
+{"file":"internal/backend/forwarder/legacy_stream.go","line":54,"prefix":"// ","text":"Flush 尝试把底层缓冲区立即刷新给客户端。","raw":"// Flush 尝试把底层缓冲区立即刷新给客户端。"}
+{"file":"internal/backend/forwarder/legacy_stream.go","line":61,"prefix":"// ","text":"Unwrap 返回底层 ResponseWriter。","raw":"// Unwrap 返回底层 ResponseWriter。"}
+{"file":"internal/backend/forwarder/legacy_stream.go","line":66,"prefix":"// ","text":"applyLegacyHeaders 设置 Cursor legacy RunSSE 需要的响应头。","raw":"// applyLegacyHeaders 设置 Cursor legacy RunSSE 需要的响应头。"}
+{"file":"internal/backend/forwarder/module.go","line":1,"prefix":"// ","text":"module.go 负责把 forwarder service 装配成 legacy HTTP/Connect handler。","raw":"// module.go 负责把 forwarder service 装配成 legacy HTTP/Connect handler。"}
+{"file":"internal/backend/forwarder/module.go","line":21,"prefix":"// ","text":"NewModule 创建 forwarder 模块，并导出本地 Bidi / RunSSE 处理器。","raw":"// NewModule 创建 forwarder 模块，并导出本地 Bidi / RunSSE 处理器。"}
+{"file":"internal/backend/forwarder/projector.go","line":1,"prefix":"// ","text":"projector.go 负责把 JSON history 投影成 prompt replay 和 legacy checkpoint 视图。","raw":"// projector.go 负责把 JSON history 投影成 prompt replay 和 legacy checkpoint 视图。"}
+{"file":"internal/backend/forwarder/projector.go","line":22,"prefix":"// ","text":"NewHistoryProjector 创建 history 投影器。","raw":"// NewHistoryProjector 创建 history 投影器。"}
+{"file":"internal/backend/forwarder/projector.go","line":27,"prefix":"// ","text":"ProjectPromptReplay 把 conversation history 还原为 provider 可消费的消息列表。","raw":"// ProjectPromptReplay 把 conversation history 还原为 provider 可消费的消息列表。"}
+{"file":"internal/backend/forwarder/projector.go","line":476,"prefix":"// ","text":"ProjectLegacyCheckpoint 按需从 JSON history 投影出兼容旧客户端的 checkpoint 结构。","raw":"// ProjectLegacyCheckpoint 按需从 JSON history 投影出兼容旧客户端的 checkpoint 结构。"}
+{"file":"internal/backend/forwarder/projector.go","line":1458,"prefix":"// ","text":"toModelMessage 把 promptengine 的消息结构转换为 modeladapter 消息结构。","raw":"// toModelMessage 把 promptengine 的消息结构转换为 modeladapter 消息结构。"}
+{"file":"internal/backend/forwarder/projector.go","line":1520,"prefix":"// ","text":"toModelToolCalls 把 promptengine 的 tool call 描述转换为 modeladapter 版本。","raw":"// toModelToolCalls 把 promptengine 的 tool call 描述转换为 modeladapter 版本。"}
+{"file":"internal/backend/forwarder/projector.go","line":1540,"prefix":"// ","text":"toPromptToolCalls 把 modeladapter 的 tool call 描述转换回 promptengine 版本。","raw":"// toPromptToolCalls 把 modeladapter 的 tool call 描述转换回 promptengine 版本。"}
+{"file":"internal/backend/forwarder/provider.go","line":1,"prefix":"// ","text":"provider.go 把 forwarder 的 canonical 请求转交给现有的 provider adapter 层。","raw":"// provider.go 把 forwarder 的 canonical 请求转交给现有的 provider adapter 层。"}
+{"file":"internal/backend/forwarder/provider.go","line":16,"prefix":"// ","text":"NewProviderGateway 创建默认 provider 网关。","raw":"// NewProviderGateway 创建默认 provider 网关。"}
+{"file":"internal/backend/forwarder/provider.go","line":23,"prefix":"// ","text":"StartStream 把 forwarder 的 provider 请求翻译成 modeladapter.StreamRequest 并发起流式调用。","raw":"// StartStream 把 forwarder 的 provider 请求翻译成 modeladapter.StreamRequest 并发起流式调用。"}
+{"file":"internal/backend/forwarder/reasoning_metadata.go","line":1,"prefix":"// ","text":"reasoning_metadata.go 保存 history/replay 共用的 reasoning metadata 判定。","raw":"// reasoning_metadata.go 保存 history/replay 共用的 reasoning metadata 判定。"}
+{"file":"internal/backend/forwarder/reminders.go","line":1,"prefix":"// ","text":"reminders.go 负责按 mode 和上下文生成最小的 system reminder 集合。","raw":"// reminders.go 负责按 mode 和上下文生成最小的 system reminder 集合。"}
+{"file":"internal/backend/forwarder/reminders.go","line":29,"prefix":"// ","text":"NewReminderInjector 创建默认 reminder 注入器。","raw":"// NewReminderInjector 创建默认 reminder 注入器。"}
+{"file":"internal/backend/forwarder/reminders.go","line":34,"prefix":"// ","text":"Inject 根据 mode、最近用户输入和工具上下文生成本轮附加提醒。","raw":"// Inject 根据 mode、最近用户输入和工具上下文生成本轮附加提醒。"}
+{"file":"internal/backend/forwarder/service.go","line":1,"prefix":"// ","text":"service.go 实现 forwarder 的主链路：Bidi 上行归一化、history 写入、provider 驱动和 RunSSE 下行。","raw":"// service.go 实现 forwarder 的主链路：Bidi 上行归一化、history 写入、provider 驱动和 RunSSE 下行。"}
+{"file":"internal/backend/forwarder/service.go","line":271,"prefix":"// ","text":"NewService 使用默认依赖创建 forwarder 服务。","raw":"// NewService 使用默认依赖创建 forwarder 服务。"}
+{"file":"internal/backend/forwarder/service.go","line":308,"prefix":"// ","text":"newServiceWithDependencies 主要用于测试场景，允许注入替身依赖。","raw":"// newServiceWithDependencies 主要用于测试场景，允许注入替身依赖。"}
+{"file":"internal/backend/forwarder/service.go","line":333,"prefix":"// ","text":"BidiAppend 处理 legacy Bidi 上行，把用户输入和外部结果归一化后写入 history。","raw":"// BidiAppend 处理 legacy Bidi 上行，把用户输入和外部结果归一化后写入 history。"}
+{"file":"internal/backend/forwarder/service.go","line":416,"prefix":"// ","text":"RunSSE 订阅指定 request 的活动流，优先回放 backlog，在 backlog 清空期间按 5 秒周期发送心跳。","raw":"// RunSSE 订阅指定 request 的活动流，优先回放 backlog，在 backlog 清空期间按 5 秒周期发送心跳。"}
+{"file":"internal/backend/forwarder/service.go","line":439,"prefix":"\t\t\t// ","text":"RunSSE 连接短暂抖动时，给活跃 provider 一段重连宽限期，","raw":"\t\t\t// RunSSE 连接短暂抖动时，给活跃 provider 一段重连宽限期，"}
+{"file":"internal/backend/forwarder/service.go","line":440,"prefix":"\t\t\t// ","text":"避免把本来还能正常收口的请求直接打成 context canceled。","raw":"\t\t\t// 避免把本来还能正常收口的请求直接打成 context canceled。"}
+{"file":"internal/backend/forwarder/service.go","line":540,"prefix":"// ","text":"decodeInboundIntent 把 legacy AgentClientMessage 映射为 forwarder 内部 intent。","raw":"// decodeInboundIntent 把 legacy AgentClientMessage 映射为 forwarder 内部 intent。"}
+{"file":"internal/backend/forwarder/service.go","line":680,"prefix":"// ","text":"handleRunIntent 处理 run/prewarm 类 intent，负责建会话、写 turn 和拉起 provider。","raw":"// handleRunIntent 处理 run/prewarm 类 intent，负责建会话、写 turn 和拉起 provider。"}
+{"file":"internal/backend/forwarder/service.go","line":823,"prefix":"// ","text":"handleCancelIntent 处理取消请求，并向客户端发送执行桥 abort。","raw":"// handleCancelIntent 处理取消请求，并向客户端发送执行桥 abort。"}
+{"file":"internal/backend/forwarder/service.go","line":868,"prefix":"// ","text":"handleExecResult 处理客户端返回的执行桥结果，并在终态时把 tool_result 写回 history。","raw":"// handleExecResult 处理客户端返回的执行桥结果，并在终态时把 tool_result 写回 history。"}
+{"file":"internal/backend/forwarder/service.go","line":951,"prefix":"// ","text":"handleExecControl 处理执行桥控制面结果，例如 stream_close 或 throw。","raw":"// handleExecControl 处理执行桥控制面结果，例如 stream_close 或 throw。"}
+{"file":"internal/backend/forwarder/service.go","line":1177,"prefix":"// ","text":"handleMetadataIntent 处理当前不驱动 provider 的轻量元数据上行。","raw":"// handleMetadataIntent 处理当前不驱动 provider 的轻量元数据上行。"}
+{"file":"internal/backend/forwarder/service.go","line":1270,"prefix":"// ","text":"driveProvider 由 actor 触发一次 provider pass，并把真实流包装成 provider_event 回投 mailbox。","raw":"// driveProvider 由 actor 触发一次 provider pass，并把真实流包装成 provider_event 回投 mailbox。"}
+{"file":"internal/backend/forwarder/service.go","line":1625,"prefix":"// ","text":"handleToolInvocation 把模型产生的工具意图转成 exec/interaction 请求并下发给客户端。","raw":"// handleToolInvocation 把模型产生的工具意图转成 exec/interaction 请求并下发给客户端。"}
+{"file":"internal/backend/forwarder/service.go","line":1861,"prefix":"// ","text":"shouldBufferExecDispatch 把只需要完整参数的快工具改成“先发 exec 请求，再发 started，再发 checkpoint”，","raw":"// shouldBufferExecDispatch 把只需要完整参数的快工具改成“先发 exec 请求，再发 started，再发 checkpoint”，"}
+{"file":"internal/backend/forwarder/service.go","line":1862,"prefix":"// ","text":"避免客户端在参数仍未稳定前过早起计时，同时保留显式的工具开始信号。","raw":"// 避免客户端在参数仍未稳定前过早起计时，同时保留显式的工具开始信号。"}
+{"file":"internal/backend/forwarder/service.go","line":1872,"prefix":"// ","text":"appendToolResult 把已完成的工具结果追加到 history，供后续 prompt replay 使用。","raw":"// appendToolResult 把已完成的工具结果追加到 history，供后续 prompt replay 使用。"}
+{"file":"internal/backend/forwarder/service.go","line":1874,"prefix":"// ","text":"reasoning 在已提交 history 中应挂在 assistant_text / tool_call 上。","raw":"// reasoning 在已提交 history 中应挂在 assistant_text / tool_call 上。"}
+{"file":"internal/backend/forwarder/service.go","line":1875,"prefix":"// ","text":"tool_result 保存一份 reasoning_content 兜底，replay 只会在缺失 tool_call entry","raw":"// tool_result 保存一份 reasoning_content 兜底，replay 只会在缺失 tool_call entry"}
+{"file":"internal/backend/forwarder/service.go","line":1876,"prefix":"// ","text":"且 reasoning 可回放时用它重建 assistant tool_use，不会把 thinking 复制到工具消息上。","raw":"// 且 reasoning 可回放时用它重建 assistant tool_use，不会把 thinking 复制到工具消息上。"}
+{"file":"internal/backend/forwarder/service.go","line":1985,"prefix":"// ","text":"closeStreamWithProviderError 在真实 LLM/provider 出错时通过 RunSSE 传回错误，并正常结束流。","raw":"// closeStreamWithProviderError 在真实 LLM/provider 出错时通过 RunSSE 传回错误，并正常结束流。"}
+{"file":"internal/backend/forwarder/service.go","line":2147,"prefix":"// ","text":"publishCheckpoint 按当前内存会话镜像投影出 checkpoint，并广播给所有 RunSSE 订阅者。","raw":"// publishCheckpoint 按当前内存会话镜像投影出 checkpoint，并广播给所有 RunSSE 订阅者。"}
+{"file":"internal/backend/forwarder/service.go","line":2237,"prefix":"// ","text":"flushAssistantText 把本轮累计的 assistant 文本一次性写回 history。","raw":"// flushAssistantText 把本轮累计的 assistant 文本一次性写回 history。"}
+{"file":"internal/backend/forwarder/service.go","line":2248,"prefix":"// ","text":"failStream 在 provider 或投影失败时把错误写入 history 并收口活动流。","raw":"// failStream 在 provider 或投影失败时把错误写入 history 并收口活动流。"}
+{"file":"internal/backend/forwarder/service.go","line":2319,"prefix":"// ","text":"buildRunEntries 构造一次 run intent 需要写入 history 的首批 entry。","raw":"// buildRunEntries 构造一次 run intent 需要写入 history 的首批 entry。"}
+{"file":"internal/backend/forwarder/service.go","line":2413,"prefix":"// ","text":"newAssistantTextEntry 构造 assistant 文本 entry。","raw":"// newAssistantTextEntry 构造 assistant 文本 entry。"}
+{"file":"internal/backend/forwarder/service.go","line":2437,"prefix":"// ","text":"newToolCallEntry 构造 tool_call entry。","raw":"// newToolCallEntry 构造 tool_call entry。"}
+{"file":"internal/backend/forwarder/service.go","line":2467,"prefix":"// ","text":"newToolResultEntry 构造 tool_result entry。","raw":"// newToolResultEntry 构造 tool_result entry。"}
+{"file":"internal/backend/forwarder/service.go","line":2487,"prefix":"// ","text":"newMetadataEntry 构造 metadata entry。","raw":"// newMetadataEntry 构造 metadata entry。"}
+{"file":"internal/backend/forwarder/service.go","line":2502,"prefix":"// ","text":"extractUserMessage 从 legacy run_request 中提取用户消息。","raw":"// extractUserMessage 从 legacy run_request 中提取用户消息。"}
+{"file":"internal/backend/forwarder/service.go","line":2517,"prefix":"// ","text":"extractRequestContext 从 legacy 请求中提取 request_context。","raw":"// extractRequestContext 从 legacy 请求中提取 request_context。"}
+{"file":"internal/backend/forwarder/service.go","line":2706,"prefix":"// ","text":"extractRunMode 推导本轮应使用的 mode。","raw":"// extractRunMode 推导本轮应使用的 mode。"}
+{"file":"internal/backend/forwarder/service.go","line":2753,"prefix":"// ","text":"extractRequestedModelID 提取本轮显式请求的模型 ID。","raw":"// extractRequestedModelID 提取本轮显式请求的模型 ID。"}
+{"file":"internal/backend/forwarder/service.go","line":2922,"prefix":"// ","text":"userMessageText 返回用户消息中的纯文本。","raw":"// userMessageText 返回用户消息中的纯文本。"}
+{"file":"internal/backend/forwarder/service.go","line":2951,"prefix":"// ","text":"selectPendingExec 按 exec_id 或 message_id 在当前流里查找挂起执行桥。","raw":"// selectPendingExec 按 exec_id 或 message_id 在当前流里查找挂起执行桥。"}
+{"file":"internal/backend/forwarder/service.go","line":2979,"prefix":"// ","text":"selectPendingExecByControl 根据控制消息的桥消息 ID 查找挂起执行桥。","raw":"// selectPendingExecByControl 根据控制消息的桥消息 ID 查找挂起执行桥。"}
+{"file":"internal/backend/forwarder/service.go","line":3196,"prefix":"// ","text":"markExecCompleted 保留一个短时 tombstone，避免迟到的 transport-level control 被误判为协议错误。","raw":"// markExecCompleted 保留一个短时 tombstone，避免迟到的 transport-level control 被误判为协议错误。"}
+{"file":"internal/backend/forwarder/service.go","line":3384,"prefix":"// ","text":"inferToolName 从完整 ToolCall proto 中反推出 canonical 工具名。","raw":"// inferToolName 从完整 ToolCall proto 中反推出 canonical 工具名。"}
+{"file":"internal/backend/forwarder/service.go","line":3437,"prefix":"// ","text":"deriveToolNameFromPendingExec 根据执行桥种类反推出 canonical 工具名。","raw":"// deriveToolNameFromPendingExec 根据执行桥种类反推出 canonical 工具名。"}
+{"file":"internal/backend/forwarder/service.go","line":3546,"prefix":"// ","text":"buildTerminalStreamError 把 broker 终态事件转换成 Connect endstream 错误。","raw":"// buildTerminalStreamError 把 broker 终态事件转换成 Connect endstream 错误。"}
+{"file":"internal/backend/forwarder/service.go","line":3569,"prefix":"// ","text":"buildRunSSEProviderError 构造 provider 专用的 RunSSE 错误包。","raw":"// buildRunSSEProviderError 构造 provider 专用的 RunSSE 错误包。"}
+{"file":"internal/backend/forwarder/service.go","line":3581,"prefix":"// ","text":"buildRunSSECustomError 构造带有 CustomErrorDetails 的 RunSSE 结构化错误。","raw":"// buildRunSSECustomError 构造带有 CustomErrorDetails 的 RunSSE 结构化错误。"}
+{"file":"internal/backend/forwarder/service.go","line":3586,"prefix":"// ","text":"buildRunSSEStructuredError 统一构造带有 ErrorDetails 的 Connect endstream 错误。","raw":"// buildRunSSEStructuredError 统一构造带有 ErrorDetails 的 Connect endstream 错误。"}
+{"file":"internal/backend/forwarder/tool_catalog.go","line":1,"prefix":"// ","text":"tool_catalog.go 负责从静态 prompt 资产中装载并筛选 canonical tool catalog。","raw":"// tool_catalog.go 负责从静态 prompt 资产中装载并筛选 canonical tool catalog。"}
+{"file":"internal/backend/forwarder/tool_catalog.go","line":16,"prefix":"// ","text":"NewToolCatalog 创建默认工具目录实现。","raw":"// NewToolCatalog 创建默认工具目录实现。"}
+{"file":"internal/backend/forwarder/tool_catalog.go","line":21,"prefix":"// ","text":"Load 按 mode 读取工具资产，并过滤出当前阶段真正允许暴露的工具。","raw":"// Load 按 mode 读取工具资产，并过滤出当前阶段真正允许暴露的工具。"}
+{"file":"internal/backend/forwarder/tool_catalog.go","line":246,"prefix":"// ","text":"mapPromptMode 把协议 mode 映射为静态 prompt 资产对应的目录名。","raw":"// mapPromptMode 把协议 mode 映射为静态 prompt 资产对应的目录名。"}
+{"file":"internal/backend/forwarder/tool_catalog.go","line":264,"prefix":"// ","text":"extractToolName 从原始 tool descriptor JSON 中提取函数名。","raw":"// extractToolName 从原始 tool descriptor JSON 中提取函数名。"}
+{"file":"internal/backend/forwarder/tool_catalog.go","line":281,"prefix":"// ","text":"sanitizePromptAsset 去掉资产文件中的说明性标题，只保留真正的 prompt 文本。","raw":"// sanitizePromptAsset 去掉资产文件中的说明性标题，只保留真正的 prompt 文本。"}
+{"file":"internal/backend/forwarder/types.go","line":1,"prefix":"// ","text":"types.go 定义 forwarder 的核心数据结构与最小接口边界。","raw":"// types.go 定义 forwarder 的核心数据结构与最小接口边界。"}
+{"file":"internal/backend/forwarder/types.go","line":303,"prefix":"// ","text":"providerTerminalError 表示底层 LLM/provider 返回的真实错误。","raw":"// providerTerminalError 表示底层 LLM/provider 返回的真实错误。"}
+{"file":"internal/backend/forwarder/types.go","line":308,"prefix":"// ","text":"Error 返回 provider 错误的字符串形式。","raw":"// Error 返回 provider 错误的字符串形式。"}
+{"file":"internal/backend/forwarder/types.go","line":316,"prefix":"// ","text":"Unwrap 允许调用方继续取到底层原始错误。","raw":"// Unwrap 允许调用方继续取到底层原始错误。"}
+{"file":"internal/backend/forwarder/types.go","line":432,"prefix":"// ","text":"normalizeMode 对外部传入的 mode 做最小归一化，但不再静默降级。","raw":"// normalizeMode 对外部传入的 mode 做最小归一化，但不再静默降级。"}
+{"file":"internal/backend/forwarder/types.go","line":466,"prefix":"// ","text":"modeAlias 把协议枚举转换为写入 JSON history 的简短模式名。","raw":"// modeAlias 把协议枚举转换为写入 JSON history 的简短模式名。"}
+{"file":"internal/backend/forwarder/types.go","line":484,"prefix":"// ","text":"parseModeAlias 把写入 JSON history 的模式名恢复为协议枚举。","raw":"// parseModeAlias 把写入 JSON history 的模式名恢复为协议枚举。"}
+{"file":"internal/backend/server/config/types.go","line":44,"prefix":"\t// ","text":"OpenAIEndpointGroupID 标识该适配器归属的 OpenAI endpoint 组。手动添加的适配器留空。","raw":"\t// OpenAIEndpointGroupID 标识该适配器归属的 OpenAI endpoint 组。手动添加的适配器留空。"}
+{"file":"internal/backend/server/config/types.go","line":46,"prefix":"\t// ","text":"Active 表示该适配器是否注入 Cursor。同一 endpoint 组内至多一个模型为 active。","raw":"\t// Active 表示该适配器是否注入 Cursor。同一 endpoint 组内至多一个模型为 active。"}
+{"file":"internal/backend/server/doc.go","line":1,"prefix":"// ","text":"Package server 提供 ConnectRPC 服务端入口，并将协议请求转发到运行时协调层。","raw":"// Package server 提供 ConnectRPC 服务端入口，并将协议请求转发到运行时协调层。"}
+{"file":"internal/backend/server/policy.go","line":6,"prefix":"\t// ","text":"ModeLocal 表示本地模式，适用于直接处理请求的情况。","raw":"\t// ModeLocal 表示本地模式，适用于直接处理请求的情况。"}
+{"file":"internal/backend/server/policy.go","line":8,"prefix":"\t// ","text":"ModeUpstream 表示直连上游模式，适用于将请求转发到原始地址。","raw":"\t// ModeUpstream 表示直连上游模式，适用于将请求转发到原始地址。"}
+{"file":"internal/bridge/doc.go","line":1,"prefix":"// ","text":"Package bridge 负责向 Wails 暴露稳定的桌面桥接服务与 DTO。","raw":"// Package bridge 负责向 Wails 暴露稳定的桌面桥接服务与 DTO。"}
+{"file":"internal/bridge/metrics.go","line":8,"prefix":"// ","text":"HomeMetricsSummary 定义首页展示的历史统计摘要。","raw":"// HomeMetricsSummary 定义首页展示的历史统计摘要。"}
+{"file":"internal/bridge/metrics.go","line":21,"prefix":"// ","text":"MetricsService 定义首页统计相关的 Wails service。","raw":"// MetricsService 定义首页统计相关的 Wails service。"}
+{"file":"internal/bridge/metrics.go","line":24,"prefix":"// ","text":"NewMetricsService 创建首页统计 service。","raw":"// NewMetricsService 创建首页统计 service。"}
+{"file":"internal/bridge/metrics.go","line":29,"prefix":"// ","text":"GetHomeMetricsSummary 返回首页展示的全量历史统计摘要。","raw":"// GetHomeMetricsSummary 返回首页展示的全量历史统计摘要。"}
+{"file":"internal/bridge/proxy.go","line":12,"prefix":"// ","text":"ProxyState 定义了当前模块中的 ProxyState 类型。","raw":"// ProxyState 定义了当前模块中的 ProxyState 类型。"}
+{"file":"internal/bridge/proxy.go","line":15,"prefix":"// ","text":"UserConfig 定义了当前模块中的 UserConfig 类型。","raw":"// UserConfig 定义了当前模块中的 UserConfig 类型。"}
+{"file":"internal/bridge/proxy.go","line":18,"prefix":"// ","text":"ModelAdapterConfig 定义模型测速使用的模型配置结构。","raw":"// ModelAdapterConfig 定义模型测速使用的模型配置结构。"}
+{"file":"internal/bridge/proxy.go","line":21,"prefix":"// ","text":"ModelAdapterTestResult 定义一次模型测速结果。","raw":"// ModelAdapterTestResult 定义一次模型测速结果。"}
+{"file":"internal/bridge/proxy.go","line":24,"prefix":"// ","text":"ModelAdapterTestResultsPayload 定义测速结果事件载荷。","raw":"// ModelAdapterTestResultsPayload 定义测速结果事件载荷。"}
+{"file":"internal/bridge/proxy.go","line":27,"prefix":"// ","text":"OpenAIModelInfo 定义一次 OpenAI /v1/models 扫描返回的单个模型信息。","raw":"// OpenAIModelInfo 定义一次 OpenAI /v1/models 扫描返回的单个模型信息。"}
+{"file":"internal/bridge/proxy.go","line":30,"prefix":"// ","text":"LicenseActionRequest 定义了当前模块中的 LicenseActionRequest 类型。","raw":"// LicenseActionRequest 定义了当前模块中的 LicenseActionRequest 类型。"}
+{"file":"internal/bridge/proxy.go","line":33,"prefix":"// ","text":"LicenseSwitchDeviceRequest 定义了当前模块中的 LicenseSwitchDeviceRequest 类型。","raw":"// LicenseSwitchDeviceRequest 定义了当前模块中的 LicenseSwitchDeviceRequest 类型。"}
+{"file":"internal/bridge/proxy.go","line":36,"prefix":"// ","text":"LicenseAPIResult 定义了当前模块中的 LicenseAPIResult 类型。","raw":"// LicenseAPIResult 定义了当前模块中的 LicenseAPIResult 类型。"}
+{"file":"internal/bridge/proxy.go","line":39,"prefix":"// ","text":"UsageRecordsRequest 定义了当前模块中的 UsageRecordsRequest 类型。","raw":"// UsageRecordsRequest 定义了当前模块中的 UsageRecordsRequest 类型。"}
+{"file":"internal/bridge/proxy.go","line":42,"prefix":"// ","text":"UsageRecord 定义了当前模块中的 UsageRecord 类型。","raw":"// UsageRecord 定义了当前模块中的 UsageRecord 类型。"}
+{"file":"internal/bridge/proxy.go","line":45,"prefix":"// ","text":"UsageRecordsData 定义了当前模块中的 UsageRecordsData 类型。","raw":"// UsageRecordsData 定义了当前模块中的 UsageRecordsData 类型。"}
+{"file":"internal/bridge/proxy.go","line":48,"prefix":"// ","text":"UsageRecordsResult 定义了当前模块中的 UsageRecordsResult 类型。","raw":"// UsageRecordsResult 定义了当前模块中的 UsageRecordsResult 类型。"}
+{"file":"internal/bridge/proxy.go","line":51,"prefix":"// ","text":"ProxyService 定义了当前模块中的 ProxyService 类型。","raw":"// ProxyService 定义了当前模块中的 ProxyService 类型。"}
+{"file":"internal/bridge/proxy.go","line":53,"prefix":"\t// ","text":"core 表示当前声明中的 core。","raw":"\t// core 表示当前声明中的 core。"}
+{"file":"internal/bridge/proxy.go","line":57,"prefix":"// ","text":"NewProxyService 用于处理与 NewProxyService 相关的逻辑。","raw":"// NewProxyService 用于处理与 NewProxyService 相关的逻辑。"}
+{"file":"internal/bridge/proxy.go","line":62,"prefix":"// ","text":"StartProxy 用于处理与 StartProxy 相关的逻辑。","raw":"// StartProxy 用于处理与 StartProxy 相关的逻辑。"}
+{"file":"internal/bridge/proxy.go","line":67,"prefix":"// ","text":"StopProxy 用于处理与 StopProxy 相关的逻辑。","raw":"// StopProxy 用于处理与 StopProxy 相关的逻辑。"}
+{"file":"internal/bridge/proxy.go","line":72,"prefix":"// ","text":"GetState 用于处理与 GetState 相关的逻辑。","raw":"// GetState 用于处理与 GetState 相关的逻辑。"}
+{"file":"internal/bridge/proxy.go","line":77,"prefix":"// ","text":"ClearLastError 用于处理与 ClearLastError 相关的逻辑。","raw":"// ClearLastError 用于处理与 ClearLastError 相关的逻辑。"}
+{"file":"internal/bridge/proxy.go","line":82,"prefix":"// ","text":"SetBaseURL 用于处理与 SetBaseURL 相关的逻辑。","raw":"// SetBaseURL 用于处理与 SetBaseURL 相关的逻辑。"}
+{"file":"internal/bridge/proxy.go","line":87,"prefix":"// ","text":"LoadUserConfig 用于处理与 LoadUserConfig 相关的逻辑。","raw":"// LoadUserConfig 用于处理与 LoadUserConfig 相关的逻辑。"}
+{"file":"internal/bridge/proxy.go","line":92,"prefix":"// ","text":"SaveUserConfig 用于处理与 SaveUserConfig 相关的逻辑。","raw":"// SaveUserConfig 用于处理与 SaveUserConfig 相关的逻辑。"}
+{"file":"internal/bridge/proxy.go","line":97,"prefix":"// ","text":"TestModelAdapter 用于处理与 TestModelAdapter 相关的逻辑。","raw":"// TestModelAdapter 用于处理与 TestModelAdapter 相关的逻辑。"}
+{"file":"internal/bridge/proxy.go","line":102,"prefix":"// ","text":"GetModelAdapterTestResults 用于处理与 GetModelAdapterTestResults 相关的逻辑。","raw":"// GetModelAdapterTestResults 用于处理与 GetModelAdapterTestResults 相关的逻辑。"}
+{"file":"internal/bridge/proxy.go","line":107,"prefix":"// ","text":"ScanOpenAIModels 用于处理与 ScanOpenAIModels 相关的逻辑。","raw":"// ScanOpenAIModels 用于处理与 ScanOpenAIModels 相关的逻辑。"}
+{"file":"internal/bridge/proxy.go","line":112,"prefix":"// ","text":"GetDeviceID 用于处理与 GetDeviceID 相关的逻辑。","raw":"// GetDeviceID 用于处理与 GetDeviceID 相关的逻辑。"}
+{"file":"internal/bridge/proxy.go","line":117,"prefix":"// ","text":"ActivateLicense 用于处理与 ActivateLicense 相关的逻辑。","raw":"// ActivateLicense 用于处理与 ActivateLicense 相关的逻辑。"}
+{"file":"internal/bridge/proxy.go","line":122,"prefix":"// ","text":"BindLicenseDevice 用于处理与 BindLicenseDevice 相关的逻辑。","raw":"// BindLicenseDevice 用于处理与 BindLicenseDevice 相关的逻辑。"}
+{"file":"internal/bridge/proxy.go","line":127,"prefix":"// ","text":"SwitchLicenseDevice 用于处理与 SwitchLicenseDevice 相关的逻辑。","raw":"// SwitchLicenseDevice 用于处理与 SwitchLicenseDevice 相关的逻辑。"}
+{"file":"internal/bridge/proxy.go","line":132,"prefix":"// ","text":"QueryUsageRecords 用于处理与 QueryUsageRecords 相关的逻辑。","raw":"// QueryUsageRecords 用于处理与 QueryUsageRecords 相关的逻辑。"}
+{"file":"internal/bridge/proxy.go","line":137,"prefix":"// ","text":"ApplyCursorSettings 用于处理与 ApplyCursorSettings 相关的逻辑。","raw":"// ApplyCursorSettings 用于处理与 ApplyCursorSettings 相关的逻辑。"}
+{"file":"internal/bridge/proxy.go","line":142,"prefix":"// ","text":"ClearCursorSettings 用于处理与 ClearCursorSettings 相关的逻辑。","raw":"// ClearCursorSettings 用于处理与 ClearCursorSettings 相关的逻辑。"}
+{"file":"internal/bridge/proxy.go","line":147,"prefix":"// ","text":"ShutdownForQuit 用于处理与 ShutdownForQuit 相关的逻辑。","raw":"// ShutdownForQuit 用于处理与 ShutdownForQuit 相关的逻辑。"}
+{"file":"internal/bridge/proxy.go","line":152,"prefix":"// ","text":"IsWindows 用于处理与 IsWindows 相关的逻辑。","raw":"// IsWindows 用于处理与 IsWindows 相关的逻辑。"}
+{"file":"internal/bridge/window.go","line":18,"prefix":"// ","text":"modelEditorContext 保存当前模型编辑器窗口的初始化上下文。","raw":"// modelEditorContext 保存当前模型编辑器窗口的初始化上下文。"}
+{"file":"internal/bridge/window.go","line":24,"prefix":"// ","text":"WindowService 定义了当前模块中的 WindowService 类型。","raw":"// WindowService 定义了当前模块中的 WindowService 类型。"}
+{"file":"internal/bridge/window.go","line":34,"prefix":"// ","text":"NewWindowService 用于处理与 NewWindowService 相关的逻辑。","raw":"// NewWindowService 用于处理与 NewWindowService 相关的逻辑。"}
+{"file":"internal/bridge/window.go","line":39,"prefix":"// ","text":"SetApp 用于处理与 SetApp 相关的逻辑。","raw":"// SetApp 用于处理与 SetApp 相关的逻辑。"}
+{"file":"internal/bridge/window.go","line":46,"prefix":"// ","text":"SetUpdater 关联更新管理器，供前端手动触发检查更新。","raw":"// SetUpdater 关联更新管理器，供前端手动触发检查更新。"}
+{"file":"internal/bridge/window.go","line":53,"prefix":"// ","text":"GetAppVersion 返回当前应用版本号。","raw":"// GetAppVersion 返回当前应用版本号。"}
+{"file":"internal/bridge/window.go","line":58,"prefix":"// ","text":"CheckForUpdates 触发一次手动检查更新。","raw":"// CheckForUpdates 触发一次手动检查更新。"}
+{"file":"internal/bridge/window.go","line":69,"prefix":"// ","text":"InstallReadyUpdate 安装当前已下载完成的更新。","raw":"// InstallReadyUpdate 安装当前已下载完成的更新。"}
+{"file":"internal/bridge/window.go","line":80,"prefix":"// ","text":"OpenConfigWindow 打开本地设置目录。","raw":"// OpenConfigWindow 打开本地设置目录。"}
+{"file":"internal/bridge/window.go","line":86,"prefix":"// ","text":"OpenModelConfigWindow 打开模型配置独立窗口。如果窗口已存在则聚焦。","raw":"// OpenModelConfigWindow 打开模型配置独立窗口。如果窗口已存在则聚焦。"}
+{"file":"internal/bridge/window.go","line":147,"prefix":"// ","text":"OpenModelEditorWindow 打开模型编辑器独立窗口。","raw":"// OpenModelEditorWindow 打开模型编辑器独立窗口。"}
+{"file":"internal/bridge/window.go","line":148,"prefix":"// ","text":"index \u003c 0 表示新增，\u003e= 0 表示编辑对应索引的适配器。","raw":"// index \u003c 0 表示新增，\u003e= 0 表示编辑对应索引的适配器。"}
+{"file":"internal/bridge/window.go","line":149,"prefix":"// ","text":"adapterJSON 为编辑器初始数据的 JSON 字符串。","raw":"// adapterJSON 为编辑器初始数据的 JSON 字符串。"}
+{"file":"internal/bridge/window.go","line":221,"prefix":"// ","text":"GetModelEditorContext 返回当前编辑器窗口的初始化上下文。","raw":"// GetModelEditorContext 返回当前编辑器窗口的初始化上下文。"}
+{"file":"internal/bridge/window.go","line":238,"prefix":"// ","text":"OpenHistoryWindow 用于处理与 OpenHistoryWindow 相关的逻辑。","raw":"// OpenHistoryWindow 用于处理与 OpenHistoryWindow 相关的逻辑。"}
+{"file":"internal/bridge/window.go","line":244,"prefix":"// ","text":"openDirectory 用于处理与 openDirectory 相关的逻辑。","raw":"// openDirectory 用于处理与 openDirectory 相关的逻辑。"}
+{"file":"internal/bridge/window_author.go","line":15,"prefix":"// ","text":"FooterAuthorInfo 定义首页底部作者入口的展示信息。","raw":"// FooterAuthorInfo 定义首页底部作者入口的展示信息。"}
+{"file":"internal/bridge/window_author.go","line":24,"prefix":"// ","text":"GetFooterAuthorInfo 返回首页底部作者入口的展示信息。","raw":"// GetFooterAuthorInfo 返回首页底部作者入口的展示信息。"}
+{"file":"internal/bridge/window_author.go","line":29,"prefix":"// ","text":"OpenFooterAuthorHome 打开作者主页。","raw":"// OpenFooterAuthorHome 打开作者主页。"}
+{"file":"internal/certs/ca.go","line":28,"prefix":"// ","text":"Manager 定义了当前模块中的 Manager 类型。","raw":"// Manager 定义了当前模块中的 Manager 类型。"}
+{"file":"internal/certs/ca.go","line":30,"prefix":"\t// ","text":"caCert 表示当前声明中的 caCert。","raw":"\t// caCert 表示当前声明中的 caCert。"}
+{"file":"internal/certs/ca.go","line":32,"prefix":"\t// ","text":"caKey 表示当前声明中的 caKey。","raw":"\t// caKey 表示当前声明中的 caKey。"}
+{"file":"internal/certs/ca.go","line":35,"prefix":"\t// ","text":"mu 表示当前声明中的 mu。","raw":"\t// mu 表示当前声明中的 mu。"}
+{"file":"internal/certs/ca.go","line":37,"prefix":"\t// ","text":"cache 表示当前声明中的 cache。","raw":"\t// cache 表示当前声明中的 cache。"}
+{"file":"internal/certs/ca.go","line":41,"prefix":"// ","text":"NewManager 用于处理与 NewManager 相关的逻辑。","raw":"// NewManager 用于处理与 NewManager 相关的逻辑。"}
+{"file":"internal/certs/ca.go","line":50,"prefix":"// ","text":"EnsureLocalCA 检查本地 appdata 中是否存在唯一的 CA 证书和私钥。","raw":"// EnsureLocalCA 检查本地 appdata 中是否存在唯一的 CA 证书和私钥。"}
+{"file":"internal/certs/ca.go","line":51,"prefix":"// ","text":"如果不存在，则动态生成一套全系统唯一的 2048-bit RSA Self-Signed Root CA 证书与私钥，","raw":"// 如果不存在，则动态生成一套全系统唯一的 2048-bit RSA Self-Signed Root CA 证书与私钥，"}
+{"file":"internal/certs/ca.go","line":52,"prefix":"// ","text":"并保存到本地 user appdata 目录中。这样每个安装实例都有自己独一无二的私钥，彻底消除公共私钥泄漏带来的 MITM 风险。","raw":"// 并保存到本地 user appdata 目录中。这样每个安装实例都有自己独一无二的私钥，彻底消除公共私钥泄漏带来的 MITM 风险。"}
+{"file":"internal/certs/ca.go","line":91,"prefix":"// ","text":"GenerateUniqueCA 动态生成 2048-bit RSA Self-Signed Root CA 证书与私钥 PEM。","raw":"// GenerateUniqueCA 动态生成 2048-bit RSA Self-Signed Root CA 证书与私钥 PEM。"}
+{"file":"internal/certs/ca.go","line":132,"prefix":"// ","text":"NewEmbeddedManager 保留旧 API 名称，但只使用本地生成/持久化的 CA。","raw":"// NewEmbeddedManager 保留旧 API 名称，但只使用本地生成/持久化的 CA。"}
+{"file":"internal/certs/ca.go","line":138,"prefix":"// ","text":"EmbeddedCACertPEM 保留旧 API 名称，但返回本地唯一 CA 的公钥证书。","raw":"// EmbeddedCACertPEM 保留旧 API 名称，但返回本地唯一 CA 的公钥证书。"}
+{"file":"internal/certs/ca.go","line":146,"prefix":"// ","text":"NewManagerFromPEM 用于处理与 NewManagerFromPEM 相关的逻辑。","raw":"// NewManagerFromPEM 用于处理与 NewManagerFromPEM 相关的逻辑。"}
+{"file":"internal/certs/ca.go","line":154,"prefix":"// ","text":"CATLSCertificate 用于处理与 CATLSCertificate 相关的逻辑。","raw":"// CATLSCertificate 用于处理与 CATLSCertificate 相关的逻辑。"}
+{"file":"internal/certs/ca.go","line":166,"prefix":"// ","text":"CertificateForServerName 用于处理与 CertificateForServerName 相关的逻辑。","raw":"// CertificateForServerName 用于处理与 CertificateForServerName 相关的逻辑。"}
+{"file":"internal/certs/ca.go","line":241,"prefix":"// ","text":"marshalPrivateKeyPEM 用于处理与 marshalPrivateKeyPEM 相关的逻辑。","raw":"// marshalPrivateKeyPEM 用于处理与 marshalPrivateKeyPEM 相关的逻辑。"}
+{"file":"internal/certs/ca.go","line":263,"prefix":"// ","text":"loadCAPEMFromFiles 用于处理与 loadCAPEMFromFiles 相关的逻辑。","raw":"// loadCAPEMFromFiles 用于处理与 loadCAPEMFromFiles 相关的逻辑。"}
+{"file":"internal/certs/ca.go","line":276,"prefix":"// ","text":"loadCAFromPEM 用于处理与 loadCAFromPEM 相关的逻辑。","raw":"// loadCAFromPEM 用于处理与 loadCAFromPEM 相关的逻辑。"}
+{"file":"internal/certs/ca.go","line":358,"prefix":"// ","text":"normalizeHost 用于处理与 normalizeHost 相关的逻辑。","raw":"// normalizeHost 用于处理与 normalizeHost 相关的逻辑。"}
+{"file":"internal/certs/ca.go","line":370,"prefix":"// ","text":"cloneBytes 用于处理与 cloneBytes 相关的逻辑。","raw":"// cloneBytes 用于处理与 cloneBytes 相关的逻辑。"}
+{"file":"internal/certs/doc.go","line":1,"prefix":"// ","text":"Package certs 负责管理本地 MITM 所需的内置 CA 证书与 TLS 材料。","raw":"// Package certs 负责管理本地 MITM 所需的内置 CA 证书与 TLS 材料。"}
+{"file":"internal/client/config.go","line":12,"prefix":"// ","text":"UserConfig 定义了当前模块中的 UserConfig 类型。","raw":"// UserConfig 定义了当前模块中的 UserConfig 类型。"}
+{"file":"internal/client/config.go","line":15,"prefix":"// ","text":"LoadUserConfig 用于处理与 LoadUserConfig 相关的逻辑。","raw":"// LoadUserConfig 用于处理与 LoadUserConfig 相关的逻辑。"}
+{"file":"internal/client/config.go","line":34,"prefix":"// ","text":"SaveUserConfig 用于处理与 SaveUserConfig 相关的逻辑。","raw":"// SaveUserConfig 用于处理与 SaveUserConfig 相关的逻辑。"}
+{"file":"internal/client/config.go","line":70,"prefix":"// ","text":"resolveUserConfigPath 用于处理与 resolveUserConfigPath 相关的逻辑。","raw":"// resolveUserConfigPath 用于处理与 resolveUserConfigPath 相关的逻辑。"}
+{"file":"internal/client/config.go","line":75,"prefix":"// ","text":"resolveLogsRootPath 用于处理与 resolveLogsRootPath 相关的逻辑。","raw":"// resolveLogsRootPath 用于处理与 resolveLogsRootPath 相关的逻辑。"}
+{"file":"internal/client/config.go","line":80,"prefix":"// ","text":"ResolveLogsRootPath 用于处理与 ResolveLogsRootPath 相关的逻辑。","raw":"// ResolveLogsRootPath 用于处理与 ResolveLogsRootPath 相关的逻辑。"}
+{"file":"internal/client/config.go","line":85,"prefix":"// ","text":"ResolveSettingsRootPath 用于处理与 ResolveSettingsRootPath 相关的逻辑。","raw":"// ResolveSettingsRootPath 用于处理与 ResolveSettingsRootPath 相关的逻辑。"}
+{"file":"internal/client/cursor.go","line":11,"prefix":"// ","text":"ApplyCursorSettings 用于处理与 ApplyCursorSettings 相关的逻辑。","raw":"// ApplyCursorSettings 用于处理与 ApplyCursorSettings 相关的逻辑。"}
+{"file":"internal/client/cursor.go","line":47,"prefix":"// ","text":"ClearCursorSettings 用于处理与 ClearCursorSettings 相关的逻辑。","raw":"// ClearCursorSettings 用于处理与 ClearCursorSettings 相关的逻辑。"}
+{"file":"internal/client/cursor.go","line":67,"prefix":"// ","text":"GetDeviceID 用于处理与 GetDeviceID 相关的逻辑。","raw":"// GetDeviceID 用于处理与 GetDeviceID 相关的逻辑。"}
+{"file":"internal/client/doc.go","line":1,"prefix":"// ","text":"Package clientruntime 负责协调本地客户端运行时、配置、状态与外部适配逻辑。","raw":"// Package clientruntime 负责协调本地客户端运行时、配置、状态与外部适配逻辑。"}
+{"file":"internal/client/license.go","line":8,"prefix":"// ","text":"LicenseActionRequest 定义了当前模块中的 LicenseActionRequest 类型。","raw":"// LicenseActionRequest 定义了当前模块中的 LicenseActionRequest 类型。"}
+{"file":"internal/client/license.go","line":10,"prefix":"\t// ","text":"Host 表示当前声明中的 Host。","raw":"\t// Host 表示当前声明中的 Host。"}
+{"file":"internal/client/license.go","line":12,"prefix":"\t// ","text":"Code 表示当前声明中的 Code。","raw":"\t// Code 表示当前声明中的 Code。"}
+{"file":"internal/client/license.go","line":14,"prefix":"\t// ","text":"DeviceID 表示当前声明中的 DeviceID。","raw":"\t// DeviceID 表示当前声明中的 DeviceID。"}
+{"file":"internal/client/license.go","line":16,"prefix":"\t// ","text":"DeviceMeta 表示当前声明中的 DeviceMeta。","raw":"\t// DeviceMeta 表示当前声明中的 DeviceMeta。"}
+{"file":"internal/client/license.go","line":20,"prefix":"// ","text":"LicenseSwitchDeviceRequest 定义了当前模块中的 LicenseSwitchDeviceRequest 类型。","raw":"// LicenseSwitchDeviceRequest 定义了当前模块中的 LicenseSwitchDeviceRequest 类型。"}
+{"file":"internal/client/license.go","line":22,"prefix":"\t// ","text":"Host 表示当前声明中的 Host。","raw":"\t// Host 表示当前声明中的 Host。"}
+{"file":"internal/client/license.go","line":24,"prefix":"\t// ","text":"Code 表示当前声明中的 Code。","raw":"\t// Code 表示当前声明中的 Code。"}
+{"file":"internal/client/license.go","line":26,"prefix":"\t// ","text":"FromDeviceID 表示当前声明中的 FromDeviceID。","raw":"\t// FromDeviceID 表示当前声明中的 FromDeviceID。"}
+{"file":"internal/client/license.go","line":28,"prefix":"\t// ","text":"ToDeviceID 表示当前声明中的 ToDeviceID。","raw":"\t// ToDeviceID 表示当前声明中的 ToDeviceID。"}
+{"file":"internal/client/license.go","line":30,"prefix":"\t// ","text":"Remark 表示当前声明中的 Remark。","raw":"\t// Remark 表示当前声明中的 Remark。"}
+{"file":"internal/client/license.go","line":34,"prefix":"// ","text":"LicenseAPIResult 定义了当前模块中的 LicenseAPIResult 类型。","raw":"// LicenseAPIResult 定义了当前模块中的 LicenseAPIResult 类型。"}
+{"file":"internal/client/license.go","line":36,"prefix":"\t// ","text":"Code 表示当前声明中的 Code。","raw":"\t// Code 表示当前声明中的 Code。"}
+{"file":"internal/client/license.go","line":38,"prefix":"\t// ","text":"Message 表示当前声明中的 Message。","raw":"\t// Message 表示当前声明中的 Message。"}
+{"file":"internal/client/license.go","line":40,"prefix":"\t// ","text":"Data 表示当前声明中的 Data。","raw":"\t// Data 表示当前声明中的 Data。"}
+{"file":"internal/client/license.go","line":44,"prefix":"// ","text":"UsageRecordsRequest 定义了当前模块中的 UsageRecordsRequest 类型。","raw":"// UsageRecordsRequest 定义了当前模块中的 UsageRecordsRequest 类型。"}
+{"file":"internal/client/license.go","line":46,"prefix":"\t// ","text":"Host 表示当前声明中的 Host。","raw":"\t// Host 表示当前声明中的 Host。"}
+{"file":"internal/client/license.go","line":48,"prefix":"\t// ","text":"Code 表示当前声明中的 Code。","raw":"\t// Code 表示当前声明中的 Code。"}
+{"file":"internal/client/license.go","line":50,"prefix":"\t// ","text":"Page 表示当前声明中的 Page。","raw":"\t// Page 表示当前声明中的 Page。"}
+{"file":"internal/client/license.go","line":52,"prefix":"\t// ","text":"PageSize 表示当前声明中的 PageSize。","raw":"\t// PageSize 表示当前声明中的 PageSize。"}
+{"file":"internal/client/license.go","line":54,"prefix":"\t// ","text":"StartTime 表示当前声明中的 StartTime。","raw":"\t// StartTime 表示当前声明中的 StartTime。"}
+{"file":"internal/client/license.go","line":56,"prefix":"\t// ","text":"EndTime 表示当前声明中的 EndTime。","raw":"\t// EndTime 表示当前声明中的 EndTime。"}
+{"file":"internal/client/license.go","line":58,"prefix":"\t// ","text":"RequestID 表示当前声明中的 RequestID。","raw":"\t// RequestID 表示当前声明中的 RequestID。"}
+{"file":"internal/client/license.go","line":60,"prefix":"\t// ","text":"ConversationID 表示当前声明中的 ConversationID。","raw":"\t// ConversationID 表示当前声明中的 ConversationID。"}
+{"file":"internal/client/license.go","line":62,"prefix":"\t// ","text":"RuntimeModelID 表示当前声明中的 RuntimeModelID。","raw":"\t// RuntimeModelID 表示当前声明中的 RuntimeModelID。"}
+{"file":"internal/client/license.go","line":66,"prefix":"// ","text":"UsageRecord 定义了当前模块中的 UsageRecord 类型。","raw":"// UsageRecord 定义了当前模块中的 UsageRecord 类型。"}
+{"file":"internal/client/license.go","line":68,"prefix":"\t// ","text":"CreatedAt 表示当前声明中的 CreatedAt。","raw":"\t// CreatedAt 表示当前声明中的 CreatedAt。"}
+{"file":"internal/client/license.go","line":70,"prefix":"\t// ","text":"RuntimeModelID 表示当前声明中的 RuntimeModelID。","raw":"\t// RuntimeModelID 表示当前声明中的 RuntimeModelID。"}
+{"file":"internal/client/license.go","line":72,"prefix":"\t// ","text":"RequestID 表示当前声明中的 RequestID。","raw":"\t// RequestID 表示当前声明中的 RequestID。"}
+{"file":"internal/client/license.go","line":74,"prefix":"\t// ","text":"ConversationID 表示当前声明中的 ConversationID。","raw":"\t// ConversationID 表示当前声明中的 ConversationID。"}
+{"file":"internal/client/license.go","line":78,"prefix":"// ","text":"UsageRecordsData 定义了当前模块中的 UsageRecordsData 类型。","raw":"// UsageRecordsData 定义了当前模块中的 UsageRecordsData 类型。"}
+{"file":"internal/client/license.go","line":80,"prefix":"\t// ","text":"Items 表示当前声明中的 Items。","raw":"\t// Items 表示当前声明中的 Items。"}
+{"file":"internal/client/license.go","line":82,"prefix":"\t// ","text":"Total 表示当前声明中的 Total。","raw":"\t// Total 表示当前声明中的 Total。"}
+{"file":"internal/client/license.go","line":84,"prefix":"\t// ","text":"Page 表示当前声明中的 Page。","raw":"\t// Page 表示当前声明中的 Page。"}
+{"file":"internal/client/license.go","line":86,"prefix":"\t// ","text":"PageSize 表示当前声明中的 PageSize。","raw":"\t// PageSize 表示当前声明中的 PageSize。"}
+{"file":"internal/client/license.go","line":90,"prefix":"// ","text":"UsageRecordsResult 定义了当前模块中的 UsageRecordsResult 类型。","raw":"// UsageRecordsResult 定义了当前模块中的 UsageRecordsResult 类型。"}
+{"file":"internal/client/license.go","line":92,"prefix":"\t// ","text":"Code 表示当前声明中的 Code。","raw":"\t// Code 表示当前声明中的 Code。"}
+{"file":"internal/client/license.go","line":94,"prefix":"\t// ","text":"Message 表示当前声明中的 Message。","raw":"\t// Message 表示当前声明中的 Message。"}
+{"file":"internal/client/license.go","line":96,"prefix":"\t// ","text":"Data 表示当前声明中的 Data。","raw":"\t// Data 表示当前声明中的 Data。"}
+{"file":"internal/client/license.go","line":100,"prefix":"// ","text":"ActivateLicense 用于处理与 ActivateLicense 相关的逻辑。","raw":"// ActivateLicense 用于处理与 ActivateLicense 相关的逻辑。"}
+{"file":"internal/client/license.go","line":105,"prefix":"// ","text":"BindLicenseDevice 用于处理与 BindLicenseDevice 相关的逻辑。","raw":"// BindLicenseDevice 用于处理与 BindLicenseDevice 相关的逻辑。"}
+{"file":"internal/client/license.go","line":110,"prefix":"// ","text":"SwitchLicenseDevice 用于处理与 SwitchLicenseDevice 相关的逻辑。","raw":"// SwitchLicenseDevice 用于处理与 SwitchLicenseDevice 相关的逻辑。"}
+{"file":"internal/client/license.go","line":115,"prefix":"// ","text":"QueryUsageRecords 用于处理与 QueryUsageRecords 相关的逻辑。","raw":"// QueryUsageRecords 用于处理与 QueryUsageRecords 相关的逻辑。"}
+{"file":"internal/client/license.go","line":137,"prefix":"// ","text":"MarshalJSON 用于处理与 MarshalJSON 相关的逻辑。","raw":"// MarshalJSON 用于处理与 MarshalJSON 相关的逻辑。"}
+{"file":"internal/client/lifecycle.go","line":19,"prefix":"// ","text":"ProxyState 定义了当前模块中的 ProxyState 类型。","raw":"// ProxyState 定义了当前模块中的 ProxyState 类型。"}
+{"file":"internal/client/lifecycle.go","line":21,"prefix":"\t// ","text":"ListenAddr 保留旧字段兼容前端缓存，实际值等于 proxyListenAddr。","raw":"\t// ListenAddr 保留旧字段兼容前端缓存，实际值等于 proxyListenAddr。"}
+{"file":"internal/client/lifecycle.go","line":23,"prefix":"\t// ","text":"Running 保留旧字段兼容前端缓存，实际值等于 proxyRunning。","raw":"\t// Running 保留旧字段兼容前端缓存，实际值等于 proxyRunning。"}
+{"file":"internal/client/lifecycle.go","line":25,"prefix":"\t// ","text":"BackendListenAddr 表示嵌入式 backend 监听地址。","raw":"\t// BackendListenAddr 表示嵌入式 backend 监听地址。"}
+{"file":"internal/client/lifecycle.go","line":27,"prefix":"\t// ","text":"BackendRunning 表示嵌入式 backend 是否已启动。","raw":"\t// BackendRunning 表示嵌入式 backend 是否已启动。"}
+{"file":"internal/client/lifecycle.go","line":29,"prefix":"\t// ","text":"ProxyListenAddr 表示 MITM 代理监听地址。","raw":"\t// ProxyListenAddr 表示 MITM 代理监听地址。"}
+{"file":"internal/client/lifecycle.go","line":31,"prefix":"\t// ","text":"ProxyRunning 表示 MITM 代理是否已启动。","raw":"\t// ProxyRunning 表示 MITM 代理是否已启动。"}
+{"file":"internal/client/lifecycle.go","line":33,"prefix":"\t// ","text":"CursorSettingsApplied 表示宿主代理设置是否已注入。","raw":"\t// CursorSettingsApplied 表示宿主代理设置是否已注入。"}
+{"file":"internal/client/lifecycle.go","line":35,"prefix":"\t// ","text":"NetProxySource 表示当前出站网络代理来源：system/env/direct。","raw":"\t// NetProxySource 表示当前出站网络代理来源：system/env/direct。"}
+{"file":"internal/client/lifecycle.go","line":37,"prefix":"\t// ","text":"NetProxyActive 表示当前出站网络代理是否启用。","raw":"\t// NetProxyActive 表示当前出站网络代理是否启用。"}
+{"file":"internal/client/lifecycle.go","line":39,"prefix":"\t// ","text":"NetProxyUsingSystem 表示当前出站网络代理是否来自操作系统代理。","raw":"\t// NetProxyUsingSystem 表示当前出站网络代理是否来自操作系统代理。"}
+{"file":"internal/client/lifecycle.go","line":41,"prefix":"\t// ","text":"NetProxyUsingEnv 表示当前出站网络代理是否来自环境变量。","raw":"\t// NetProxyUsingEnv 表示当前出站网络代理是否来自环境变量。"}
+{"file":"internal/client/lifecycle.go","line":43,"prefix":"\t// ","text":"NetProxyHTTP 表示当前 HTTP 代理地址，已移除凭据。","raw":"\t// NetProxyHTTP 表示当前 HTTP 代理地址，已移除凭据。"}
+{"file":"internal/client/lifecycle.go","line":45,"prefix":"\t// ","text":"NetProxyHTTPS 表示当前 HTTPS 代理地址，已移除凭据。","raw":"\t// NetProxyHTTPS 表示当前 HTTPS 代理地址，已移除凭据。"}
+{"file":"internal/client/lifecycle.go","line":47,"prefix":"\t// ","text":"NetProxyPACIgnored 表示检测到 PAC/自动代理但本轮按直连处理。","raw":"\t// NetProxyPACIgnored 表示检测到 PAC/自动代理但本轮按直连处理。"}
+{"file":"internal/client/lifecycle.go","line":49,"prefix":"\t// ","text":"NetProxyDescription 表示当前出站网络代理摘要，已移除凭据。","raw":"\t// NetProxyDescription 表示当前出站网络代理摘要，已移除凭据。"}
+{"file":"internal/client/lifecycle.go","line":51,"prefix":"\t// ","text":"LastError 表示当前声明中的 LastError。","raw":"\t// LastError 表示当前声明中的 LastError。"}
+{"file":"internal/client/lifecycle.go","line":55,"prefix":"// ","text":"StartProxy 用于处理与 StartProxy 相关的逻辑。","raw":"// StartProxy 用于处理与 StartProxy 相关的逻辑。"}
+{"file":"internal/client/lifecycle.go","line":89,"prefix":"\t// ","text":"启动时注入账号信息","raw":"\t// 启动时注入账号信息"}
+{"file":"internal/client/lifecycle.go","line":92,"prefix":"\t\t// ","text":"不阻断启动，仅记录日志","raw":"\t\t// 不阻断启动，仅记录日志"}
+{"file":"internal/client/lifecycle.go","line":129,"prefix":"// ","text":"StopProxy 用于处理与 StopProxy 相关的逻辑。","raw":"// StopProxy 用于处理与 StopProxy 相关的逻辑。"}
+{"file":"internal/client/lifecycle.go","line":169,"prefix":"// ","text":"GetState 用于处理与 GetState 相关的逻辑。","raw":"// GetState 用于处理与 GetState 相关的逻辑。"}
+{"file":"internal/client/lifecycle.go","line":206,"prefix":"// ","text":"ClearLastError 用于处理与 ClearLastError 相关的逻辑。","raw":"// ClearLastError 用于处理与 ClearLastError 相关的逻辑。"}
+{"file":"internal/client/lifecycle.go","line":213,"prefix":"// ","text":"SetBaseURL 用于处理与 SetBaseURL 相关的逻辑。","raw":"// SetBaseURL 用于处理与 SetBaseURL 相关的逻辑。"}
+{"file":"internal/client/lifecycle.go","line":222,"prefix":"// ","text":"setLastError 用于处理与 setLastError 相关的逻辑。","raw":"// setLastError 用于处理与 setLastError 相关的逻辑。"}
+{"file":"internal/client/lifecycle.go","line":237,"prefix":"// ","text":"emitState 用于处理与 emitState 相关的逻辑。","raw":"// emitState 用于处理与 emitState 相关的逻辑。"}
+{"file":"internal/client/lifecycle.go","line":250,"prefix":"// ","text":"ShutdownForQuit 用于处理与 ShutdownForQuit 相关的逻辑。","raw":"// ShutdownForQuit 用于处理与 ShutdownForQuit 相关的逻辑。"}
+{"file":"internal/client/model_adapter_benchmark.go","line":45,"prefix":"// ","text":"ModelAdapterTestResult 表示一次模型测速结果。","raw":"// ModelAdapterTestResult 表示一次模型测速结果。"}
+{"file":"internal/client/model_adapter_benchmark.go","line":61,"prefix":"// ","text":"ModelAdapterTestResultsPayload 用于向前端广播当前测速结果快照。","raw":"// ModelAdapterTestResultsPayload 用于向前端广播当前测速结果快照。"}
+{"file":"internal/client/model_scanner.go","line":17,"prefix":"\t// ","text":"openAIModelsScanTimeout 限制单次模型列表扫描的总耗时。","raw":"\t// openAIModelsScanTimeout 限制单次模型列表扫描的总耗时。"}
+{"file":"internal/client/model_scanner.go","line":19,"prefix":"\t// ","text":"openAIModelsScanMaxErrorBodyBytes 限制错误响应体读取大小，避免把大响应塞进错误信息。","raw":"\t// openAIModelsScanMaxErrorBodyBytes 限制错误响应体读取大小，避免把大响应塞进错误信息。"}
+{"file":"internal/client/model_scanner.go","line":23,"prefix":"// ","text":"OpenAIModelInfo 表示一次 OpenAI /v1/models 扫描返回的单个模型信息。","raw":"// OpenAIModelInfo 表示一次 OpenAI /v1/models 扫描返回的单个模型信息。"}
+{"file":"internal/client/model_scanner.go","line":28,"prefix":"// ","text":"openAIModelsResponse 兼容解析标准 OpenAI 模型列表响应：","raw":"// openAIModelsResponse 兼容解析标准 OpenAI 模型列表响应："}
+{"file":"internal/client/model_scanner.go","line":39,"prefix":"// ","text":"openAIModelsURL 根据用户填写的 baseURL 拼接 /v1/models 地址。","raw":"// openAIModelsURL 根据用户填写的 baseURL 拼接 /v1/models 地址。"}
+{"file":"internal/client/model_scanner.go","line":40,"prefix":"// ","text":"兼容两种情况：baseURL 以 /v1 结尾（如 https://api.openai.com/v1）只追加 /models；","raw":"// 兼容两种情况：baseURL 以 /v1 结尾（如 https://api.openai.com/v1）只追加 /models；"}
+{"file":"internal/client/model_scanner.go","line":41,"prefix":"// ","text":"其他情况在去掉尾部 / 后追加 /v1/models。","raw":"// 其他情况在去掉尾部 / 后追加 /v1/models。"}
+{"file":"internal/client/model_scanner.go","line":50,"prefix":"// ","text":"ScanOpenAIModels 调用 OpenAI 标准 GET {baseURL}/v1/models 扫描模型列表。","raw":"// ScanOpenAIModels 调用 OpenAI 标准 GET {baseURL}/v1/models 扫描模型列表。"}
+{"file":"internal/client/model_scanner.go","line":51,"prefix":"// ","text":"纯 HTTP 调用，不依赖 Wails 事件。","raw":"// 纯 HTTP 调用，不依赖 Wails 事件。"}
+{"file":"internal/client/observer.go","line":9,"prefix":"// ","text":"runtimeConfigSnapshot 用于处理与 runtimeConfigSnapshot 相关的逻辑。","raw":"// runtimeConfigSnapshot 用于处理与 runtimeConfigSnapshot 相关的逻辑。"}
+{"file":"internal/client/service.go","line":20,"prefix":"\t// ","text":"publicAPITimeout 表示当前模块中的 publicAPITimeout 状态值。","raw":"\t// publicAPITimeout 表示当前模块中的 publicAPITimeout 状态值。"}
+{"file":"internal/client/service.go","line":22,"prefix":"\t// ","text":"backendReadyTimeout 表示等待嵌入式 backend 就绪的最长时间。","raw":"\t// backendReadyTimeout 表示等待嵌入式 backend 就绪的最长时间。"}
+{"file":"internal/client/service.go","line":24,"prefix":"\t// ","text":"backendHealthCheckInterval 表示轮询 backend 健康检查的间隔。","raw":"\t// backendHealthCheckInterval 表示轮询 backend 健康检查的间隔。"}
+{"file":"internal/client/service.go","line":26,"prefix":"\t// ","text":"backendHealthCheckAttemptTimeout 限制单次健康检查耗时，避免一次阻塞吃掉全部启动预算。","raw":"\t// backendHealthCheckAttemptTimeout 限制单次健康检查耗时，避免一次阻塞吃掉全部启动预算。"}
+{"file":"internal/client/service.go","line":30,"prefix":"// ","text":"ProxyService 定义了当前模块中的 ProxyService 类型。","raw":"// ProxyService 定义了当前模块中的 ProxyService 类型。"}
+{"file":"internal/client/service.go","line":32,"prefix":"\t// ","text":"proxy 表示当前声明中的 proxy。","raw":"\t// proxy 表示当前声明中的 proxy。"}
+{"file":"internal/client/service.go","line":34,"prefix":"\t// ","text":"certManager 用于在代理监听地址变化时重建 MITM 服务。","raw":"\t// certManager 用于在代理监听地址变化时重建 MITM 服务。"}
+{"file":"internal/client/service.go","line":36,"prefix":"\t// ","text":"backendHost 表示当前嵌入式 backend 服务。","raw":"\t// backendHost 表示当前嵌入式 backend 服务。"}
+{"file":"internal/client/service.go","line":39,"prefix":"\t// ","text":"mu 表示当前声明中的 mu。","raw":"\t// mu 表示当前声明中的 mu。"}
+{"file":"internal/client/service.go","line":41,"prefix":"\t// ","text":"lastError 表示当前声明中的 lastError。","raw":"\t// lastError 表示当前声明中的 lastError。"}
+{"file":"internal/client/service.go","line":43,"prefix":"\t// ","text":"cursorSettingsApplied 表示当前是否已完成宿主代理设置注入。","raw":"\t// cursorSettingsApplied 表示当前是否已完成宿主代理设置注入。"}
+{"file":"internal/client/service.go","line":46,"prefix":"\t// ","text":"configMu 表示当前声明中的 configMu。","raw":"\t// configMu 表示当前声明中的 configMu。"}
+{"file":"internal/client/service.go","line":48,"prefix":"\t// ","text":"configPath 表示当前声明中的 configPath。","raw":"\t// configPath 表示当前声明中的 configPath。"}
+{"file":"internal/client/service.go","line":50,"prefix":"\t// ","text":"store 表示统一的配置存储。","raw":"\t// store 表示统一的配置存储。"}
+{"file":"internal/client/service.go","line":52,"prefix":"\t// ","text":"caCertPEM 表示当前声明中的 caCertPEM。","raw":"\t// caCertPEM 表示当前声明中的 caCertPEM。"}
+{"file":"internal/client/service.go","line":55,"prefix":"\t// ","text":"caFileMu 表示当前声明中的 caFileMu。","raw":"\t// caFileMu 表示当前声明中的 caFileMu。"}
+{"file":"internal/client/service.go","line":57,"prefix":"\t// ","text":"caFilePath 表示当前声明中的 caFilePath。","raw":"\t// caFilePath 表示当前声明中的 caFilePath。"}
+{"file":"internal/client/service.go","line":60,"prefix":"\t// ","text":"publicClient 表示当前声明中的 publicClient。","raw":"\t// publicClient 表示当前声明中的 publicClient。"}
+{"file":"internal/client/service.go","line":62,"prefix":"\t// ","text":"logsRoot 表示当前声明中的 logsRoot。","raw":"\t// logsRoot 表示当前声明中的 logsRoot。"}
+{"file":"internal/client/service.go","line":64,"prefix":"\t// ","text":"modelTestMu 保护模型测速缓存。","raw":"\t// modelTestMu 保护模型测速缓存。"}
+{"file":"internal/client/service.go","line":66,"prefix":"\t// ","text":"modelTestResults 保存当前进程内的模型测速结果。","raw":"\t// modelTestResults 保存当前进程内的模型测速结果。"}
+{"file":"internal/client/service.go","line":70,"prefix":"// ","text":"NewProxyService 用于处理与 NewProxyService 相关的逻辑。","raw":"// NewProxyService 用于处理与 NewProxyService 相关的逻辑。"}
+{"file":"internal/cursor/darwin_cert.go","line":84,"prefix":"// ","text":"EnsureCACertInstalled 确保 CA 证书已安装到 macOS 登录钥匙串。","raw":"// EnsureCACertInstalled 确保 CA 证书已安装到 macOS 登录钥匙串。"}
+{"file":"internal/cursor/darwin_cert.go","line":99,"prefix":"// ","text":"RemoveCACertFromDarwinKeychain 删除本应用登录钥匙串中的 CA。","raw":"// RemoveCACertFromDarwinKeychain 删除本应用登录钥匙串中的 CA。"}
+{"file":"internal/cursor/device.go","line":12,"prefix":"// ","text":"GetDeviceID 用于处理与 GetDeviceID 相关的逻辑。","raw":"// GetDeviceID 用于处理与 GetDeviceID 相关的逻辑。"}
+{"file":"internal/cursor/device.go","line":32,"prefix":"// ","text":"defaultDeviceMeta 用于处理与 defaultDeviceMeta 相关的逻辑。","raw":"// defaultDeviceMeta 用于处理与 defaultDeviceMeta 相关的逻辑。"}
+{"file":"internal/cursor/device.go","line":37,"prefix":"// ","text":"displayOSName 用于处理与 displayOSName 相关的逻辑。","raw":"// displayOSName 用于处理与 displayOSName 相关的逻辑。"}
+{"file":"internal/cursor/doc.go","line":1,"prefix":"// ","text":"Package cursor 负责与 Cursor 宿主环境交互，包括设置、状态库、设备与证书适配。","raw":"// Package cursor 负责与 Cursor 宿主环境交互，包括设置、状态库、设备与证书适配。"}
+{"file":"internal/cursor/settings.go","line":21,"prefix":"// ","text":"injectedCursorSettingsKeys 表示当前模块中的 injectedCursorSettingsKeys 状态值。","raw":"// injectedCursorSettingsKeys 表示当前模块中的 injectedCursorSettingsKeys 状态值。"}
+{"file":"internal/cursor/settings.go","line":30,"prefix":"// ","text":"EnsureCACertFile 用于处理与 EnsureCACertFile 相关的逻辑。","raw":"// EnsureCACertFile 用于处理与 EnsureCACertFile 相关的逻辑。"}
+{"file":"internal/cursor/settings.go","line":71,"prefix":"// ","text":"SetSystemNodeExtraCACerts 用于处理与 SetSystemNodeExtraCACerts 相关的逻辑。","raw":"// SetSystemNodeExtraCACerts 用于处理与 SetSystemNodeExtraCACerts 相关的逻辑。"}
+{"file":"internal/cursor/settings.go","line":88,"prefix":"\t\t// ","text":"Linux 发行版环境变量持久化方式差异较大，这里先确保当前进程生效。","raw":"\t\t// Linux 发行版环境变量持久化方式差异较大，这里先确保当前进程生效。"}
+{"file":"internal/cursor/settings.go","line":98,"prefix":"// ","text":"ClearSystemNodeExtraCACerts 用于处理与 ClearSystemNodeExtraCACerts 相关的逻辑。","raw":"// ClearSystemNodeExtraCACerts 用于处理与 ClearSystemNodeExtraCACerts 相关的逻辑。"}
+{"file":"internal/cursor/settings.go","line":120,"prefix":"// ","text":"WriteUserProxySettings 用于处理与 WriteUserProxySettings 相关的逻辑。","raw":"// WriteUserProxySettings 用于处理与 WriteUserProxySettings 相关的逻辑。"}
+{"file":"internal/cursor/settings.go","line":183,"prefix":"// ","text":"ClearUserProxySettings 用于处理与 ClearUserProxySettings 相关的逻辑。","raw":"// ClearUserProxySettings 用于处理与 ClearUserProxySettings 相关的逻辑。"}
+{"file":"internal/cursor/settings.go","line":237,"prefix":"// ","text":"resolveCursorSettingsPath 用于处理与 resolveCursorSettingsPath 相关的逻辑。","raw":"// resolveCursorSettingsPath 用于处理与 resolveCursorSettingsPath 相关的逻辑。"}
+{"file":"internal/cursor/settings.go","line":264,"prefix":"// ","text":"decodeCursorSettingsJSONC 用于处理与 decodeCursorSettingsJSONC 相关的逻辑。","raw":"// decodeCursorSettingsJSONC 用于处理与 decodeCursorSettingsJSONC 相关的逻辑。"}
+{"file":"internal/cursor/settings.go","line":281,"prefix":"// ","text":"normalizeJSONC 用于处理与 normalizeJSONC 相关的逻辑。","raw":"// normalizeJSONC 用于处理与 normalizeJSONC 相关的逻辑。"}
+{"file":"internal/cursor/settings.go","line":293,"prefix":"// ","text":"stripJSONCComments 用于处理与 stripJSONCComments 相关的逻辑。","raw":"// stripJSONCComments 用于处理与 stripJSONCComments 相关的逻辑。"}
+{"file":"internal/cursor/settings.go","line":365,"prefix":"// ","text":"stripJSONCTrailingCommas 用于处理与 stripJSONCTrailingCommas 相关的逻辑。","raw":"// stripJSONCTrailingCommas 用于处理与 stripJSONCTrailingCommas 相关的逻辑。"}
+{"file":"internal/cursor/settings.go","line":411,"prefix":"// ","text":"isJSONWhitespace 用于处理与 isJSONWhitespace 相关的逻辑。","raw":"// isJSONWhitespace 用于处理与 isJSONWhitespace 相关的逻辑。"}
+{"file":"internal/cursor/settings.go","line":416,"prefix":"// ","text":"ProxyURLFromListenAddr 用于处理与 ProxyURLFromListenAddr 相关的逻辑。","raw":"// ProxyURLFromListenAddr 用于处理与 ProxyURLFromListenAddr 相关的逻辑。"}
+{"file":"internal/cursor/windows_cert.go","line":24,"prefix":"// ","text":"getCertThumbprint 获取证书的SHA1指纹，用于唯一标识证书","raw":"// getCertThumbprint 获取证书的SHA1指纹，用于唯一标识证书"}
+{"file":"internal/cursor/windows_cert.go","line":34,"prefix":"\t// ","text":"SHA1 指纹，certutil 使用此格式","raw":"\t// SHA1 指纹，certutil 使用此格式"}
+{"file":"internal/cursor/windows_cert.go","line":39,"prefix":"// ","text":"hideWindow 返回隐藏命令行窗口的 SysProcAttr","raw":"// hideWindow 返回隐藏命令行窗口的 SysProcAttr"}
+{"file":"internal/cursor/windows_cert.go","line":46,"prefix":"// ","text":"isCACertInstalled 检查 CA 证书是否已安装到当前用户 Windows 根证书存储。","raw":"// isCACertInstalled 检查 CA 证书是否已安装到当前用户 Windows 根证书存储。"}
+{"file":"internal/cursor/windows_cert.go","line":59,"prefix":"\t\t\t// ","text":"certutil 在找不到证书时返回非零退出码。","raw":"\t\t\t// certutil 在找不到证书时返回非零退出码。"}
+{"file":"internal/cursor/windows_cert.go","line":72,"prefix":"\t// ","text":"某些 Windows 语言环境下 certutil 的文本不同，这里仍然按未找到处理。","raw":"\t// 某些 Windows 语言环境下 certutil 的文本不同，这里仍然按未找到处理。"}
+{"file":"internal/cursor/windows_cert.go","line":77,"prefix":"// ","text":"installCACertToWindowsStore 将 CA 证书安装到当前用户 Windows 根证书存储。","raw":"// installCACertToWindowsStore 将 CA 证书安装到当前用户 Windows 根证书存储。"}
+{"file":"internal/cursor/windows_cert.go","line":105,"prefix":"// ","text":"RemoveCACertFromWindowsStore 删除本应用当前用户 Root store 中的 CA。","raw":"// RemoveCACertFromWindowsStore 删除本应用当前用户 Root store 中的 CA。"}
+{"file":"internal/cursor/windows_cert.go","line":120,"prefix":"// ","text":"EnsureCACertInstalled 确保证书已安装到 Windows 系统信任存储。","raw":"// EnsureCACertInstalled 确保证书已安装到 Windows 系统信任存储。"}
+{"file":"internal/cursor/windows_cert_stub.go","line":7,"prefix":"// ","text":"EnsureCACertInstalled 非 Windows/macOS 平台的存根实现","raw":"// EnsureCACertInstalled 非 Windows/macOS 平台的存根实现"}
+{"file":"internal/logger/logger.go","line":34,"prefix":"// ","text":"Init 配置默认 slog logger，并把标准库 log 接到同一输出。","raw":"// Init 配置默认 slog logger，并把标准库 log 接到同一输出。"}
+{"file":"internal/logger/logger.go","line":61,"prefix":"// ","text":"Info 输出 info 级日志。","raw":"// Info 输出 info 级日志。"}
+{"file":"internal/logger/logger.go","line":67,"prefix":"// ","text":"Error 输出 error 级日志。","raw":"// Error 输出 error 级日志。"}
+{"file":"internal/logger/logger.go","line":73,"prefix":"// ","text":"Infof 输出格式化的 info 级日志。","raw":"// Infof 输出格式化的 info 级日志。"}
+{"file":"internal/logger/logger.go","line":79,"prefix":"// ","text":"Errorf 输出格式化的 error 级日志。","raw":"// Errorf 输出格式化的 error 级日志。"}
+{"file":"internal/mitm/doc.go","line":1,"prefix":"// ","text":"Package mitm 负责本地 MITM HTTP 代理服务与 relay 转发桥接。","raw":"// Package mitm 负责本地 MITM HTTP 代理服务与 relay 转发桥接。"}
+{"file":"internal/mitm/local_relay_bridge.go","line":10,"prefix":"// ","text":"localRelayResponseWriter 定义了当前模块中的 localRelayResponseWriter 类型。","raw":"// localRelayResponseWriter 定义了当前模块中的 localRelayResponseWriter 类型。"}
+{"file":"internal/mitm/local_relay_bridge.go","line":12,"prefix":"\t// ","text":"header 表示当前声明中的 header。","raw":"\t// header 表示当前声明中的 header。"}
+{"file":"internal/mitm/local_relay_bridge.go","line":14,"prefix":"\t// ","text":"pipeWriter 表示当前声明中的 pipeWriter。","raw":"\t// pipeWriter 表示当前声明中的 pipeWriter。"}
+{"file":"internal/mitm/local_relay_bridge.go","line":16,"prefix":"\t// ","text":"ready 表示当前声明中的 ready。","raw":"\t// ready 表示当前声明中的 ready。"}
+{"file":"internal/mitm/local_relay_bridge.go","line":18,"prefix":"\t// ","text":"wroteHeader 表示当前声明中的 wroteHeader。","raw":"\t// wroteHeader 表示当前声明中的 wroteHeader。"}
+{"file":"internal/mitm/local_relay_bridge.go","line":20,"prefix":"\t// ","text":"statusCode 表示当前声明中的 statusCode。","raw":"\t// statusCode 表示当前声明中的 statusCode。"}
+{"file":"internal/mitm/local_relay_bridge.go","line":22,"prefix":"\t// ","text":"once 表示当前声明中的 once。","raw":"\t// once 表示当前声明中的 once。"}
+{"file":"internal/mitm/local_relay_bridge.go","line":24,"prefix":"\t// ","text":"mu 表示当前声明中的 mu。","raw":"\t// mu 表示当前声明中的 mu。"}
+{"file":"internal/mitm/local_relay_bridge.go","line":28,"prefix":"// ","text":"newLocalRelayResponseWriter 用于处理与 newLocalRelayResponseWriter 相关的逻辑。","raw":"// newLocalRelayResponseWriter 用于处理与 newLocalRelayResponseWriter 相关的逻辑。"}
+{"file":"internal/mitm/local_relay_bridge.go","line":38,"prefix":"// ","text":"Header 用于处理与 Header 相关的逻辑。","raw":"// Header 用于处理与 Header 相关的逻辑。"}
+{"file":"internal/mitm/local_relay_bridge.go","line":43,"prefix":"// ","text":"WriteHeader 用于处理与 WriteHeader 相关的逻辑。","raw":"// WriteHeader 用于处理与 WriteHeader 相关的逻辑。"}
+{"file":"internal/mitm/local_relay_bridge.go","line":56,"prefix":"// ","text":"Write 用于处理与 Write 相关的逻辑。","raw":"// Write 用于处理与 Write 相关的逻辑。"}
+{"file":"internal/mitm/local_relay_bridge.go","line":64,"prefix":"// ","text":"Flush 用于处理与 Flush 相关的逻辑。","raw":"// Flush 用于处理与 Flush 相关的逻辑。"}
+{"file":"internal/mitm/local_relay_bridge.go","line":71,"prefix":"// ","text":"Finish 用于处理与 Finish 相关的逻辑。","raw":"// Finish 用于处理与 Finish 相关的逻辑。"}
+{"file":"internal/mitm/local_relay_bridge.go","line":86,"prefix":"// ","text":"Ready 用于处理与 Ready 相关的逻辑。","raw":"// Ready 用于处理与 Ready 相关的逻辑。"}
+{"file":"internal/mitm/local_relay_bridge.go","line":91,"prefix":"// ","text":"Response 用于处理与 Response 相关的逻辑。","raw":"// Response 用于处理与 Response 相关的逻辑。"}
+{"file":"internal/mitm/local_relay_bridge.go","line":107,"prefix":"// ","text":"headerWritten 用于处理与 headerWritten 相关的逻辑。","raw":"// headerWritten 用于处理与 headerWritten 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":28,"prefix":"\t// ","text":"HeaderServerUpstreamURL 表示转发给 backend server 时携带的原始上游地址。","raw":"\t// HeaderServerUpstreamURL 表示转发给 backend server 时携带的原始上游地址。"}
+{"file":"internal/mitm/service.go","line":32,"prefix":"// ","text":"ProxyServer 定义了当前模块中的 ProxyServer 类型。","raw":"// ProxyServer 定义了当前模块中的 ProxyServer 类型。"}
+{"file":"internal/mitm/service.go","line":34,"prefix":"\t// ","text":"addr 表示当前声明中的 addr。","raw":"\t// addr 表示当前声明中的 addr。"}
+{"file":"internal/mitm/service.go","line":36,"prefix":"\t// ","text":"baseURL 表示当前声明中的 baseURL。","raw":"\t// baseURL 表示当前声明中的 baseURL。"}
+{"file":"internal/mitm/service.go","line":38,"prefix":"\t// ","text":"certManager 表示当前声明中的 certManager。","raw":"\t// certManager 表示当前声明中的 certManager。"}
+{"file":"internal/mitm/service.go","line":40,"prefix":"\t// ","text":"baseEndpoint 表示当前声明中的 baseEndpoint。","raw":"\t// baseEndpoint 表示当前声明中的 baseEndpoint。"}
+{"file":"internal/mitm/service.go","line":42,"prefix":"\t// ","text":"baseMu 表示当前声明中的 baseMu。","raw":"\t// baseMu 表示当前声明中的 baseMu。"}
+{"file":"internal/mitm/service.go","line":45,"prefix":"\t// ","text":"upstreamClient 表示当前声明中的 upstreamClient。","raw":"\t// upstreamClient 表示当前声明中的 upstreamClient。"}
+{"file":"internal/mitm/service.go","line":48,"prefix":"\t// ","text":"proxy 表示当前声明中的 proxy。","raw":"\t// proxy 表示当前声明中的 proxy。"}
+{"file":"internal/mitm/service.go","line":51,"prefix":"\t// ","text":"runMu 表示当前声明中的 runMu。","raw":"\t// runMu 表示当前声明中的 runMu。"}
+{"file":"internal/mitm/service.go","line":53,"prefix":"\t// ","text":"httpServer 表示当前声明中的 httpServer。","raw":"\t// httpServer 表示当前声明中的 httpServer。"}
+{"file":"internal/mitm/service.go","line":55,"prefix":"\t// ","text":"serveErrCh 表示当前声明中的 serveErrCh。","raw":"\t// serveErrCh 表示当前声明中的 serveErrCh。"}
+{"file":"internal/mitm/service.go","line":59,"prefix":"// ","text":"Snapshot 定义了当前模块中的 Snapshot 类型。","raw":"// Snapshot 定义了当前模块中的 Snapshot 类型。"}
+{"file":"internal/mitm/service.go","line":61,"prefix":"\t// ","text":"ListenAddr 表示当前声明中的 ListenAddr。","raw":"\t// ListenAddr 表示当前声明中的 ListenAddr。"}
+{"file":"internal/mitm/service.go","line":63,"prefix":"\t// ","text":"BaseURL 表示当前声明中的 BaseURL。","raw":"\t// BaseURL 表示当前声明中的 BaseURL。"}
+{"file":"internal/mitm/service.go","line":65,"prefix":"\t// ","text":"Running 表示当前声明中的 Running。","raw":"\t// Running 表示当前声明中的 Running。"}
+{"file":"internal/mitm/service.go","line":69,"prefix":"// ","text":"hopByHopHeaders 表示当前模块中的 hopByHopHeaders 状态值。","raw":"// hopByHopHeaders 表示当前模块中的 hopByHopHeaders 状态值。"}
+{"file":"internal/mitm/service.go","line":180,"prefix":"// ","text":"NewProxyServer 用于处理与 NewProxyServer 相关的逻辑。","raw":"// NewProxyServer 用于处理与 NewProxyServer 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":208,"prefix":"// ","text":"parseBaseURL 用于处理与 parseBaseURL 相关的逻辑。","raw":"// parseBaseURL 用于处理与 parseBaseURL 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":238,"prefix":"// ","text":"UpdateBaseURL 用于处理与 UpdateBaseURL 相关的逻辑。","raw":"// UpdateBaseURL 用于处理与 UpdateBaseURL 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":251,"prefix":"// ","text":"ListenAndServe 用于处理与 ListenAndServe 相关的逻辑。","raw":"// ListenAndServe 用于处理与 ListenAndServe 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":265,"prefix":"// ","text":"Start 用于处理与 Start 相关的逻辑。","raw":"// Start 用于处理与 Start 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":309,"prefix":"// ","text":"Stop 用于处理与 Stop 相关的逻辑。","raw":"// Stop 用于处理与 Stop 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":322,"prefix":"// ","text":"IsRunning 用于处理与 IsRunning 相关的逻辑。","raw":"// IsRunning 用于处理与 IsRunning 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":330,"prefix":"// ","text":"Snapshot 用于处理与 Snapshot 相关的逻辑。","raw":"// Snapshot 用于处理与 Snapshot 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":340,"prefix":"// ","text":"currentBaseURL 用于处理与 currentBaseURL 相关的逻辑。","raw":"// currentBaseURL 用于处理与 currentBaseURL 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":348,"prefix":"// ","text":"currentBaseEndpoint 用于处理与 currentBaseEndpoint 相关的逻辑。","raw":"// currentBaseEndpoint 用于处理与 currentBaseEndpoint 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":360,"prefix":"// ","text":"newGoproxyHandler 用于处理与 newGoproxyHandler 相关的逻辑。","raw":"// newGoproxyHandler 用于处理与 newGoproxyHandler 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":426,"prefix":"\t// ","text":"MITM 解密后：Cursor 白名单域名转发到 backend server，其余请求由 goproxy 直连回源。","raw":"\t// MITM 解密后：Cursor 白名单域名转发到 backend server，其余请求由 goproxy 直连回源。"}
+{"file":"internal/mitm/service.go","line":453,"prefix":"// ","text":"forwardToServer 用于处理与 forwardToServer 相关的逻辑。","raw":"// forwardToServer 用于处理与 forwardToServer 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":490,"prefix":"// ","text":"requestHost 用于处理与 requestHost 相关的逻辑。","raw":"// requestHost 用于处理与 requestHost 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":504,"prefix":"// ","text":"requestRemoteAddr 用于处理与 requestRemoteAddr 相关的逻辑。","raw":"// requestRemoteAddr 用于处理与 requestRemoteAddr 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":516,"prefix":"// ","text":"requestUserAgent 用于处理与 requestUserAgent 相关的逻辑。","raw":"// requestUserAgent 用于处理与 requestUserAgent 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":528,"prefix":"// ","text":"requestURL 用于处理与 requestURL 相关的逻辑。","raw":"// requestURL 用于处理与 requestURL 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":540,"prefix":"// ","text":"rawURLForRelay 用于处理与 rawURLForRelay 相关的逻辑。","raw":"// rawURLForRelay 用于处理与 rawURLForRelay 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":570,"prefix":"// ","text":"copyHeaders 用于处理与 copyHeaders 相关的逻辑。","raw":"// copyHeaders 用于处理与 copyHeaders 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":580,"prefix":"// ","text":"removeHopByHop 用于处理与 removeHopByHop 相关的逻辑。","raw":"// removeHopByHop 用于处理与 removeHopByHop 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":599,"prefix":"// ","text":"trimForLog 用于处理与 trimForLog 相关的逻辑。","raw":"// trimForLog 用于处理与 trimForLog 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":612,"prefix":"// ","text":"normalizeConnectHost 用于处理与 normalizeConnectHost 相关的逻辑。","raw":"// normalizeConnectHost 用于处理与 normalizeConnectHost 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":621,"prefix":"// ","text":"hostFromHTTPRequest 用于处理与 hostFromHTTPRequest 相关的逻辑。","raw":"// hostFromHTTPRequest 用于处理与 hostFromHTTPRequest 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":635,"prefix":"// ","text":"isWhitelistedRelayHost 用于处理与 isWhitelistedRelayHost 相关的逻辑。","raw":"// isWhitelistedRelayHost 用于处理与 isWhitelistedRelayHost 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":660,"prefix":"// ","text":"mitmCertStore 缓存 goproxy 为站点动态签发的证书，避免同一 host 重复执行 RSA/x509 签发。","raw":"// mitmCertStore 缓存 goproxy 为站点动态签发的证书，避免同一 host 重复执行 RSA/x509 签发。"}
+{"file":"internal/mitm/service.go","line":690,"prefix":"// ","text":"shouldHandleLocalCORSPreflight 用于处理与 shouldHandleLocalCORSPreflight 相关的逻辑。","raw":"// shouldHandleLocalCORSPreflight 用于处理与 shouldHandleLocalCORSPreflight 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":707,"prefix":"// ","text":"buildLocalCORSPreflightResponse 用于处理与 buildLocalCORSPreflightResponse 相关的逻辑。","raw":"// buildLocalCORSPreflightResponse 用于处理与 buildLocalCORSPreflightResponse 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":737,"prefix":"// ","text":"httpErrorFilterWriter 定义了当前模块中的 httpErrorFilterWriter 类型。","raw":"// httpErrorFilterWriter 定义了当前模块中的 httpErrorFilterWriter 类型。"}
+{"file":"internal/mitm/service.go","line":740,"prefix":"// ","text":"Write 用于处理与 Write 相关的逻辑。","raw":"// Write 用于处理与 Write 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":761,"prefix":"// ","text":"goproxyLogAdapter 定义了当前模块中的 goproxyLogAdapter 类型。","raw":"// goproxyLogAdapter 定义了当前模块中的 goproxyLogAdapter 类型。"}
+{"file":"internal/mitm/service.go","line":764,"prefix":"// ","text":"Printf 用于处理与 Printf 相关的逻辑。","raw":"// Printf 用于处理与 Printf 相关的逻辑。"}
+{"file":"internal/mitm/service.go","line":837,"prefix":"// ","text":"logMITMCAInfo 用于处理与 logMITMCAInfo 相关的逻辑。","raw":"// logMITMCAInfo 用于处理与 logMITMCAInfo 相关的逻辑。"}
+{"file":"internal/modelchannel/identity.go","line":43,"prefix":"// ","text":"NormalizeOpenAIEndpoint 归一化 OpenAI endpoint 路径。","raw":"// NormalizeOpenAIEndpoint 归一化 OpenAI endpoint 路径。"}
+{"file":"internal/modelchannel/identity.go","line":44,"prefix":"// ","text":"支持三个预设值：/v1/responses、/v1/chat/completions、/custom（自定义路径）。","raw":"// 支持三个预设值：/v1/responses、/v1/chat/completions、/custom（自定义路径）。"}
+{"file":"internal/modelchannel/identity.go","line":45,"prefix":"// ","text":"选 /custom 时，用户需在接口地址栏填写完整请求 URL。","raw":"// 选 /custom 时，用户需在接口地址栏填写完整请求 URL。"}
+{"file":"internal/modelchannel/identity.go","line":61,"prefix":"// ","text":"OpenAIEndpointShape 根据 endpoint 路径末段推断协议形态。","raw":"// OpenAIEndpointShape 根据 endpoint 路径末段推断协议形态。"}
+{"file":"internal/modelchannel/identity.go","line":62,"prefix":"// ","text":"返回 \"responses\"（Responses API）或 \"chat/completions\"（Chat Completions API）。","raw":"// 返回 \"responses\"（Responses API）或 \"chat/completions\"（Chat Completions API）。"}
+{"file":"internal/modelchannel/identity.go","line":63,"prefix":"// ","text":"这样 /v1/chat/completions、/v4/chat/completions、/chat/completions 都走同一协议分支。","raw":"// 这样 /v1/chat/completions、/v4/chat/completions、/chat/completions 都走同一协议分支。"}
+{"file":"internal/runtime/defaults.go","line":4,"prefix":"\t// ","text":"InjectAccountEmail 表示本地模式模拟账号的 email。","raw":"\t// InjectAccountEmail 表示本地模式模拟账号的 email。"}
+{"file":"internal/runtime/defaults.go","line":6,"prefix":"\t// ","text":"InjectAuthToken 表示本地模式模拟账号的 token。","raw":"\t// InjectAuthToken 表示本地模式模拟账号的 token。"}
+{"file":"internal/runtime/defaults.go","line":8,"prefix":"\t// ","text":"LocalRelayToken 用于 local 模式下，backend 回源 cursor.sh 时覆盖 Authorization。","raw":"\t// LocalRelayToken 用于 local 模式下，backend 回源 cursor.sh 时覆盖 Authorization。"}
+{"file":"internal/runtime/doc.go","line":1,"prefix":"// ","text":"Package runtime 提供客户端本地运行时依赖，包括固定账号、固定渠道与系统设置快照。","raw":"// Package runtime 提供客户端本地运行时依赖，包括固定账号、固定渠道与系统设置快照。"}
+{"file":"internal/runtime/local_runtime.go","line":15,"prefix":"\t// ","text":"ErrInvalidSystemSetting 表示当前模块中的 ErrInvalidSystemSetting 状态值。","raw":"\t// ErrInvalidSystemSetting 表示当前模块中的 ErrInvalidSystemSetting 状态值。"}
+{"file":"internal/runtime/local_runtime.go","line":17,"prefix":"\t// ","text":"ErrChannelNotAvailable 表示当前没有可用模型渠道。","raw":"\t// ErrChannelNotAvailable 表示当前没有可用模型渠道。"}
+{"file":"internal/runtime/local_runtime.go","line":19,"prefix":"\t// ","text":"ErrChannelRateLimited 表示当前模型渠道被限流。","raw":"\t// ErrChannelRateLimited 表示当前模型渠道被限流。"}
+{"file":"internal/runtime/local_runtime.go","line":24,"prefix":"\t// ","text":"configurableChannelTimeoutMS 表示当前声明中的 configurableChannelTimeoutMS。","raw":"\t// configurableChannelTimeoutMS 表示当前声明中的 configurableChannelTimeoutMS。"}
+{"file":"internal/runtime/local_runtime.go","line":26,"prefix":"\t// ","text":"configurableChannelContextWindowTokens 表示当前声明中的默认上下文窗口大小。","raw":"\t// configurableChannelContextWindowTokens 表示当前声明中的默认上下文窗口大小。"}
+{"file":"internal/runtime/local_runtime.go","line":28,"prefix":"\t// ","text":"configurableChannelMaxTokens 表示当前声明中的 configurableChannelMaxTokens。","raw":"\t// configurableChannelMaxTokens 表示当前声明中的 configurableChannelMaxTokens。"}
+{"file":"internal/runtime/local_runtime.go","line":30,"prefix":"\t// ","text":"configurableChannelThinkingBudgetTokens 表示当前声明中的 configurableChannelThinkingBudgetTokens。","raw":"\t// configurableChannelThinkingBudgetTokens 表示当前声明中的 configurableChannelThinkingBudgetTokens。"}
+{"file":"internal/runtime/local_runtime.go","line":32,"prefix":"\t// ","text":"configurableChannelAnthropicThinkingEffort 表示 Anthropic adaptive thinking 默认强度。","raw":"\t// configurableChannelAnthropicThinkingEffort 表示 Anthropic adaptive thinking 默认强度。"}
+{"file":"internal/runtime/local_runtime.go","line":36,"prefix":"// ","text":"ModelAdapterConfig 定义了当前模块中的 ModelAdapterConfig 类型。","raw":"// ModelAdapterConfig 定义了当前模块中的 ModelAdapterConfig 类型。"}
+{"file":"internal/runtime/local_runtime.go","line":39,"prefix":"\t// ","text":"DisplayName 表示当前声明中的 DisplayName。","raw":"\t// DisplayName 表示当前声明中的 DisplayName。"}
+{"file":"internal/runtime/local_runtime.go","line":41,"prefix":"\t// ","text":"Type 表示当前声明中的 Type。","raw":"\t// Type 表示当前声明中的 Type。"}
+{"file":"internal/runtime/local_runtime.go","line":43,"prefix":"\t// ","text":"BaseURL 表示当前声明中的 BaseURL。","raw":"\t// BaseURL 表示当前声明中的 BaseURL。"}
+{"file":"internal/runtime/local_runtime.go","line":45,"prefix":"\t// ","text":"APIKey 表示当前声明中的 APIKey。","raw":"\t// APIKey 表示当前声明中的 APIKey。"}
+{"file":"internal/runtime/local_runtime.go","line":47,"prefix":"\t// ","text":"TooltipData 表示当前声明中的 TooltipData。","raw":"\t// TooltipData 表示当前声明中的 TooltipData。"}
+{"file":"internal/runtime/local_runtime.go","line":49,"prefix":"\t// ","text":"ModelID 表示当前声明中的 ModelID。","raw":"\t// ModelID 表示当前声明中的 ModelID。"}
+{"file":"internal/runtime/local_runtime.go","line":51,"prefix":"\t// ","text":"ReasoningEffort 表示当前声明中的 ReasoningEffort。","raw":"\t// ReasoningEffort 表示当前声明中的 ReasoningEffort。"}
+{"file":"internal/runtime/local_runtime.go","line":53,"prefix":"\t// ","text":"OpenAIEndpoint 表示 OpenAI 兼容适配器使用的 API 端点。","raw":"\t// OpenAIEndpoint 表示 OpenAI 兼容适配器使用的 API 端点。"}
+{"file":"internal/runtime/local_runtime.go","line":55,"prefix":"\t// ","text":"OpenAIExtraParamsEnabled 表示是否启用 OpenAI 额外请求参数。","raw":"\t// OpenAIExtraParamsEnabled 表示是否启用 OpenAI 额外请求参数。"}
+{"file":"internal/runtime/local_runtime.go","line":57,"prefix":"\t// ","text":"OpenAIExtraParamsJSON 表示 OpenAI 额外请求参数 JSON 对象。","raw":"\t// OpenAIExtraParamsJSON 表示 OpenAI 额外请求参数 JSON 对象。"}
+{"file":"internal/runtime/local_runtime.go","line":59,"prefix":"\t// ","text":"CustomHeadersEnabled 表示是否启用自定义请求头。","raw":"\t// CustomHeadersEnabled 表示是否启用自定义请求头。"}
+{"file":"internal/runtime/local_runtime.go","line":61,"prefix":"\t// ","text":"CustomHeadersJSON 表示自定义请求头 JSON 对象。","raw":"\t// CustomHeadersJSON 表示自定义请求头 JSON 对象。"}
+{"file":"internal/runtime/local_runtime.go","line":63,"prefix":"\t// ","text":"AnthropicExtraParamsEnabled 表示是否启用 Anthropic 额外请求参数。","raw":"\t// AnthropicExtraParamsEnabled 表示是否启用 Anthropic 额外请求参数。"}
+{"file":"internal/runtime/local_runtime.go","line":65,"prefix":"\t// ","text":"AnthropicExtraParamsJSON 表示 Anthropic 额外请求参数 JSON 对象。","raw":"\t// AnthropicExtraParamsJSON 表示 Anthropic 额外请求参数 JSON 对象。"}
+{"file":"internal/runtime/local_runtime.go","line":67,"prefix":"\t// ","text":"ContextWindowTokens 表示当前声明中的 ContextWindowTokens。","raw":"\t// ContextWindowTokens 表示当前声明中的 ContextWindowTokens。"}
+{"file":"internal/runtime/local_runtime.go","line":69,"prefix":"\t// ","text":"MaxCompletionTokens 表示当前声明中的 MaxCompletionTokens。","raw":"\t// MaxCompletionTokens 表示当前声明中的 MaxCompletionTokens。"}
+{"file":"internal/runtime/local_runtime.go","line":71,"prefix":"\t// ","text":"AnthropicMaxTokens 表示当前声明中的 AnthropicMaxTokens。","raw":"\t// AnthropicMaxTokens 表示当前声明中的 AnthropicMaxTokens。"}
+{"file":"internal/runtime/local_runtime.go","line":73,"prefix":"\t// ","text":"AnthropicThinkingEffort 表示 Anthropic adaptive thinking 的 output_config.effort。","raw":"\t// AnthropicThinkingEffort 表示 Anthropic adaptive thinking 的 output_config.effort。"}
+{"file":"internal/runtime/local_runtime.go","line":75,"prefix":"\t// ","text":"ThinkingBudgetTokens 表示当前声明中的 ThinkingBudgetTokens。","raw":"\t// ThinkingBudgetTokens 表示当前声明中的 ThinkingBudgetTokens。"}
+{"file":"internal/runtime/local_runtime.go","line":77,"prefix":"\t// ","text":"OpenAIEndpointGroupID 表示适配器归属的 OpenAI endpoint 组 ID，手动添加的适配器留空。","raw":"\t// OpenAIEndpointGroupID 表示适配器归属的 OpenAI endpoint 组 ID，手动添加的适配器留空。"}
+{"file":"internal/runtime/local_runtime.go","line":79,"prefix":"\t// ","text":"Active 表示适配器是否注入 Cursor。","raw":"\t// Active 表示适配器是否注入 Cursor。"}
+{"file":"internal/runtime/local_runtime.go","line":83,"prefix":"// ","text":"RuntimeConfigSnapshot 定义了当前模块中的 RuntimeConfigSnapshot 类型。","raw":"// RuntimeConfigSnapshot 定义了当前模块中的 RuntimeConfigSnapshot 类型。"}
+{"file":"internal/runtime/local_runtime.go","line":85,"prefix":"\t// ","text":"ObservabilityLogEnabled 表示当前声明中的 ObservabilityLogEnabled。","raw":"\t// ObservabilityLogEnabled 表示当前声明中的 ObservabilityLogEnabled。"}
+{"file":"internal/runtime/local_runtime.go","line":87,"prefix":"\t// ","text":"ProviderStreamIdleTimeout 表示 provider 流式响应无有效内容时的空闲超时，单位秒。","raw":"\t// ProviderStreamIdleTimeout 表示 provider 流式响应无有效内容时的空闲超时，单位秒。"}
+{"file":"internal/runtime/local_runtime.go","line":89,"prefix":"\t// ","text":"ModelAdapters 表示当前声明中的 ModelAdapters。","raw":"\t// ModelAdapters 表示当前声明中的 ModelAdapters。"}
+{"file":"internal/runtime/local_runtime.go","line":93,"prefix":"// ","text":"RuntimeConfigProvider 定义了当前模块中的 RuntimeConfigProvider 类型。","raw":"// RuntimeConfigProvider 定义了当前模块中的 RuntimeConfigProvider 类型。"}
+{"file":"internal/runtime/local_runtime.go","line":96,"prefix":"// ","text":"NormalizeModelAdapterConfigs 用于处理与 NormalizeModelAdapterConfigs 相关的逻辑。","raw":"// NormalizeModelAdapterConfigs 用于处理与 NormalizeModelAdapterConfigs 相关的逻辑。"}
+{"file":"internal/runtime/local_runtime.go","line":236,"prefix":"// ","text":"normalizeModelAdapterType 用于处理与 normalizeModelAdapterType 相关的逻辑。","raw":"// normalizeModelAdapterType 用于处理与 normalizeModelAdapterType 相关的逻辑。"}
+{"file":"internal/runtime/local_runtime.go","line":248,"prefix":"// ","text":"ResolvedChannel 表示当前选中的模型渠道。","raw":"// ResolvedChannel 表示当前选中的模型渠道。"}
+{"file":"internal/runtime/local_runtime.go","line":250,"prefix":"\t// ","text":"ID 表示当前声明中的 ID。","raw":"\t// ID 表示当前声明中的 ID。"}
+{"file":"internal/runtime/local_runtime.go","line":252,"prefix":"\t// ","text":"Name 表示当前声明中的 Name。","raw":"\t// Name 表示当前声明中的 Name。"}
+{"file":"internal/runtime/local_runtime.go","line":254,"prefix":"\t// ","text":"GroupName 表示当前声明中的 GroupName。","raw":"\t// GroupName 表示当前声明中的 GroupName。"}
+{"file":"internal/runtime/local_runtime.go","line":256,"prefix":"\t// ","text":"Code 表示当前声明中的 Code。","raw":"\t// Code 表示当前声明中的 Code。"}
+{"file":"internal/runtime/local_runtime.go","line":258,"prefix":"\t// ","text":"Provider 表示当前声明中的 Provider。","raw":"\t// Provider 表示当前声明中的 Provider。"}
+{"file":"internal/runtime/local_runtime.go","line":260,"prefix":"\t// ","text":"BaseURL 表示当前声明中的 BaseURL。","raw":"\t// BaseURL 表示当前声明中的 BaseURL。"}
+{"file":"internal/runtime/local_runtime.go","line":262,"prefix":"\t// ","text":"APIKey 表示当前声明中的 APIKey。","raw":"\t// APIKey 表示当前声明中的 APIKey。"}
+{"file":"internal/runtime/local_runtime.go","line":264,"prefix":"\t// ","text":"Model 表示当前声明中的 Model。","raw":"\t// Model 表示当前声明中的 Model。"}
+{"file":"internal/runtime/local_runtime.go","line":266,"prefix":"\t// ","text":"TimeoutMS 表示当前声明中的 TimeoutMS。","raw":"\t// TimeoutMS 表示当前声明中的 TimeoutMS。"}
+{"file":"internal/runtime/local_runtime.go","line":268,"prefix":"\t// ","text":"ContextWindowTokens 表示当前声明中的 ContextWindowTokens。","raw":"\t// ContextWindowTokens 表示当前声明中的 ContextWindowTokens。"}
+{"file":"internal/runtime/local_runtime.go","line":270,"prefix":"\t// ","text":"MaxTokens 表示当前声明中的 MaxTokens。","raw":"\t// MaxTokens 表示当前声明中的 MaxTokens。"}
+{"file":"internal/runtime/local_runtime.go","line":272,"prefix":"\t// ","text":"ReasoningEffort 表示当前声明中的 ReasoningEffort。","raw":"\t// ReasoningEffort 表示当前声明中的 ReasoningEffort。"}
+{"file":"internal/runtime/local_runtime.go","line":274,"prefix":"\t// ","text":"OpenAIEndpoint 表示 OpenAI 兼容适配器使用的 API 端点。","raw":"\t// OpenAIEndpoint 表示 OpenAI 兼容适配器使用的 API 端点。"}
+{"file":"internal/runtime/local_runtime.go","line":276,"prefix":"\t// ","text":"OpenAIExtraParamsEnabled 表示是否启用 OpenAI 额外请求参数。","raw":"\t// OpenAIExtraParamsEnabled 表示是否启用 OpenAI 额外请求参数。"}
+{"file":"internal/runtime/local_runtime.go","line":278,"prefix":"\t// ","text":"OpenAIExtraParamsJSON 表示 OpenAI 额外请求参数 JSON 对象。","raw":"\t// OpenAIExtraParamsJSON 表示 OpenAI 额外请求参数 JSON 对象。"}
+{"file":"internal/runtime/local_runtime.go","line":280,"prefix":"\t// ","text":"CustomHeadersEnabled 表示是否启用自定义请求头。","raw":"\t// CustomHeadersEnabled 表示是否启用自定义请求头。"}
+{"file":"internal/runtime/local_runtime.go","line":282,"prefix":"\t// ","text":"CustomHeadersJSON 表示自定义请求头 JSON 对象。","raw":"\t// CustomHeadersJSON 表示自定义请求头 JSON 对象。"}
+{"file":"internal/runtime/local_runtime.go","line":284,"prefix":"\t// ","text":"AnthropicExtraParamsEnabled 表示是否启用 Anthropic 额外请求参数。","raw":"\t// AnthropicExtraParamsEnabled 表示是否启用 Anthropic 额外请求参数。"}
+{"file":"internal/runtime/local_runtime.go","line":286,"prefix":"\t// ","text":"AnthropicExtraParamsJSON 表示 Anthropic 额外请求参数 JSON 对象。","raw":"\t// AnthropicExtraParamsJSON 表示 Anthropic 额外请求参数 JSON 对象。"}
+{"file":"internal/runtime/local_runtime.go","line":288,"prefix":"\t// ","text":"AnthropicMaxTokens 表示当前声明中的 AnthropicMaxTokens。","raw":"\t// AnthropicMaxTokens 表示当前声明中的 AnthropicMaxTokens。"}
+{"file":"internal/runtime/local_runtime.go","line":290,"prefix":"\t// ","text":"AnthropicThinkingEffort 表示 Anthropic adaptive thinking 的 output_config.effort。","raw":"\t// AnthropicThinkingEffort 表示 Anthropic adaptive thinking 的 output_config.effort。"}
+{"file":"internal/runtime/local_runtime.go","line":292,"prefix":"\t// ","text":"ThinkingEnabled 表示当前声明中的 ThinkingEnabled。","raw":"\t// ThinkingEnabled 表示当前声明中的 ThinkingEnabled。"}
+{"file":"internal/runtime/local_runtime.go","line":294,"prefix":"\t// ","text":"ThinkingBudgetTokens 表示当前声明中的 ThinkingBudgetTokens。","raw":"\t// ThinkingBudgetTokens 表示当前声明中的 ThinkingBudgetTokens。"}
+{"file":"internal/runtime/local_runtime.go","line":298,"prefix":"// ","text":"ChannelUsageRecordCreatePayload 定义了一次渠道使用记录的最小载荷。","raw":"// ChannelUsageRecordCreatePayload 定义了一次渠道使用记录的最小载荷。"}
+{"file":"internal/runtime/local_runtime.go","line":300,"prefix":"\t// ","text":"RequestID 表示当前声明中的 RequestID。","raw":"\t// RequestID 表示当前声明中的 RequestID。"}
+{"file":"internal/runtime/local_runtime.go","line":302,"prefix":"\t// ","text":"ConversationID 表示当前声明中的 ConversationID。","raw":"\t// ConversationID 表示当前声明中的 ConversationID。"}
+{"file":"internal/runtime/local_runtime.go","line":304,"prefix":"\t// ","text":"RuntimeModelID 表示当前声明中的 RuntimeModelID。","raw":"\t// RuntimeModelID 表示当前声明中的 RuntimeModelID。"}
+{"file":"internal/runtime/local_runtime.go","line":308,"prefix":"// ","text":"ChannelCallRecordCreatePayload 定义了一次渠道调用记录的最小载荷。","raw":"// ChannelCallRecordCreatePayload 定义了一次渠道调用记录的最小载荷。"}
+{"file":"internal/runtime/local_runtime.go","line":310,"prefix":"\t// ","text":"RequestID 表示当前声明中的 RequestID。","raw":"\t// RequestID 表示当前声明中的 RequestID。"}
+{"file":"internal/runtime/local_runtime.go","line":312,"prefix":"\t// ","text":"ConversationID 表示当前声明中的 ConversationID。","raw":"\t// ConversationID 表示当前声明中的 ConversationID。"}
+{"file":"internal/runtime/local_runtime.go","line":314,"prefix":"\t// ","text":"ChannelID 表示当前声明中的 ChannelID。","raw":"\t// ChannelID 表示当前声明中的 ChannelID。"}
+{"file":"internal/runtime/local_runtime.go","line":316,"prefix":"\t// ","text":"ChannelName 表示当前声明中的 ChannelName。","raw":"\t// ChannelName 表示当前声明中的 ChannelName。"}
+{"file":"internal/runtime/local_runtime.go","line":318,"prefix":"\t// ","text":"GroupName 表示当前声明中的 GroupName。","raw":"\t// GroupName 表示当前声明中的 GroupName。"}
+{"file":"internal/runtime/local_runtime.go","line":320,"prefix":"\t// ","text":"Provider 表示当前声明中的 Provider。","raw":"\t// Provider 表示当前声明中的 Provider。"}
+{"file":"internal/runtime/local_runtime.go","line":322,"prefix":"\t// ","text":"RuntimeModelID 表示当前声明中的 RuntimeModelID。","raw":"\t// RuntimeModelID 表示当前声明中的 RuntimeModelID。"}
+{"file":"internal/runtime/local_runtime.go","line":324,"prefix":"\t// ","text":"ProviderModelID 表示当前声明中的 ProviderModelID。","raw":"\t// ProviderModelID 表示当前声明中的 ProviderModelID。"}
+{"file":"internal/runtime/local_runtime.go","line":326,"prefix":"\t// ","text":"StatusCode 表示当前声明中的 StatusCode。","raw":"\t// StatusCode 表示当前声明中的 StatusCode。"}
+{"file":"internal/runtime/local_runtime.go","line":328,"prefix":"\t// ","text":"Success 表示当前声明中的 Success。","raw":"\t// Success 表示当前声明中的 Success。"}
+{"file":"internal/runtime/local_runtime.go","line":330,"prefix":"\t// ","text":"DurationMS 表示当前声明中的 DurationMS。","raw":"\t// DurationMS 表示当前声明中的 DurationMS。"}
+{"file":"internal/runtime/local_runtime.go","line":332,"prefix":"\t// ","text":"ErrorCode 表示当前声明中的 ErrorCode。","raw":"\t// ErrorCode 表示当前声明中的 ErrorCode。"}
+{"file":"internal/runtime/local_runtime.go","line":334,"prefix":"\t// ","text":"ErrorMessage 表示当前声明中的 ErrorMessage。","raw":"\t// ErrorMessage 表示当前声明中的 ErrorMessage。"}
+{"file":"internal/runtime/local_runtime.go","line":338,"prefix":"// ","text":"FixedChannelService 定义了当前模块中的 FixedChannelService 类型。","raw":"// FixedChannelService 定义了当前模块中的 FixedChannelService 类型。"}
+{"file":"internal/runtime/local_runtime.go","line":340,"prefix":"\t// ","text":"channel 表示当前声明中的 channel。","raw":"\t// channel 表示当前声明中的 channel。"}
+{"file":"internal/runtime/local_runtime.go","line":342,"prefix":"\t// ","text":"configProvider 表示当前声明中的 configProvider。","raw":"\t// configProvider 表示当前声明中的 configProvider。"}
+{"file":"internal/runtime/local_runtime.go","line":346,"prefix":"// ","text":"NewFixedChannelService 用于处理与 NewFixedChannelService 相关的逻辑。","raw":"// NewFixedChannelService 用于处理与 NewFixedChannelService 相关的逻辑。"}
+{"file":"internal/runtime/local_runtime.go","line":354,"prefix":"// ","text":"NewConfigurableChannelService 用于处理与 NewConfigurableChannelService 相关的逻辑。","raw":"// NewConfigurableChannelService 用于处理与 NewConfigurableChannelService 相关的逻辑。"}
+{"file":"internal/runtime/local_runtime.go","line":362,"prefix":"// ","text":"SelectChannelForRequestBody 用于处理与 SelectChannelForRequestBody 相关的逻辑。","raw":"// SelectChannelForRequestBody 用于处理与 SelectChannelForRequestBody 相关的逻辑。"}
+{"file":"internal/runtime/local_runtime.go","line":367,"prefix":"// ","text":"SelectChannelForModel 用于处理与 SelectChannelForModel 相关的逻辑。","raw":"// SelectChannelForModel 用于处理与 SelectChannelForModel 相关的逻辑。"}
+{"file":"internal/runtime/local_runtime.go","line":443,"prefix":"// ","text":"RecordRunRequestUsage 用于处理与 RecordRunRequestUsage 相关的逻辑。","raw":"// RecordRunRequestUsage 用于处理与 RecordRunRequestUsage 相关的逻辑。"}
+{"file":"internal/runtime/local_runtime.go","line":450,"prefix":"// ","text":"RecordChannelCall 用于处理与 RecordChannelCall 相关的逻辑。","raw":"// RecordChannelCall 用于处理与 RecordChannelCall 相关的逻辑。"}
+{"file":"internal/runtime/local_runtime.go","line":457,"prefix":"// ","text":"LocalSystemSettingService 定义了当前模块中的 LocalSystemSettingService 类型。","raw":"// LocalSystemSettingService 定义了当前模块中的 LocalSystemSettingService 类型。"}
+{"file":"internal/runtime/local_runtime.go","line":459,"prefix":"\t// ","text":"provider 表示当前声明中的 provider。","raw":"\t// provider 表示当前声明中的 provider。"}
+{"file":"internal/runtime/local_runtime.go","line":463,"prefix":"// ","text":"NewLocalSystemSettingService 用于处理与 NewLocalSystemSettingService 相关的逻辑。","raw":"// NewLocalSystemSettingService 用于处理与 NewLocalSystemSettingService 相关的逻辑。"}
+{"file":"internal/runtime/local_runtime.go","line":468,"prefix":"// ","text":"ResolveFrontendBaseURL 用于处理与 ResolveFrontendBaseURL 相关的逻辑。","raw":"// ResolveFrontendBaseURL 用于处理与 ResolveFrontendBaseURL 相关的逻辑。"}
+{"file":"internal/runtime/local_runtime.go","line":473,"prefix":"// ","text":"IsObservabilityLogEnabled 用于处理与 IsObservabilityLogEnabled 相关的逻辑。","raw":"// IsObservabilityLogEnabled 用于处理与 IsObservabilityLogEnabled 相关的逻辑。"}
+{"file":"internal/runtime/local_runtime.go","line":482,"prefix":"// ","text":"IsAgentRuntimeModelEnabled 用于处理与 IsAgentRuntimeModelEnabled 相关的逻辑。","raw":"// IsAgentRuntimeModelEnabled 用于处理与 IsAgentRuntimeModelEnabled 相关的逻辑。"}
+{"file":"internal/runtime/local_runtime.go","line":487,"prefix":"// ","text":"ResolveCursorServerBridge 用于处理与 ResolveCursorServerBridge 相关的逻辑。","raw":"// ResolveCursorServerBridge 用于处理与 ResolveCursorServerBridge 相关的逻辑。"}
+{"file":"internal/runtime/local_runtime.go","line":492,"prefix":"// ","text":"LoadRuntimeConfigSnapshot 用于处理与 LoadRuntimeConfigSnapshot 相关的逻辑。","raw":"// LoadRuntimeConfigSnapshot 用于处理与 LoadRuntimeConfigSnapshot 相关的逻辑。"}
+{"file":"internal/runtime/local_runtime.go","line":497,"prefix":"// ","text":"ResolveModelAdapters 用于处理与 ResolveModelAdapters 相关的逻辑。","raw":"// ResolveModelAdapters 用于处理与 ResolveModelAdapters 相关的逻辑。"}
+{"file":"internal/runtime/local_runtime.go","line":506,"prefix":"// ","text":"load 用于处理与 load 相关的逻辑。","raw":"// load 用于处理与 load 相关的逻辑。"}
+{"file":"prompt/doc.go","line":1,"prefix":"// ","text":"Package prompt 提供按模式加载静态提示词与工具资产的能力。","raw":"// Package prompt 提供按模式加载静态提示词与工具资产的能力。"}
+{"file":"prompt/embed.go","line":9,"prefix":"// ","text":"Mode 表示 prompt 资产对应的运行模式。","raw":"// Mode 表示 prompt 资产对应的运行模式。"}
+{"file":"prompt/embed.go","line":13,"prefix":"\t// ","text":"ModeAsk 表示 Ask 模式的静态资产。","raw":"\t// ModeAsk 表示 Ask 模式的静态资产。"}
+{"file":"prompt/embed.go","line":15,"prefix":"\t// ","text":"ModePlan 表示 Plan 模式的静态资产。","raw":"\t// ModePlan 表示 Plan 模式的静态资产。"}
+{"file":"prompt/embed.go","line":17,"prefix":"\t// ","text":"ModeAgent 表示 Agent 模式的静态资产。","raw":"\t// ModeAgent 表示 Agent 模式的静态资产。"}
+{"file":"prompt/embed.go","line":19,"prefix":"\t// ","text":"ModeDebug 表示 Debug 模式的静态资产。","raw":"\t// ModeDebug 表示 Debug 模式的静态资产。"}
+{"file":"prompt/embed.go","line":21,"prefix":"\t// ","text":"ModeMultitask 表示 Multitask 模式的静态资产。","raw":"\t// ModeMultitask 表示 Multitask 模式的静态资产。"}
+{"file":"prompt/embed.go","line":23,"prefix":"\t// ","text":"ModeSubagent 表示子代理只读会话的静态资产。","raw":"\t// ModeSubagent 表示子代理只读会话的静态资产。"}
+{"file":"prompt/embed.go","line":27,"prefix":"// ","text":"assetFS 保存按模式组织的静态 prompt 与 tools 资产。","raw":"// assetFS 保存按模式组织的静态 prompt 与 tools 资产。"}
+{"file":"prompt/embed.go","line":32,"prefix":"// ","text":"normalizeMode 校验并归一化传入的模式值。","raw":"// normalizeMode 校验并归一化传入的模式值。"}
+{"file":"prompt/embed.go","line":42,"prefix":"// ","text":"PromptPath 返回指定模式的静态提示词资产路径。","raw":"// PromptPath 返回指定模式的静态提示词资产路径。"}
+{"file":"prompt/embed.go","line":51,"prefix":"// ","text":"ToolsPath 返回指定模式的静态工具资产路径。","raw":"// ToolsPath 返回指定模式的静态工具资产路径。"}
+{"file":"prompt/embed.go","line":60,"prefix":"// ","text":"ReadPrompt 读取指定模式的静态提示词文本。","raw":"// ReadPrompt 读取指定模式的静态提示词文本。"}
+{"file":"prompt/embed.go","line":85,"prefix":"// ","text":"MustReadPrompt 读取指定模式的静态提示词文本，失败时直接 panic。","raw":"// MustReadPrompt 读取指定模式的静态提示词文本，失败时直接 panic。"}
+{"file":"prompt/embed.go","line":94,"prefix":"// ","text":"ReadTools 读取指定模式的原始工具 JSON。","raw":"// ReadTools 读取指定模式的原始工具 JSON。"}
+{"file":"prompt/embed.go","line":107,"prefix":"// ","text":"MustReadTools 读取指定模式的原始工具 JSON，失败时直接 panic。","raw":"// MustReadTools 读取指定模式的原始工具 JSON，失败时直接 panic。"}
+{"file":"prompt/embed.go","line":116,"prefix":"// ","text":"ReadDebugSystemReminder 读取 Debug 模式每轮追加的提醒资产。","raw":"// ReadDebugSystemReminder 读取 Debug 模式每轮追加的提醒资产。"}
+{"file":"prompt/embed.go","line":129,"prefix":"// ","text":"MustReadDebugSystemReminder 读取 Debug 模式提醒资产，失败时直接 panic。","raw":"// MustReadDebugSystemReminder 读取 Debug 模式提醒资产，失败时直接 panic。"}
+{"file":"prompt/embed.go","line":138,"prefix":"// ","text":"ReadPlanSystemReminder 读取 Plan 模式每轮追加的动态提醒资产。","raw":"// ReadPlanSystemReminder 读取 Plan 模式每轮追加的动态提醒资产。"}
+{"file":"prompt/embed.go","line":148,"prefix":"// ","text":"MustReadPlanSystemReminder 读取 Plan 模式动态提醒资产，失败时直接 panic。","raw":"// MustReadPlanSystemReminder 读取 Plan 模式动态提醒资产，失败时直接 panic。"}
+{"file":"prompt/embed.go","line":157,"prefix":"// ","text":"ReadCompactionPrompt 读取共享的压缩提示词资产。","raw":"// ReadCompactionPrompt 读取共享的压缩提示词资产。"}
+{"file":"prompt/embed.go","line":167,"prefix":"// ","text":"MustReadCompactionPrompt 读取共享的压缩提示词资产，失败时直接 panic。","raw":"// MustReadCompactionPrompt 读取共享的压缩提示词资产，失败时直接 panic。"}
+{"file":"prompt/embed.go","line":176,"prefix":"// ","text":"ReadCommitPrompt 读取提交信息生成专用提示词资产。","raw":"// ReadCommitPrompt 读取提交信息生成专用提示词资产。"}
+{"file":"prompt/embed.go","line":186,"prefix":"// ","text":"MustReadCommitPrompt 读取提交信息生成专用提示词资产，失败时直接 panic。","raw":"// MustReadCommitPrompt 读取提交信息生成专用提示词资产，失败时直接 panic。"}
+{"file":"prompt/render.go","line":7,"prefix":"// ","text":"RenderPromptTemplate 将 prompt 资产中的占位符替换为当前请求的真实模型名称。","raw":"// RenderPromptTemplate 将 prompt 资产中的占位符替换为当前请求的真实模型名称。"}
+{"file":"proto/ext_tool/extractor.go","line":678,"prefix":"\t// ","text":"先找所有 \"变量名 = class 内部类名\" 定义","raw":"\t// 先找所有 \"变量名 = class 内部类名\" 定义"}
+{"file":"proto/ext_tool/extractor.go","line":679,"prefix":"\t// ","text":"JS 变量名可以包含 $ 符号，如 B$e, qg 等","raw":"\t// JS 变量名可以包含 $ 符号，如 B$e, qg 等"}
+{"file":"proto/ext_tool/extractor.go","line":680,"prefix":"\t// ","text":"需要同时捕获外部变量名和内部类名，因为字段引用可能用任一个","raw":"\t// 需要同时捕获外部变量名和内部类名，因为字段引用可能用任一个"}
+{"file":"proto/ext_tool/extractor.go","line":695,"prefix":"\t\t// ","text":"找到类的结束位置（匹配大括号）","raw":"\t\t// 找到类的结束位置（匹配大括号）"}
+{"file":"proto/ext_tool/extractor.go","line":703,"prefix":"\t\t// ","text":"在类体内查找 typeName","raw":"\t\t// 在类体内查找 typeName"}
+{"file":"proto/ext_tool/extractor.go","line":710,"prefix":"\t\t// ","text":"在类体内查找 fields","raw":"\t\t// 在类体内查找 fields"}
+{"file":"proto/ext_tool/extractor.go","line":716,"prefix":"\t\t// ","text":"找到 fields 数组的开始位置","raw":"\t\t// 找到 fields 数组的开始位置"}
+{"file":"proto/ext_tool/extractor.go","line":955,"prefix":"\t// ","text":"JS 变量名可以包含 $ 符号","raw":"\t// JS 变量名可以包含 $ 符号"}
+{"file":"proto/ext_tool/main.go","line":20,"prefix":"\t// ","text":"尝试常见的 prettier 命令名","raw":"\t// 尝试常见的 prettier 命令名"}
+{"file":"proto/ext_tool/main.go","line":31,"prefix":"\t// ","text":"命令行参数","raw":"\t// 命令行参数"}
+{"file":"proto/ext_tool/main.go","line":38,"prefix":"\t// ","text":"如果没有 -input 参数，尝试从位置参数获取","raw":"\t// 如果没有 -input 参数，尝试从位置参数获取"}
+{"file":"proto/ext_tool/main.go","line":52,"prefix":"\t// ","text":"验证输入文件","raw":"\t// 验证输入文件"}
+{"file":"proto/ext_tool/main.go","line":60,"prefix":"\t// ","text":"设置输出目录","raw":"\t// 设置输出目录"}
+{"file":"proto/ext_tool/main.go","line":67,"prefix":"\t// ","text":"复制到临时文件（不修改原文件）","raw":"\t// 复制到临时文件（不修改原文件）"}
+{"file":"proto/ext_tool/main.go","line":84,"prefix":"\t// ","text":"格式化临时文件","raw":"\t// 格式化临时文件"}
+{"file":"proto/ext_tool/main.go","line":110,"prefix":"\t// ","text":"运行提取器","raw":"\t// 运行提取器"}
+{"file":"proto/ext_tool/main.go","line":115,"prefix":"\t// ","text":"清理临时文件","raw":"\t// 清理临时文件"}

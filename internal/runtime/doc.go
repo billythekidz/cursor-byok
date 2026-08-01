@@ -1,2 +1,2 @@
-// Package runtime 提供客户端本地运行时依赖，包括固定账号、固定渠道与系统设置快照。
+// Package runtime provides the local runtime dependencies for the client, including the fixed account, fixed channel, and system settings snapshot.
 package runtime

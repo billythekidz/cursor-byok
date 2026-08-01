@@ -14,6 +14,7 @@ import {
   openModelConfig,
   openModelEditor,
   saveUserConfig,
+  scanOpenAIModels,
   startProxyService,
   stopProxyService,
   testModelAdapter,
@@ -172,8 +173,13 @@ function hashStringFNV32a(value) {
   return hash.toString(16).padStart(8, "0");
 }
 
-export function buildModelAdapterTestRequestHash(source) {
-  const adapter = normalizeModelAdapter(source);
+// buildOpenAIEndpointGroupKey generates an OpenAI endpoint group key (FNV32a of baseURL\napiKey).
+// Keep the grouping semantics aligned with the Go side: the same baseURL + apiKey maps to the same endpoint group.
+export function buildOpenAIEndpointGroupKey(baseURL, apiKey) {
+  return hashStringFNV32a([normalizeBaseURL(baseURL), asString(apiKey)].join("\n"));
+}
+
+export function buildModelAdapterTestRequestHash(source) {  const adapter = normalizeModelAdapter(source);
   return hashStringFNV32a([
     asString(adapter.type),
     normalizeBaseURL(adapter.baseURL),
@@ -280,12 +286,14 @@ export function createEmptyModelAdapter() {
     anthropicMaxTokens: 0,
     anthropicThinkingEffort: ANTHROPIC_THINKING_EFFORT_DEFAULT,
     thinkingBudgetTokens: 0,
+    openAIEndpointGroupID: "",
+    active: false,
   };
 }
 
-// normalizeOpenAIEndpoint 归一化 endpoint 路径。
-// 支持三个预设值：/v1/responses、/v1/chat/completions、/custom（自定义路径）。
-// 选 /custom 时，用户需在接口地址栏填写完整请求 URL。
+// normalizeOpenAIEndpoint normalizes the endpoint path.
+// Supports three presets: /v1/responses, /v1/chat/completions, and /custom (custom path).
+// When /custom is chosen, the user must fill in the full request URL in the endpoint address field.
 function normalizeOpenAIEndpoint(value) {
   const text = asString(value).toLowerCase();
   if (!text) {
@@ -401,6 +409,8 @@ export function normalizeModelAdapter(source) {
     thinkingBudgetTokens: asPositiveInteger(
       raw.thinkingBudgetTokens ?? raw.thinking_budget_tokens,
     ),
+    openAIEndpointGroupID: asString(raw.openAIEndpointGroupID ?? raw.openAIEndpointGroupId ?? raw.open_ai_endpoint_group_id),
+    active: asBoolean(raw.active),
   };
 }
 
@@ -600,6 +610,7 @@ function applyConfigToState(config, { modelAdaptersOnly = false } = {}) {
   appState.configBackendListenAddr = normalized.backendListenAddr;
   appState.configProxyListenAddr = normalized.proxyListenAddr;
   appState.routingMode = normalized.routing.mode;
+  appState.debugLogEnabled = normalized.log;
   appState.includeCacheWriteInHitRate = normalized.homeMetrics.includeCacheWriteInHitRate;
   return normalized;
 }
@@ -831,6 +842,7 @@ export const appState = reactive({
   configBackendListenAddr: cachedConfig.backendListenAddr,
   configProxyListenAddr: cachedConfig.proxyListenAddr,
   routingMode: cachedConfig.routing.mode,
+  debugLogEnabled: cachedConfig.log,
   includeCacheWriteInHitRate: cachedConfig.homeMetrics.includeCacheWriteInHitRate,
 
   serviceRunning: asBoolean(cachedState.serviceRunning),
@@ -1156,6 +1168,21 @@ export async function saveRoutingMode(mode) {
   });
 }
 
+export async function saveDebugLogEnabled(enabled) {
+  const currentConfig = await loadPersistedUserConfig();
+  const previousValue = appState.debugLogEnabled;
+  const nextValue = asBoolean(enabled);
+  appState.debugLogEnabled = nextValue;
+  const result = await persistConfigPayload({
+    ...currentConfig,
+    log: nextValue,
+  });
+  if (!result.ok) {
+    appState.debugLogEnabled = previousValue;
+  }
+  return result;
+}
+
 export async function reloadUserConfig(options = {}) {
   const config = await loadPersistedUserConfig();
   applyConfigToState(config, options);
@@ -1189,6 +1216,20 @@ export async function saveModelAdapterAt(index, adapter) {
     index: targetIndex,
     adapter: appState.modelAdapters[targetIndex] ?? null,
   };
+}
+
+// saveModelAdapters persists the full model adapter list in a single write (writes config only once).
+// Used for bulk-change scenarios (e.g. scanning new models, toggling active) to avoid repeated disk writes.
+export async function saveModelAdapters(adapters) {
+  const currentConfig = await loadPersistedUserConfig();
+  const nextAdapters = normalizeModelAdapters(adapters);
+  return persistConfigPayload(
+    {
+      ...currentConfig,
+      modelAdapters: nextAdapters,
+    },
+    { modelAdaptersOnly: true },
+  );
 }
 
 export async function deleteModelAdapterAt(index) {

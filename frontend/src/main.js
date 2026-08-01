@@ -36,5 +36,5 @@ app.use(router);
 app.mount("#root");
 
 bootstrapAppState().catch(() => {
-  // 启动阶段失败时保持界面可用，错误在业务交互中再提示。
+  // Keep the UI usable if startup fails; surface the error later in business interactions.
 });

@@ -10,9 +10,9 @@ export const inputModalState = reactive({
 });
 
 /**
- * 显示输入弹窗，返回 Promise<string|null>
+ * Shows an input modal and returns a Promise<string|null>
  * @param {Object} options - { title, content, placeholder, defaultValue }
- * @returns {Promise<string|null>} - string=确定后的输入值, null=取消
+ * @returns {Promise<string|null>} - string=value after confirm, null=cancel
  */
 export function showInputModal(options = {}) {
   return new Promise((resolve) => {

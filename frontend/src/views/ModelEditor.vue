@@ -378,7 +378,7 @@ onMounted(async () => {
               v-model="contextWindowTokensInput"
               type="text"
               inputmode="numeric"
-              placeholder="例如：200000（留空用默认值）"
+              placeholder="例如：1000000（留空用默认值）"
               class="h-9 rounded-[6px] border border-[#3f3f3f] bg-[#232323] px-3 text-sm text-[#e5e5e5] outline-none focus:border-[#10AD5D]"
             />
           </label>

@@ -1,4 +1,4 @@
-// file_store.go 负责 conversation 的两份持久化事实：state.json 与 context.json。
+// file_store.go owns the two persisted facts of a conversation: state.json and context.json.
 package forwarder
 
 import (
@@ -52,12 +52,12 @@ type conversationContextFile struct {
 	Items          []HistoryEntry `json:"items"`
 }
 
-// NewConversationFileStore 创建 JSON history 文件存储。
+// NewConversationFileStore creates the JSON history file store.
 func NewConversationFileStore(historyRoot string) *ConversationFileStore {
 	return &ConversationFileStore{root: strings.TrimSpace(historyRoot)}
 }
 
-// HistoryDir 返回 history 根路径。
+// HistoryDir returns the history root path.
 func (store *ConversationFileStore) HistoryDir() string {
 	if store == nil {
 		return ""
@@ -65,7 +65,7 @@ func (store *ConversationFileStore) HistoryDir() string {
 	return store.root
 }
 
-// CreateConversation 确保指定会话对应的 state/context 文件存在并完成元数据初始化。
+// CreateConversation ensures the state/context files for the given session exist and completes metadata initialization.
 func (store *ConversationFileStore) CreateConversation(conversationID string, mode agentv1.AgentMode, parentConversationID string, parentToolCallID string, rootConversationID string) (*ConversationFile, error) {
 	if store == nil {
 		return nil, fmt.Errorf("conversation file store is nil")
@@ -110,7 +110,7 @@ func (store *ConversationFileStore) CreateConversation(conversationID string, mo
 	})
 }
 
-// LoadConversation 读取 state.json + context.json。
+// LoadConversation reads state.json + context.json.
 func (store *ConversationFileStore) LoadConversation(conversationID string) (*ConversationFile, error) {
 	if store == nil {
 		return nil, fmt.Errorf("conversation file store is nil")
@@ -118,7 +118,7 @@ func (store *ConversationFileStore) LoadConversation(conversationID string) (*Co
 	return store.mutateConversation(conversationID, false, nil)
 }
 
-// AppendEntries 把已经发生的语义事件追加到 context.json，并同步 state.json。
+// AppendEntries appends the semantic events that already happened to context.json and syncs state.json.
 func (store *ConversationFileStore) AppendEntries(conversationID string, entries []HistoryEntry) (*ConversationFile, []HistoryEntry, error) {
 	if store == nil {
 		return nil, nil, fmt.Errorf("conversation file store is nil")
@@ -209,7 +209,7 @@ func (store *ConversationFileStore) SaveConversationWithEntries(conversationID s
 	return cloneConversationFile(conversation), nil
 }
 
-// UpdateConversationMeta 更新 state.json；context.json 保持不变。
+// UpdateConversationMeta updates state.json; context.json is left unchanged.
 func (store *ConversationFileStore) UpdateConversationMeta(conversationID string, update func(*ConversationFile) error) (*ConversationFile, error) {
 	if store == nil {
 		return nil, fmt.Errorf("conversation file store is nil")
@@ -253,7 +253,7 @@ func (store *ConversationFileStore) UpdateConversationMeta(conversationID string
 	return cloneConversationFile(conversation), nil
 }
 
-// ReplaceEntries 原子替换 context.json，并同步 state.json 中的 sequence/version 状态。
+// ReplaceEntries atomically replaces context.json and syncs the sequence/version state in state.json.
 func (store *ConversationFileStore) ReplaceEntries(conversationID string, entries []HistoryEntry, update func(*ConversationFile) error) (*ConversationFile, error) {
 	if store == nil {
 		return nil, fmt.Errorf("conversation file store is nil")
@@ -302,7 +302,7 @@ func (store *ConversationFileStore) ReplaceEntries(conversationID string, entrie
 	return cloneConversationFile(conversation), nil
 }
 
-// GetConversationSummary 返回轻量会话摘要。
+// GetConversationSummary returns a lightweight conversation summary.
 func (store *ConversationFileStore) GetConversationSummary(conversationID string) (ConversationSummary, error) {
 	conversation, err := store.LoadConversation(conversationID)
 	if err != nil || conversation == nil {
@@ -318,7 +318,7 @@ func (store *ConversationFileStore) GetConversationSummary(conversationID string
 	}, nil
 }
 
-// ListConversationIDs 返回 history 根目录下包含 state/context 的 conversation id。
+// ListConversationIDs returns the conversation ids under the history root that have state/context.
 func (store *ConversationFileStore) ListConversationIDs() ([]string, error) {
 	if store == nil {
 		return nil, fmt.Errorf("conversation file store is nil")

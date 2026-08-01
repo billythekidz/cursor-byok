@@ -19,11 +19,9 @@ const (
 	windowsRootStoreName  = "Root"
 	windowsUserStoreFlag  = "-user"
 	windowsCertutilExe    = "certutil.exe"
-	windowsPowerShellExe  = "powershell.exe"
-	windowsUserCancelCode = 1223
 )
 
-// getCertThumbprint 获取证书的SHA1指纹，用于唯一标识证书
+// getCertThumbprint gets the SHA1 thumbprint of the certificate, used to uniquely identify it.
 func getCertThumbprint(certPEM []byte) (string, error) {
 	block, _ := pem.Decode(certPEM)
 	if block == nil {
@@ -33,20 +31,19 @@ func getCertThumbprint(certPEM []byte) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("解析证书失败: %w", err)
 	}
-	// SHA1 指纹，certutil 使用此格式
+	// SHA1 thumbprint; certutil uses this format.
 	thumbprint := fmt.Sprintf("%X", sha1.Sum(cert.Raw))
 	return thumbprint, nil
 }
 
-// hideWindow 返回隐藏命令行窗口的 SysProcAttr
+// hideWindow returns a SysProcAttr that hides the command-line window.
 func hideWindow() *syscall.SysProcAttr {
 	return &syscall.SysProcAttr{
 		HideWindow: true,
 	}
 }
 
-// isCACertInstalled 检查 CA 证书是否已安装到 Windows 系统根证书存储。
-// 默认不带 -user，表示 LocalMachine\Root。
+// isCACertInstalled checks whether the CA certificate is already installed in the current user's Windows root certificate store.
 func isCACertInstalled(certPEM []byte) (bool, error) {
 	thumbprint, err := getCertThumbprint(certPEM)
 	if err != nil {
@@ -59,7 +56,7 @@ func isCACertInstalled(certPEM []byte) (bool, error) {
 	if err != nil {
 		var exitErr *exec.ExitError
 		if errors.As(err, &exitErr) {
-			// certutil 在找不到证书时返回非零退出码。
+			// certutil returns a non-zero exit code when it cannot find the certificate.
 			logger.Infof("isCACertInstalled: cert not found in system store, thumbprint=%s exitCode=%d", thumbprint, exitErr.ExitCode())
 			return false, nil
 		}
@@ -72,56 +69,12 @@ func isCACertInstalled(certPEM []byte) (bool, error) {
 		return true, nil
 	}
 
-	// 某些 Windows 语言环境下 certutil 的文本不同，这里仍然按未找到处理。
+	// The certutil output text differs in some Windows locales; it is still treated as not found here.
 	logger.Infof("isCACertInstalled: cert not found in certutil output, thumbprint=%s", thumbprint)
 	return false, nil
 }
 
-func quotePowerShellLiteral(value string) string {
-	return "'" + strings.ReplaceAll(value, "'", "''") + "'"
-}
-
-func runElevatedCertutil(args ...string) error {
-	quotedArgs := make([]string, 0, len(args))
-	for _, arg := range args {
-		quotedArgs = append(quotedArgs, quotePowerShellLiteral(arg))
-	}
-
-	script := fmt.Sprintf(
-		"$process = Start-Process -FilePath %s -ArgumentList @(%s) -Verb RunAs -WindowStyle Hidden -Wait -PassThru; exit $process.ExitCode",
-		quotePowerShellLiteral(windowsCertutilExe),
-		strings.Join(quotedArgs, ","),
-	)
-
-	cmd := exec.Command(
-		windowsPowerShellExe,
-		"-NoProfile",
-		"-NonInteractive",
-		"-ExecutionPolicy",
-		"Bypass",
-		"-Command",
-		script,
-	)
-	cmd.SysProcAttr = hideWindow()
-	output, err := cmd.CombinedOutput()
-	if err == nil {
-		return nil
-	}
-
-	var exitErr *exec.ExitError
-	if errors.As(err, &exitErr) && exitErr.ExitCode() == windowsUserCancelCode {
-		return fmt.Errorf("用户取消了管理员权限授予")
-	}
-
-	trimmedOutput := strings.TrimSpace(string(output))
-	if trimmedOutput == "" {
-		return fmt.Errorf("通过管理员权限执行 certutil 失败: %w", err)
-	}
-	return fmt.Errorf("通过管理员权限执行 certutil 失败: %w, output: %s", err, trimmedOutput)
-}
-
-// installCACertToWindowsStore 将 CA 证书安装到 Windows 系统根证书存储。
-// LocalMachine\Root 需要管理员权限，因此这里会触发 UAC 提权。
+// installCACertToWindowsStore installs the CA certificate into the current user's Windows root certificate store.
 func installCACertToWindowsStore(certPEM []byte, certPath string) error {
 	thumbprint, err := getCertThumbprint(certPEM)
 	if err != nil {
@@ -149,7 +102,7 @@ func installCACertToWindowsStore(certPEM []byte, certPath string) error {
 	return nil
 }
 
-// RemoveCACertFromWindowsStore 删除本应用当前用户 Root store 中的 CA。
+// RemoveCACertFromWindowsStore removes this app's CA from the current user's Root store.
 func RemoveCACertFromWindowsStore(certPEM []byte) error {
 	thumbprint, err := getCertThumbprint(certPEM)
 	if err != nil {
@@ -164,7 +117,7 @@ func RemoveCACertFromWindowsStore(certPEM []byte) error {
 	return nil
 }
 
-// EnsureCACertInstalled 确保证书已安装到 Windows 系统信任存储。
+// EnsureCACertInstalled ensures the certificate is installed into the Windows system trust store.
 func EnsureCACertInstalled(certPEM []byte, certPath string) error {
 	installed, err := isCACertInstalled(certPEM)
 	if err != nil {

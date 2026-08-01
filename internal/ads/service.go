@@ -14,7 +14,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -170,7 +169,7 @@ func (service *Service) Refresh(parent context.Context) (Runtime, bool, error) {
 }
 
 func (service *Service) FetchOnce(ctx context.Context) (FetchResult, error) {
-	// 已完全禁用远程广告与 Telemetry 抓取
+	// Remote ad and telemetry fetching has been fully disabled.
 	return FetchResult{Changed: false}, nil
 }
 
@@ -244,7 +243,7 @@ func (service *Service) LoadAsset(ctx context.Context, rawPath string) (parsedAs
 }
 
 func (service *Service) applyReportHeaders(ctx context.Context, request *http.Request, currentHash string) {
-	// 已禁用所有 Telemetry / 设备 ID / Token 统计数据上报 Headers
+	// All telemetry / device ID / token statistics reporting headers have been disabled.
 	return
 }
 

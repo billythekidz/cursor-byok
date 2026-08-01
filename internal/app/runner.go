@@ -33,23 +33,23 @@ import (
 )
 
 const (
-	// appName 表示当前模块中的 appName 状态值。
+	// appName holds the appName state value for this module.
 	appName = "Cursor助手"
-	// adRefreshInterval 表示后台广告拉取间隔。
+	// adRefreshInterval holds the background ad fetch interval.
 	adRefreshInterval = 3 * time.Minute
 )
 
-// EmbeddedResources 定义了当前模块中的 EmbeddedResources 类型。
+// EmbeddedResources defines the EmbeddedResources type in this module.
 type EmbeddedResources struct {
-	// Assets 表示当前声明中的 Assets。
+	// Assets represents the Assets field in this declaration.
 	Assets fs.FS
-	// AppIcon 表示当前声明中的 AppIcon。
+	// AppIcon represents the AppIcon field in this declaration.
 	AppIcon []byte
-	// TrayIcon 表示当前声明中的 TrayIcon。
+	// TrayIcon represents the TrayIcon field in this declaration.
 	TrayIcon []byte
 }
 
-// init 用于处理与 init 相关的逻辑。
+// init handles logic related to init.
 func init() {
 	application.RegisterEvent[bridge.ProxyState]("proxy:state")
 	application.RegisterEvent[bridge.UserConfig]("user-config:changed")
@@ -61,7 +61,7 @@ func init() {
 	application.RegisterEvent[updater.ErrorPayload](updater.EventError)
 }
 
-// Run 用于处理与 Run 相关的逻辑。
+// Run handles logic related to Run.
 func Run(resources EmbeddedResources) error {
 	logger.Init()
 	netproxy.InstallDefaultTransport()
@@ -149,7 +149,7 @@ func Run(resources EmbeddedResources) error {
 			UniqueID: "com.cursor-assistant.single-instance",
 			OnSecondInstanceLaunch: func(data application.SecondInstanceData) {
 				logger.Infof("检测到实例请求，已忽略")
-				// 不激活窗口，避免干扰用户工作
+				// Do not activate the window, to avoid disturbing the user's work.
 			},
 		},
 	})
@@ -185,7 +185,7 @@ func Run(resources EmbeddedResources) error {
 		}()
 	}
 	startAdRefreshLoop := func(ctx context.Context) {
-		// 已禁用后台广告与 Telemetry 轮询
+		// Background ad and telemetry polling has been disabled.
 	}
 
 	updateManager = updater.NewManager(app)
@@ -415,7 +415,7 @@ func browserReachableLoopbackBaseURL(listenAddr string) string {
 	return "http://" + net.JoinHostPort(host, port)
 }
 
-// logEmbeddedCAInfo 用于处理与 logEmbeddedCAInfo 相关的逻辑。
+// logEmbeddedCAInfo handles logic related to logEmbeddedCAInfo.
 func logEmbeddedCAInfo(certPEM []byte) {
 	if len(certPEM) == 0 {
 		logger.Errorf("embedded CA is empty")
@@ -436,7 +436,7 @@ func logEmbeddedCAInfo(certPEM []byte) {
 	)
 }
 
-// parseEmbeddedCert 用于处理与 parseEmbeddedCert 相关的逻辑。
+// parseEmbeddedCert handles logic related to parseEmbeddedCert.
 func parseEmbeddedCert(data []byte) (*x509.Certificate, error) {
 	if block, _ := pem.Decode(data); block != nil {
 		return x509.ParseCertificate(block.Bytes)

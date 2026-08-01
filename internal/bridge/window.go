@@ -15,13 +15,13 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/events"
 )
 
-// modelEditorContext 保存当前模型编辑器窗口的初始化上下文。
+// modelEditorContext stores the initialization context of the current model editor window.
 type modelEditorContext struct {
 	Index       int    `json:"index"`
 	AdapterJSON string `json:"adapterJSON"`
 }
 
-// WindowService 定义了当前模块中的 WindowService 类型。
+// WindowService defines the WindowService type in this module.
 type WindowService struct {
 	app               *application.App
 	updater           *updater.Manager
@@ -31,31 +31,31 @@ type WindowService struct {
 	mu                sync.RWMutex
 }
 
-// NewWindowService 用于处理与 NewWindowService 相关的逻辑。
+// NewWindowService handles logic related to NewWindowService.
 func NewWindowService() *WindowService {
 	return &WindowService{}
 }
 
-// SetApp 用于处理与 SetApp 相关的逻辑。
+// SetApp handles logic related to SetApp.
 func (s *WindowService) SetApp(app *application.App) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.app = app
 }
 
-// SetUpdater 关联更新管理器，供前端手动触发检查更新。
+// SetUpdater associates the update manager so the frontend can trigger update checks manually.
 func (s *WindowService) SetUpdater(manager *updater.Manager) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.updater = manager
 }
 
-// GetAppVersion 返回当前应用版本号。
+// GetAppVersion returns the current application version.
 func (s *WindowService) GetAppVersion() string {
 	return buildinfo.CurrentVersion()
 }
 
-// CheckForUpdates 触发一次手动检查更新。
+// CheckForUpdates triggers a manual update check.
 func (s *WindowService) CheckForUpdates() {
 	s.mu.RLock()
 	manager := s.updater
@@ -66,7 +66,7 @@ func (s *WindowService) CheckForUpdates() {
 	manager.CheckNow(true)
 }
 
-// InstallReadyUpdate 安装当前已下载完成的更新。
+// InstallReadyUpdate installs the update that has already been downloaded.
 func (s *WindowService) InstallReadyUpdate() error {
 	s.mu.RLock()
 	manager := s.updater
@@ -77,13 +77,13 @@ func (s *WindowService) InstallReadyUpdate() error {
 	return manager.InstallReadyUpdate()
 }
 
-// OpenConfigWindow 打开本地设置目录。
+// OpenConfigWindow opens the local settings directory.
 func (s *WindowService) OpenConfigWindow() {
 	_ = os.MkdirAll(client.ResolveSettingsRootPath(), 0o755)
 	openDirectory(client.ResolveSettingsRootPath())
 }
 
-// OpenModelConfigWindow 打开模型配置独立窗口。如果窗口已存在则聚焦。
+// OpenModelConfigWindow opens a standalone model config window. If the window already exists, it is focused.
 func (s *WindowService) OpenModelConfigWindow() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -144,9 +144,9 @@ func (s *WindowService) OpenModelConfigWindow() {
 	s.modelConfigWindow = win
 }
 
-// OpenModelEditorWindow 打开模型编辑器独立窗口。
-// index < 0 表示新增，>= 0 表示编辑对应索引的适配器。
-// adapterJSON 为编辑器初始数据的 JSON 字符串。
+// OpenModelEditorWindow opens a standalone model editor window.
+// index < 0 means create a new adapter; >= 0 means edit the adapter at that index.
+// adapterJSON is the JSON string of the editor's initial data.
 func (s *WindowService) OpenModelEditorWindow(index int, adapterJSON string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -218,7 +218,7 @@ func (s *WindowService) OpenModelEditorWindow(index int, adapterJSON string) {
 	s.modelEditorWindow = win
 }
 
-// GetModelEditorContext 返回当前编辑器窗口的初始化上下文。
+// GetModelEditorContext returns the initialization context of the current editor window.
 func (s *WindowService) GetModelEditorContext() map[string]any {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -235,13 +235,13 @@ func (s *WindowService) GetModelEditorContext() map[string]any {
 	}
 }
 
-// OpenHistoryWindow 用于处理与 OpenHistoryWindow 相关的逻辑。
+// OpenHistoryWindow handles logic related to OpenHistoryWindow.
 func (s *WindowService) OpenHistoryWindow() {
 	_ = os.MkdirAll(client.ResolveLogsRootPath(), 0o755)
 	openDirectory(client.ResolveLogsRootPath())
 }
 
-// openDirectory 用于处理与 openDirectory 相关的逻辑。
+// openDirectory handles logic related to openDirectory.
 func openDirectory(path string) {
 	if path == "" {
 		return

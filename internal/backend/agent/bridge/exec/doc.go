@@ -1,2 +1,2 @@
-// Package execbridge 负责把执行型工具调用映射为 ExecServerMessage，并归一化 ExecClientMessage 结果。
+// Package execbridge maps execution-type tool calls to ExecServerMessage and normalizes ExecClientMessage results.
 package execbridge

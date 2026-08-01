@@ -1,4 +1,4 @@
-// types.go 定义运行时、公用命令、事件、状态与 pending 结构。
+// types.go định nghĩa runtime, các lệnh dùng chung, sự kiện, trạng thái và cấu trúc pending.
 package runtimecore
 
 import (
@@ -12,7 +12,7 @@ import (
 	"cursor/gen/agentv1"
 )
 
-// SubagentModelOverrideSelection 表示父 run 对某类 subagent 的模型选择覆盖。
+// SubagentModelOverrideSelection thể hiện việc run cha ghi đè lựa chọn mô hình cho một loại subagent.
 type SubagentModelOverrideSelection struct {
 	SubagentType                  string `json:"subagent_type"`
 	Selection                     string `json:"selection"`
@@ -23,7 +23,7 @@ type SubagentModelOverrideSelection struct {
 	IsVariantStringRepresentation bool   `json:"is_variant_string_representation,omitempty"`
 }
 
-// LookupSubagentModelOverride 按 Task subagent_type 查找运行期模型覆盖。
+// LookupSubagentModelOverride tra cứu ghi đè mô hình thời gian chạy theo subagent_type của Task.
 func LookupSubagentModelOverride(overrides map[string]SubagentModelOverrideSelection, subagentType string) (SubagentModelOverrideSelection, string, bool) {
 	if len(overrides) == 0 {
 		return SubagentModelOverrideSelection{}, "", false
@@ -58,290 +58,290 @@ func subagentModelOverrideLookupKeys(subagentType string) []string {
 type RunState string
 
 const (
-	// RunStateIdle 表示空闲态，此时 session 已存在但没有活跃 run。
+	// RunStateIdle thể hiện trạng thái nhàn rỗi: session đã tồn tại nhưng không có run đang hoạt động.
 	RunStateIdle RunState = "IDLE"
-	// RunStateRestoring 表示恢复态，此时正在装载会话状态与最小恢复信息。
+	// RunStateRestoring thể hiện trạng thái khôi phục: đang nạp trạng thái phiên và thông tin khôi phục tối thiểu.
 	RunStateRestoring RunState = "RESTORING"
-	// RunStatePreparingModelInput 表示模型输入准备态。
+	// RunStatePreparingModelInput thể hiện trạng thái chuẩn bị đầu vào mô hình.
 	RunStatePreparingModelInput RunState = "PREPARING_MODEL_INPUT"
-	// RunStateStreamingModel 表示模型流消费态。
+	// RunStateStreamingModel thể hiện trạng thái tiêu thụ luồng mô hình.
 	RunStateStreamingModel RunState = "STREAMING_MODEL"
-	// RunStateWaitingExec 表示执行桥等待态。
+	// RunStateWaitingExec thể hiện trạng thái chờ cầu thực thi.
 	RunStateWaitingExec RunState = "WAITING_EXEC"
-	// RunStateWaitingInteraction 表示交互桥等待态。
+	// RunStateWaitingInteraction thể hiện trạng thái chờ cầu tương tác.
 	RunStateWaitingInteraction RunState = "WAITING_INTERACTION"
-	// RunStateApplyingExternalResult 表示外部结果回写态。
+	// RunStateApplyingExternalResult thể hiện trạng thái ghi lại kết quả từ bên ngoài.
 	RunStateApplyingExternalResult RunState = "APPLYING_EXTERNAL_RESULT"
-	// RunStateCheckpointing 表示检查点写入态。
+	// RunStateCheckpointing thể hiện trạng thái ghi checkpoint.
 	RunStateCheckpointing RunState = "CHECKPOINTING"
-	// RunStateCompleted 表示正常完成态。
+	// RunStateCompleted thể hiện trạng thái hoàn thành bình thường.
 	RunStateCompleted RunState = "COMPLETED"
-	// RunStateCanceled 表示取消终态。
+	// RunStateCanceled thể hiện trạng thái cuối bị hủy.
 	RunStateCanceled RunState = "CANCELED"
-	// RunStateFailed 表示失败终态。
+	// RunStateFailed thể hiện trạng thái cuối thất bại.
 	RunStateFailed RunState = "FAILED"
 )
 
-// CommandKind 表示运行时接收的上行命令类型。
+// CommandKind thể hiện loại lệnh đi lên mà runtime nhận được.
 type CommandKind string
 
 const (
-	// CommandKindRunRequested 表示收到 `run_request`。
+	// CommandKindRunRequested thể hiện đã nhận `run_request`.
 	CommandKindRunRequested CommandKind = "run_requested"
-	// CommandKindPrewarmRequested 表示收到 `prewarm_request`。
+	// CommandKindPrewarmRequested thể hiện đã nhận `prewarm_request`.
 	CommandKindPrewarmRequested CommandKind = "prewarm_requested"
-	// CommandKindCancelRequested 表示收到 `conversation_action.cancel_action`。
+	// CommandKindCancelRequested thể hiện đã nhận `conversation_action.cancel_action`.
 	CommandKindCancelRequested CommandKind = "cancel_requested"
-	// CommandKindConversationActionRecordOnly 表示收到非取消型的 `conversation_action`，当前阶段只记录不推进状态。
+	// CommandKindConversationActionRecordOnly thể hiện đã nhận `conversation_action` không thuộc loại hủy; giai đoạn hiện tại chỉ ghi lại, không đẩy tiến trạng thái.
 	CommandKindConversationActionRecordOnly CommandKind = "conversation_action_record_only"
-	// CommandKindExecClientMessage 表示收到 `exec_client_message`。
+	// CommandKindExecClientMessage thể hiện đã nhận `exec_client_message`.
 	CommandKindExecClientMessage CommandKind = "exec_client_message"
-	// CommandKindInteractionResponse 表示收到 `interaction_response`。
+	// CommandKindInteractionResponse thể hiện đã nhận `interaction_response`.
 	CommandKindInteractionResponse CommandKind = "interaction_response"
-	// CommandKindExecClientControlMessage 表示收到 `exec_client_control_message`，当前阶段只记录不推进状态。
+	// CommandKindExecClientControlMessage thể hiện đã nhận `exec_client_control_message`; giai đoạn hiện tại chỉ ghi lại, không đẩy tiến trạng thái.
 	CommandKindExecClientControlMessage CommandKind = "exec_client_control_message"
-	// CommandKindClientHeartbeat 表示收到客户端心跳，当前阶段只记录不推进状态。
+	// CommandKindClientHeartbeat thể hiện đã nhận heartbeat từ client; giai đoạn hiện tại chỉ ghi lại, không đẩy tiến trạng thái.
 	CommandKindClientHeartbeat CommandKind = "client_heartbeat"
-	// CommandKindKVClientMessage 表示收到 `kv_client_message`，当前阶段只记录不推进状态。
+	// CommandKindKVClientMessage thể hiện đã nhận `kv_client_message`; giai đoạn hiện tại chỉ ghi lại, không đẩy tiến trạng thái.
 	CommandKindKVClientMessage CommandKind = "kv_client_message"
 )
 
-// Command 描述一次投递到运行时协调层的上行命令。
+// Command mô tả một lệnh đi lên được đưa vào tầng điều phối runtime.
 type Command struct {
-	// Kind 指定该命令的运行时语义。
+	// Kind xác định ngữ nghĩa runtime của lệnh này.
 	Kind CommandKind
-	// IsResume 标记当前命令是否为恢复型启动。
+	// IsResume đánh dấu lệnh hiện tại có phải khởi động kiểu khôi phục hay không.
 	IsResume bool
-	// ClientKind 保留协议层顶级消息种类，便于观测与调试。
+	// ClientKind giữ lại loại thông điệp cấp cao nhất của tầng giao thức để dễ quan sát và gỡ lỗi.
 	ClientKind string
-	// HistoryEntry 保存协议摘要文本，供当前 MVP 的合成回复使用。
+	// HistoryEntry lưu văn bản tóm tắt giao thức, phục vụ phản hồi tổng hợp của MVP hiện tại.
 	HistoryEntry string
-	// ClientMessage 保存解码后的完整上行协议消息。
+	// ClientMessage lưu thông điệp giao thức đi lên đã giải mã đầy đủ.
 	ClientMessage *agentv1.AgentClientMessage
 }
 
-// EventKind 表示一次可回放下行事件的业务类型。
+// EventKind thể hiện loại nghiệp vụ của một sự kiện đi xuống có thể phát lại.
 type EventKind string
 
 const (
-	// EventKindRunStarted 表示新 run 已创建并开始进入恢复路径。
+	// EventKindRunStarted thể hiện sự kiện run mới đã được tạo và bắt đầu đi vào đường khôi phục.
 	EventKindRunStarted EventKind = "run_started"
-	// EventKindStepStarted 表示步骤开始事件。
+	// EventKindStepStarted thể hiện sự kiện bắt đầu bước.
 	EventKindStepStarted EventKind = "step_started"
-	// EventKindTextDelta 表示文本增量事件。
+	// EventKindTextDelta thể hiện sự kiện gia tăng văn bản.
 	EventKindTextDelta EventKind = "text_delta"
-	// EventKindStepCompleted 表示步骤完成事件。
+	// EventKindStepCompleted thể hiện sự kiện hoàn thành bước.
 	EventKindStepCompleted EventKind = "step_completed"
-	// EventKindTurnEnded 表示回合结束事件。
+	// EventKindTurnEnded thể hiện sự kiện kết thúc lượt.
 	EventKindTurnEnded EventKind = "turn_ended"
-	// EventKindCheckpoint 表示会话检查点事件。
+	// EventKindCheckpoint thể hiện sự kiện checkpoint phiên.
 	EventKindCheckpoint EventKind = "checkpoint"
-	// EventKindCanceled 表示取消事件。
+	// EventKindCanceled thể hiện sự kiện hủy.
 	EventKindCanceled EventKind = "canceled"
-	// EventKindHeartbeat 表示服务端心跳事件。
+	// EventKindHeartbeat thể hiện sự kiện heartbeat phía máy chủ.
 	EventKindHeartbeat EventKind = "heartbeat"
 )
 
-// Event 表示一条可广播、可回放的下行事件记录。
+// Event thể hiện một bản ghi sự kiện đi xuống có thể phát sóng và phát lại.
 type Event struct {
-	// Seq 是请求维度内递增的事件序号。
+	// Seq là số thứ tự sự kiện tăng dần trong phạm vi request.
 	Seq int64
-	// RequestID 是事件所属请求标识。
+	// RequestID là định danh request mà sự kiện thuộc về.
 	RequestID string
-	// RunID 是事件所属运行标识。
+	// RunID là định danh run mà sự kiện thuộc về.
 	RunID string
-	// Kind 标识该事件的业务类型。
+	// Kind xác định loại nghiệp vụ của sự kiện.
 	Kind EventKind
-	// Message 是要透传到 RunSSE 的协议消息体。
+	// Message là phần thân thông điệp giao thức cần chuyển tiếp tới RunSSE.
 	Message *agentv1.AgentServerMessage
-	// End 表示该事件会结束当前 SSE 读取。
+	// End thể hiện sự kiện này sẽ kết thúc việc đọc SSE hiện tại.
 	End bool
-	// TerminalErrorCode 表示当前终态 SSE 需要返回的 connect error code，例如 canceled。
+	// TerminalErrorCode thể hiện mã lỗi kết nối mà SSE trạng thái cuối cần trả về, ví dụ canceled.
 	TerminalErrorCode string
-	// TerminalErrorMessage 表示当前终态 SSE 需要返回的错误消息。
+	// TerminalErrorMessage thể hiện thông báo lỗi mà SSE trạng thái cuối cần trả về.
 	TerminalErrorMessage string
-	// CreatedAt 是事件入库时间。
+	// CreatedAt là thời điểm sự kiện được ghi vào kho.
 	CreatedAt time.Time
 }
 
-// RunSnapshot 表示一次 run 的最小快照信息。
+// RunSnapshot thể hiện thông tin snapshot tối thiểu của một run.
 type RunSnapshot struct {
-	// RunID 是运行唯一标识。
+	// RunID là định danh duy nhất của run.
 	RunID string
-	// RequestID 是当前 run 绑定的请求标识。
+	// RequestID là định danh request mà run hiện tại gắn kết.
 	RequestID string
-	// ConversationID 是当前 run 绑定的会话标识。
+	// ConversationID là định danh phiên mà run hiện tại gắn kết.
 	ConversationID string
-	// ModelID 表示当前运行使用的模型标识。
+	// ModelID thể hiện định danh mô hình mà lần chạy hiện tại sử dụng.
 	ModelID string
-	// State 表示该 run 当前所处状态。
+	// State thể hiện trạng thái hiện tại của run.
 	State RunState
-	// Mode 表示该 run 当前使用的会话模式。
+	// Mode thể hiện chế độ phiên mà run hiện tại sử dụng.
 	Mode agentv1.AgentMode
-	// Version 是运行时版本号，便于后续扩展乐观更新。
+	// Version là số phiên bản runtime, để dễ mở rộng cập nhật lạc quan sau này.
 	Version int64
-	// StartedAt 记录 run 启动时间。
+	// StartedAt ghi thời điểm khởi động run.
 	StartedAt time.Time
-	// UpdatedAt 记录 run 最近一次状态更新时间。
+	// UpdatedAt ghi thời điểm cập nhật trạng thái gần nhất của run.
 	UpdatedAt time.Time
-	// CurrentUserMessageText 保存当前 turn 的用户输入文本，直到本 turn 提交进 `turns`。
+	// CurrentUserMessageText lưu văn bản đầu vào người dùng của turn hiện tại cho đến khi turn này được đưa vào `turns`.
 	CurrentUserMessageText string
-	// CustomSystemPrompt 保存当前 run 附带的自定义系统提示词。
+	// CustomSystemPrompt lưu system prompt tùy chỉnh đi kèm run hiện tại.
 	CustomSystemPrompt string
-	// RequestContextPayload 保存当前 run 的 request_context proto 序列化结果。
+	// RequestContextPayload lưu kết quả tuần tự hóa proto request_context của run hiện tại.
 	RequestContextPayload []byte
-	// IsPrewarm 标记当前 run 是否由 `prewarm_request` 触发。
+	// IsPrewarm đánh dấu run hiện tại có được kích hoạt bởi `prewarm_request` hay không.
 	IsPrewarm bool
 }
 
-// PendingAssistantOutput 表示尚未收口的一条 assistant 输出记录。
+// PendingAssistantOutput thể hiện một bản ghi đầu ra assistant chưa được chốt.
 type PendingAssistantOutput struct {
-	// RawMessage 保存原始序列化 assistant message。
+	// RawMessage lưu thông điệp assistant đã tuần tự hóa gốc.
 	RawMessage string
-	// Role 表示该记录的 role，当前常见值为 assistant。
+	// Role thể hiện role của bản ghi này; giá trị phổ biến hiện tại là assistant.
 	Role string
-	// ContentKinds 记录内容块类型顺序，例如 text 或 tool-call。
+	// ContentKinds ghi thứ tự loại khối nội dung, ví dụ text hoặc tool-call.
 	ContentKinds []string
-	// ToolCallIDs 记录该输出中出现的全部 tool_call_id。
+	// ToolCallIDs ghi tất cả tool_call_id xuất hiện trong đầu ra này.
 	ToolCallIDs []string
-	// ToolNames 记录该输出中出现的全部工具名称。
+	// ToolNames ghi tất cả tên công cụ xuất hiện trong đầu ra này.
 	ToolNames []string
-	// TextPreview 保存文本块的简要摘要。
+	// TextPreview lưu tóm tắt ngắn gọn của khối văn bản.
 	TextPreview string
 }
 
-// PendingExec 表示一条尚未收口的执行桥记录。
+// PendingExec thể hiện một bản ghi cầu thực thi chưa được chốt.
 type PendingExec struct {
-	// MessageID 是打开该执行桥时下发给客户端的桥消息编号。
+	// MessageID là số thứ tự thông điệp cầu được gửi xuống client khi mở cầu thực thi này.
 	MessageID uint32
-	// ExecID 是执行桥唯一标识。
+	// ExecID là định danh duy nhất của cầu thực thi.
 	ExecID string
-	// ProviderPass 表示创建该执行桥时所属的 provider pass。
+	// ProviderPass thể hiện provider pass mà cầu thực thi này thuộc về khi được tạo.
 	ProviderPass int
-	// ModelCallID 是触发该执行桥的模型调用标识。
+	// ModelCallID là định danh lời gọi mô hình kích hoạt cầu thực thi này.
 	ModelCallID string
-	// ToolCallID 是与该执行桥关联的工具调用标识。
+	// ToolCallID là định danh lời gọi công cụ liên kết với cầu thực thi này.
 	ToolCallID string
-	// ArgsJSON 保存打开该执行桥时的原始参数 JSON，便于恢复 completed ToolCall。
+	// ArgsJSON lưu JSON tham số gốc khi mở cầu thực thi, để dễ khôi phục ToolCall đã hoàn thành.
 	ArgsJSON []byte
-	// ReasoningContent 保存触发该工具调用时的 thinking 文本，供 checkpoint/replay 续跑复用。
+	// ReasoningContent lưu văn bản thinking khi kích hoạt lời gọi công cụ này, để tái sử dụng khi tiếp tục chạy từ checkpoint/replay.
 	ReasoningContent string
-	// ReasoningSignature 保存 provider 对当前 thinking 文本签发的签名。
+	// ReasoningSignature lưu chữ ký mà provider cấp cho văn bản thinking hiện tại.
 	ReasoningSignature string
-	// ReasoningSignatureSource 保存 reasoning signature 的 provider 语义来源。
+	// ReasoningSignatureSource lưu nguồn ngữ nghĩa provider của reasoning signature.
 	ReasoningSignatureSource string
-	// ExecKind 描述执行桥类型，例如 read、write、shellStream。
+	// ExecKind mô tả loại cầu thực thi, ví dụ read, write, shellStream.
 	ExecKind string
-	// StreamState 描述当前流式执行桥的阶段。
+	// StreamState mô tả giai đoạn hiện tại của cầu thực thi dạng luồng.
 	StreamState string
-	// OpenedAt 表示执行桥请求发出的时间。
+	// OpenedAt thể hiện thời điểm yêu cầu cầu thực thi được gửi đi.
 	OpenedAt time.Time
-	// FirstChunkAt 表示 shellStream 首个输出块时间。
+	// FirstChunkAt thể hiện thời điểm khối đầu ra đầu tiên của shellStream.
 	FirstChunkAt time.Time
-	// ChunkCount 表示 shellStream 已接收的输出块数量。
+	// ChunkCount thể hiện số khối đầu ra mà shellStream đã nhận.
 	ChunkCount int64
-	// LastShellActivityAt 记录最近一次 shell 相关上行事件时间，包括输出、start、heartbeat 和 close。
+	// LastShellActivityAt ghi thời điểm gần nhất của sự kiện đi lên liên quan shell, bao gồm đầu ra, start, heartbeat và close.
 	LastShellActivityAt time.Time
-	// LastShellHeartbeatAt 记录最近一次 shell heartbeat 到达时间。
+	// LastShellHeartbeatAt ghi thời điểm heartbeat shell gần nhất đến.
 	LastShellHeartbeatAt time.Time
-	// ShellForegroundDeadline 表示前台 shell 预计最晚应收到终态的时间点。
+	// ShellForegroundDeadline thể hiện thời điểm muộn nhất dự kiến shell nền trước nhận trạng thái cuối.
 	ShellForegroundDeadline time.Time
-	// ShellRecoveryScheduled 标记是否已经为该 shell 安排了异常收口协程。
+	// ShellRecoveryScheduled đánh dấu đã sắp xếp goroutine chốt bất thường cho shell này chưa.
 	ShellRecoveryScheduled bool
-	// StdoutBuffer 保存当前 shell 已累计的 stdout 文本。
+	// StdoutBuffer lưu văn bản stdout đã tích lũy của shell hiện tại.
 	StdoutBuffer string
-	// StderrBuffer 保存当前 shell 已累计的 stderr 文本。
+	// StderrBuffer lưu văn bản stderr đã tích lũy của shell hiện tại.
 	StderrBuffer string
-	// ArtifactPath 保存该 exec 对应的原始桥接工件路径。
+	// ArtifactPath lưu đường dẫn artifact cầu nối gốc tương ứng với exec này.
 	ArtifactPath string
 }
 
-// PendingInteraction 表示一条尚未收口的交互桥记录。
+// PendingInteraction thể hiện một bản ghi cầu tương tác chưa được chốt.
 type PendingInteraction struct {
-	// InteractionID 是交互桥唯一标识。
+	// InteractionID là định danh duy nhất của cầu tương tác.
 	InteractionID string
-	// ProviderPass 表示创建该交互桥时所属的 provider pass。
+	// ProviderPass thể hiện provider pass mà cầu tương tác này thuộc về khi được tạo.
 	ProviderPass int
-	// ModelCallID 是触发该交互桥的模型调用标识。
+	// ModelCallID là định danh lời gọi mô hình kích hoạt cầu tương tác này.
 	ModelCallID string
-	// ToolCallID 是与该交互桥关联的工具调用标识。
+	// ToolCallID là định danh lời gọi công cụ liên kết với cầu tương tác này.
 	ToolCallID string
-	// ArgsJSON 保存打开该交互桥时的原始参数 JSON，便于结果回写时恢复结构化状态。
+	// ArgsJSON lưu JSON tham số gốc khi mở cầu tương tác, để dễ khôi phục trạng thái có cấu trúc khi ghi lại kết quả.
 	ArgsJSON []byte
-	// ReasoningContent 保存触发该工具调用时的 thinking 文本，供 checkpoint/replay 续跑复用。
+	// ReasoningContent lưu văn bản thinking khi kích hoạt lời gọi công cụ này, để tái sử dụng khi tiếp tục chạy từ checkpoint/replay.
 	ReasoningContent string
-	// ReasoningSignature 保存 provider 对当前 thinking 文本签发的签名。
+	// ReasoningSignature lưu chữ ký mà provider cấp cho văn bản thinking hiện tại.
 	ReasoningSignature string
-	// ReasoningSignatureSource 保存 reasoning signature 的 provider 语义来源。
+	// ReasoningSignatureSource lưu nguồn ngữ nghĩa provider của reasoning signature.
 	ReasoningSignatureSource string
-	// InteractionKind 描述交互类型，例如 ask_question、create_plan。
+	// InteractionKind mô tả loại tương tác, ví dụ ask_question, create_plan.
 	InteractionKind string
-	// OpenedAt 表示交互请求发出的时间。
+	// OpenedAt thể hiện thời điểm yêu cầu tương tác được gửi đi.
 	OpenedAt time.Time
-	// ArtifactPath 保存该 interaction 对应的原始桥接工件路径。
+	// ArtifactPath lưu đường dẫn artifact cầu nối gốc tương ứng với interaction này.
 	ArtifactPath string
 }
 
-// ActiveStep 表示当前正在推进、尚未收口的 step 元数据。
+// ActiveStep thể hiện siêu dữ liệu step đang được đẩy tiến, chưa được chốt.
 type ActiveStep struct {
-	// StepID 是当前 step 唯一标识。
+	// StepID là định danh duy nhất của step hiện tại.
 	StepID uint64
-	// ModelCallID 是当前 step 绑定的模型调用标识。
+	// ModelCallID là định danh lời gọi mô hình mà step hiện tại gắn kết.
 	ModelCallID string
-	// StartedAt 是当前 step 的开始时间。
+	// StartedAt là thời điểm bắt đầu của step hiện tại.
 	StartedAt time.Time
-	// InputTokens 保存当前 step 已知的输入 token 数。
+	// InputTokens lưu số token đầu vào đã biết của step hiện tại.
 	InputTokens int64
-	// OutputTokens 保存当前 step 已知的输出 token 数。
+	// OutputTokens lưu số token đầu ra đã biết của step hiện tại.
 	OutputTokens int64
 }
 
-// ExternalResultSummary 表示 APPLYING_EXTERNAL_RESULT 后继续下一轮编译所需的最小上下文。
+// ExternalResultSummary thể hiện ngữ cảnh tối thiểu cần thiết để tiếp tục biên dịch vòng tiếp theo sau APPLYING_EXTERNAL_RESULT.
 type ExternalResultSummary struct {
-	// Source 表示结果来源，例如 exec 或 interaction。
+	// Source thể hiện nguồn của kết quả, ví dụ exec hoặc interaction.
 	Source string
-	// ToolName 表示对应工具名或交互名。
+	// ToolName thể hiện tên công cụ hoặc tên tương tác tương ứng.
 	ToolName string
-	// Payload 表示可直接注入 prompt 的结果摘要。
+	// Payload thể hiện tóm tắt kết quả có thể tiêm trực tiếp vào prompt.
 	Payload string
 }
 
-// ToolInvocation 表示一次模型产出的工具调用意图。
+// ToolInvocation thể hiện một ý định gọi công cụ do mô hình tạo ra.
 type ToolInvocation struct {
-	// CallID 是模型层工具调用标识。
+	// CallID là định danh lời gọi công cụ ở tầng mô hình.
 	CallID string
-	// ToolName 表示工具名称，例如 Read、Write、AskQuestion。
+	// ToolName thể hiện tên công cụ, ví dụ Read, Write, AskQuestion.
 	ToolName string
-	// ArgsJSON 保存工具参数原始 JSON。
+	// ArgsJSON lưu JSON gốc của tham số công cụ.
 	ArgsJSON []byte
-	// ReasoningContent 保存当前工具调用前伴随的 thinking 文本。
+	// ReasoningContent lưu văn bản thinking đi kèm trước lời gọi công cụ hiện tại.
 	ReasoningContent string
-	// ReasoningSignature 保存 provider 对当前 thinking 文本签发的签名。
+	// ReasoningSignature lưu chữ ký mà provider cấp cho văn bản thinking hiện tại.
 	ReasoningSignature string
-	// ReasoningSignatureSource 保存 reasoning signature 的 provider 语义来源。
+	// ReasoningSignatureSource lưu nguồn ngữ nghĩa provider của reasoning signature.
 	ReasoningSignatureSource string
-	// ReasoningProviderItemID 保存 provider 原始 reasoning output item id。
+	// ReasoningProviderItemID lưu id item đầu ra reasoning gốc của provider.
 	ReasoningProviderItemID string
-	// ReasoningProviderStatus 保存 provider 原始 reasoning output item status。
+	// ReasoningProviderStatus lưu status item đầu ra reasoning gốc của provider.
 	ReasoningProviderStatus string
-	// ReasoningProviderSummary 保存 provider 原始 reasoning output item summary。
+	// ReasoningProviderSummary lưu summary item đầu ra reasoning gốc của provider.
 	ReasoningProviderSummary json.RawMessage
-	// ProviderItemID 保存 provider 原始 tool/function output item id。
+	// ProviderItemID lưu id item đầu ra tool/function gốc của provider.
 	ProviderItemID string
-	// ProviderCallID 保存 provider 原始 tool/function call id。
+	// ProviderCallID lưu id lời gọi tool/function gốc của provider.
 	ProviderCallID string
-	// ProviderStatus 保存 provider 原始 tool/function output item status。
+	// ProviderStatus lưu status item đầu ra tool/function gốc của provider.
 	ProviderStatus string
-	// ModelCallID 表示本轮模型调用标识。
+	// ModelCallID thể hiện định danh lời gọi mô hình của vòng này.
 	ModelCallID string
 }
 
-// NormalizeSupportedMode 规范化并校验当前支持的会话 mode。
+// NormalizeSupportedMode chuẩn hóa và xác thực chế độ phiên hiện được hỗ trợ.
 //
-// 当前默认口径：
-// 1. 未显式携带 mode 或值为 `AGENT_MODE_UNSPECIFIED` 时，按 `AGENT_MODE_AGENT` 处理；
-// 2. 仅允许 `AGENT_MODE_AGENT`、`AGENT_MODE_ASK`、`AGENT_MODE_PLAN`、`AGENT_MODE_DEBUG`、`AGENT_MODE_MULTITASK`；
-// 3. 其他 mode 一律报错，不允许静默回退。
+// Quy ước mặc định hiện tại:
+// 1. Khi không mang mode tường minh hoặc giá trị là `AGENT_MODE_UNSPECIFIED`, xử lý theo `AGENT_MODE_AGENT`;
+// 2. Chỉ cho phép `AGENT_MODE_AGENT`, `AGENT_MODE_ASK`, `AGENT_MODE_PLAN`, `AGENT_MODE_DEBUG`, `AGENT_MODE_MULTITASK`;
+// 3. Các mode khác đều báo lỗi, không cho phép hạ cấp im lặng.
 func NormalizeSupportedMode(mode agentv1.AgentMode) (agentv1.AgentMode, error) {
 	switch mode {
 	case agentv1.AgentMode_AGENT_MODE_UNSPECIFIED:
@@ -357,7 +357,7 @@ func NormalizeSupportedMode(mode agentv1.AgentMode) (agentv1.AgentMode, error) {
 	}
 }
 
-// CloneToolCallMap 深拷贝 tool_call 结果映射，避免共享 proto 指针。
+// CloneToolCallMap sao chép sâu ánh xạ kết quả tool_call, tránh chia sẻ con trỏ proto.
 func CloneToolCallMap(items map[string]*agentv1.ToolCall) map[string]*agentv1.ToolCall {
 	if len(items) == 0 {
 		return make(map[string]*agentv1.ToolCall)
@@ -379,12 +379,12 @@ func CloneToolCallMap(items map[string]*agentv1.ToolCall) map[string]*agentv1.To
 	return cloned
 }
 
-// IsCurrentlySupportedTool 判断当前 Phase 5 稳定化版本是否真正支持该工具。
+// IsCurrentlySupportedTool xác định phiên bản ổn định hóa Phase 5 hiện tại có thực sự hỗ trợ công cụ này không.
 //
-// 当前规则：
-// 1. 只返回 runtime/loop 当前已经具备完整推进链路的能力；
-// 2. 结果用于限制实际对模型暴露的工具集合，避免模型调用未实现能力后把整轮 run 直接打失败；
-// 3. 必须保持最小闭环优先，而不是优先暴露抓包里存在但服务端尚未支持的能力。
+// Quy tắc hiện tại:
+// 1. Chỉ trả về những khả năng mà runtime/loop hiện đã có đầy đủ chuỗi đẩy tiến;
+// 2. Kết quả dùng để giới hạn tập công cụ thực sự phơi bày cho mô hình, tránh việc mô hình gọi khả năng chưa được triển khai rồi làm thất bại cả vòng run;
+// 3. Phải ưu tiên vòng khép kín tối thiểu, thay vì ưu tiên phơi bày các khả năng có trong bản chụp gói nhưng máy chủ chưa hỗ trợ.
 func IsCurrentlySupportedTool(name string) bool {
 	switch strings.TrimSpace(name) {
 	case "Read", "Write", "PatchEdit", "Delete", "Shell", "AwaitShell", "WriteShellStdin", "ForceBackgroundShell",

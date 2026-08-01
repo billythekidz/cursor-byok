@@ -1,7 +1,7 @@
 package ads
 
 const (
-	// FetchURL 已禁用远程广告拉取。
+	// FetchURL has disabled remote ad fetching.
 	FetchURL     = ""
 	RoutePrefix  = "/ad"
 	EventUpdated = "ad:updated"

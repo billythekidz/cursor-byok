@@ -1,4 +1,4 @@
-// anthropic.go 实现 Anthropic Messages 兼容流式适配器。
+// anthropic.go implements an Anthropic Messages-compatible streaming adapter.
 package modeladapter
 
 import (
@@ -20,9 +20,9 @@ import (
 	"cursor/internal/netproxy"
 )
 
-// AnthropicAdapter 实现 Anthropic 兼容流式请求。
+// AnthropicAdapter implements an Anthropic-compatible streaming request.
 type AnthropicAdapter struct {
-	// client 负责发送 HTTP 请求。
+	// client is responsible for sending HTTP requests.
 	client *http.Client
 }
 
@@ -61,7 +61,7 @@ type anthropicContentPart struct {
 	Text string
 }
 
-// anthropicThinkTagParser 负责把 text_delta 里的 <think> 标签拆回 reasoning 流。
+// anthropicThinkTagParser is responsible for splitting <think> tags in text_delta back into the reasoning stream.
 type anthropicThinkTagParser struct {
 	carry   string
 	inThink bool
@@ -141,7 +141,7 @@ func (parser *anthropicThinkTagParser) Flush() []anthropicContentPart {
 	}}
 }
 
-// NewAnthropicAdapter 创建一个 Anthropic 兼容适配器。
+// NewAnthropicAdapter creates an Anthropic-compatible adapter.
 func NewAnthropicAdapter() *AnthropicAdapter {
 	return &AnthropicAdapter{
 		client: netproxy.NewHTTPClient(0),
@@ -156,10 +156,10 @@ func anthropicEndpointURL(baseURL string) string {
 	return base + "/v1/messages"
 }
 
-// shouldRelocateAnthropicImages 判断是否需要把图片块搬运到末条 user 消息。
+// shouldRelocateAnthropicImages reports whether image blocks need to be moved to the last user message.
 //
-// 官方 Anthropic 端点（api.anthropic.com）可正确处理任意位置的图片，保持原样；
-// 其余第三方中转站默认启用搬运，规避「非末尾图片被丢弃」的转换问题。
+// The official Anthropic endpoint (api.anthropic.com) handles images at any position correctly, so leave them as-is;
+// for other third-party relays, relocation is enabled by default to avoid the conversion problem where non-trailing images get dropped.
 func shouldRelocateAnthropicImages(baseURL string) bool {
 	base := strings.ToLower(strings.TrimSpace(baseURL))
 	if base == "" {
@@ -168,7 +168,7 @@ func shouldRelocateAnthropicImages(baseURL string) bool {
 	return !strings.Contains(base, "api.anthropic.com")
 }
 
-// ApplyAnthropicCompatibleAuthHeaders 同时兼容 Anthropic 原生 x-api-key 和 Bearer token 代理。
+// ApplyAnthropicCompatibleAuthHeaders supports both the Anthropic native x-api-key and Bearer token proxies.
 func ApplyAnthropicCompatibleAuthHeaders(httpReq *http.Request, apiKey string) {
 	if httpReq == nil {
 		return
@@ -203,7 +203,7 @@ func anthropicProviderSystemBlocks(systemParts []string) []map[string]any {
 	return blocks
 }
 
-// Stream 发送 Messages 流式请求，并解析统一模型事件。
+// Stream sends a Messages streaming request and parses unified model events.
 func (adapter *AnthropicAdapter) Stream(ctx context.Context, req StreamRequest, sink func(ModelEvent) error) error {
 	baseURL := strings.TrimRight(strings.TrimSpace(req.BaseURL), "/")
 	if baseURL == "" {
@@ -280,10 +280,10 @@ func (adapter *AnthropicAdapter) Stream(ctx context.Context, req StreamRequest, 
 		applyAnthropicCacheBreakpoints(body, frontier.BreakpointPositions)
 		frontier.BreakpointCount = len(frontier.BreakpointPositions)
 	}
-	// applyAnthropicThinkingConfig 在 override 块之外无条件调用，确保 RequestBodyOverride
-	// 路径与正常构造路径行为一致：disabled 时强制 thinking:{type:disabled} 并清理冲突字段，
-	// 非 disabled 时按 AnthropicThinkingEffort 写 adaptive 配置。与 openai.go 的
-	// applyOpenAIThinkingDisable 对称——后者也是无条件在两条路径之后调用。
+	// applyAnthropicThinkingConfig is called unconditionally outside the override block to ensure the RequestBodyOverride
+	// path behaves identically to the normal construction path: when disabled, it forces thinking:{type:disabled} and cleans up conflicting fields;
+	// when not disabled, it writes the adaptive config according to AnthropicThinkingEffort. This is symmetric to
+	// applyOpenAIThinkingDisable in openai.go, which is also called unconditionally after both paths.
 	applyAnthropicThinkingConfig(body, req)
 	if err := ApplyAnthropicExtraParams(body, req.AnthropicExtraParamsEnabled, req.AnthropicExtraParamsJSON); err != nil {
 		finishedAt = time.Now().UTC()
@@ -637,7 +637,7 @@ func (adapter *AnthropicAdapter) Stream(ctx context.Context, req StreamRequest, 
 			if strings.TrimSpace(event.Delta.StopReason) != "" {
 				finishReason = strings.TrimSpace(event.Delta.StopReason)
 			}
-			// 当前 MVP 阶段只在 message_stop 时统一收口，不在这里重复发 turn finished。
+			// In the current MVP stage, turn finalization happens uniformly at message_stop, so do not send turn finished again here.
 			return nil
 		case "message_stop":
 			if err := flushTaggedTextTail(); err != nil {
@@ -1226,18 +1226,18 @@ func normalizeAnthropicProviderMessages(input []Message, thinkingEnabled bool, r
 	return systemParts, messages, nil
 }
 
-// relocateAnthropicImagesToLastUserMessage 把所有 user 消息里的 image 块搬运到最后一条 user 消息的末尾。
+// relocateAnthropicImagesToLastUserMessage moves all image blocks in user messages to the end of the last user message.
 //
-// 背景：部分第三方中转站（如 Bedrock 代理）在 Anthropic→上游 的消息转换中，
-// 会丢弃「后面还跟着大量文本/消息」的非末尾图片块。将图片统一移动到末条 user 消息
-// 可规避该问题，同时保留图片信息本身。
+// Background: some third-party relays (such as Bedrock proxies) drop non-trailing image blocks
+// that are followed by large amounts of text/messages during Anthropic→upstream message conversion. Moving all images to the last user message
+// avoids this problem while preserving the image information itself.
 //
-// 数据流演变：
+// Data flow evolution:
 //
 //	[user_info] [query + IMG] [reminder] [reminder] [current_request]
 //	→ [user_info] [query] [reminder] [reminder] [current_request + IMG]
 //
-// 搬运后若某条 user 消息 content 变空，则丢弃该消息，避免 Anthropic 拒绝空内容消息。
+// After relocation, if a user message's content becomes empty, drop that message to avoid Anthropic rejecting empty-content messages.
 func relocateAnthropicImagesToLastUserMessage(messages []anthropicMessage) []anthropicMessage {
 	lastUserIndex := -1
 	for index := len(messages) - 1; index >= 0; index-- {
@@ -1440,14 +1440,14 @@ func buildAnthropicThinkingConfig(req StreamRequest) map[string]any {
 	}
 }
 
-// applyAnthropicThinkingConfig 在请求体构造完成后（含 RequestBodyOverride 路径）无条件调用，
-// 与 openai.go 的 applyOpenAIThinkingDisable 对称。它把 thinking 配置写入 body 并在 disabled
-// 时清理与之冲突的字段，确保两条构造路径行为一致：
-//   - disabled: 强制 thinking:{type:"disabled"}，删除 output_config / 残留 thinking adaptive 配置，
-//     记录 thinking_disabled_provider_param=thinking.type knob
-//   - adaptive: 按 AnthropicThinkingEffort 写 thinking:{type:adaptive,display:summarized} + output_config
+// applyAnthropicThinkingConfig is called unconditionally after the request body is constructed (including the RequestBodyOverride path),
+// symmetric to applyOpenAIThinkingDisable in openai.go. It writes the thinking config into the body and, when disabled,
+// cleans up conflicting fields, ensuring both construction paths behave consistently:
+//   - disabled: forces thinking:{type:"disabled"}, removes output_config / leftover thinking adaptive config,
+//     records the thinking_disabled_provider_param=thinking.type knob
+//   - adaptive: writes thinking:{type:adaptive,display:summarized} + output_config according to AnthropicThinkingEffort
 //
-// 在 override 路径下，上层若已在 override body 里塞了 thinking/output_config，disabled 时会被正确覆盖。
+// Under the override path, if the upper layer already put thinking/output_config in the override body, they will be correctly overridden when disabled.
 func applyAnthropicThinkingConfig(body map[string]any, req StreamRequest) {
 	if len(body) == 0 {
 		return
@@ -1738,7 +1738,7 @@ func isJSONWhitespace(character byte) bool {
 	}
 }
 
-// anthropicThinkingBudget 计算当前 Anthropic thinking 预算。
+// anthropicThinkingBudget computes the current Anthropic thinking budget.
 func anthropicThinkingBudget(maxTokens int) int {
 	if maxTokens <= 0 {
 		return 2048

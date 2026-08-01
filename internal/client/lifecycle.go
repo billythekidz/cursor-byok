@@ -16,43 +16,43 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
-// ProxyState 定义了当前模块中的 ProxyState 类型。
+// ProxyState defines the ProxyState type in this module.
 type ProxyState struct {
-	// ListenAddr 保留旧字段兼容前端缓存，实际值等于 proxyListenAddr。
+	// ListenAddr keeps the old field for frontend cache compatibility; its actual value equals proxyListenAddr.
 	ListenAddr string `json:"listenAddr"`
-	// Running 保留旧字段兼容前端缓存，实际值等于 proxyRunning。
+	// Running keeps the old field for frontend cache compatibility; its actual value equals proxyRunning.
 	Running bool `json:"running"`
-	// BackendListenAddr 表示嵌入式 backend 监听地址。
+	// BackendListenAddr represents the embedded backend listen address.
 	BackendListenAddr string `json:"backendListenAddr"`
-	// BackendRunning 表示嵌入式 backend 是否已启动。
+	// BackendRunning represents whether the embedded backend has been started.
 	BackendRunning bool `json:"backendRunning"`
-	// ProxyListenAddr 表示 MITM 代理监听地址。
+	// ProxyListenAddr represents the MITM proxy listen address.
 	ProxyListenAddr string `json:"proxyListenAddr"`
-	// ProxyRunning 表示 MITM 代理是否已启动。
+	// ProxyRunning represents whether the MITM proxy has been started.
 	ProxyRunning bool `json:"proxyRunning"`
-	// CursorSettingsApplied 表示宿主代理设置是否已注入。
+	// CursorSettingsApplied represents whether the host proxy settings have been injected.
 	CursorSettingsApplied bool `json:"cursorSettingsApplied"`
-	// NetProxySource 表示当前出站网络代理来源：system/env/direct。
+	// NetProxySource represents the current outbound network proxy source: system/env/direct.
 	NetProxySource string `json:"netProxySource"`
-	// NetProxyActive 表示当前出站网络代理是否启用。
+	// NetProxyActive represents whether the outbound network proxy is enabled.
 	NetProxyActive bool `json:"netProxyActive"`
-	// NetProxyUsingSystem 表示当前出站网络代理是否来自操作系统代理。
+	// NetProxyUsingSystem represents whether the outbound network proxy comes from the OS proxy.
 	NetProxyUsingSystem bool `json:"netProxyUsingSystem"`
-	// NetProxyUsingEnv 表示当前出站网络代理是否来自环境变量。
+	// NetProxyUsingEnv represents whether the outbound network proxy comes from environment variables.
 	NetProxyUsingEnv bool `json:"netProxyUsingEnv"`
-	// NetProxyHTTP 表示当前 HTTP 代理地址，已移除凭据。
+	// NetProxyHTTP represents the current HTTP proxy address, with credentials removed.
 	NetProxyHTTP string `json:"netProxyHttp"`
-	// NetProxyHTTPS 表示当前 HTTPS 代理地址，已移除凭据。
+	// NetProxyHTTPS represents the current HTTPS proxy address, with credentials removed.
 	NetProxyHTTPS string `json:"netProxyHttps"`
-	// NetProxyPACIgnored 表示检测到 PAC/自动代理但本轮按直连处理。
+	// NetProxyPACIgnored represents that a PAC/auto proxy was detected but treated as direct connection this round.
 	NetProxyPACIgnored bool `json:"netProxyPacIgnored"`
-	// NetProxyDescription 表示当前出站网络代理摘要，已移除凭据。
+	// NetProxyDescription represents a summary of the outbound network proxy, with credentials removed.
 	NetProxyDescription string `json:"netProxyDescription"`
-	// LastError 表示当前声明中的 LastError。
+	// LastError represents the LastError field in this declaration.
 	LastError string `json:"lastError"`
 }
 
-// StartProxy 用于处理与 StartProxy 相关的逻辑。
+// StartProxy handles logic related to StartProxy.
 func (s *ProxyService) StartProxy() (ProxyState, error) {
 	logger.Infof("start service requested config_path=%s logs_root=%s", s.configPath, s.logsRoot)
 	fail := func(step string, err error) (ProxyState, error) {
@@ -86,10 +86,10 @@ func (s *ProxyService) StartProxy() (ProxyState, error) {
 		return fail("ensure_proxy", err)
 	}
 
-	// 启动时注入账号信息
+	// Inject account info at startup.
 	if err := cursor.InjectCursorUserInfo(localruntime.InjectAccountEmail, localruntime.InjectAuthToken); err != nil {
 		logger.Errorf("injectCursorUserInfo failed: %v", err)
-		// 不阻断启动，仅记录日志
+		// Do not block startup; only log.
 	}
 
 	if s.proxy != nil && !s.proxy.IsRunning() {
@@ -126,7 +126,7 @@ func (s *ProxyService) StartProxy() (ProxyState, error) {
 	return state, nil
 }
 
-// StopProxy 用于处理与 StopProxy 相关的逻辑。
+// StopProxy handles logic related to StopProxy.
 func (s *ProxyService) StopProxy() (ProxyState, error) {
 	logger.Infof("stop service requested")
 	fail := func(step string, err error) (ProxyState, error) {
@@ -166,7 +166,7 @@ func (s *ProxyService) StopProxy() (ProxyState, error) {
 	return state, nil
 }
 
-// GetState 用于处理与 GetState 相关的逻辑。
+// GetState handles logic related to GetState.
 func (s *ProxyService) GetState() ProxyState {
 	var proxySnap mitm.Snapshot
 	if s.proxy != nil {
@@ -203,14 +203,14 @@ func (s *ProxyService) GetState() ProxyState {
 	}
 }
 
-// ClearLastError 用于处理与 ClearLastError 相关的逻辑。
+// ClearLastError handles logic related to ClearLastError.
 func (s *ProxyService) ClearLastError() ProxyState {
 	s.setLastError(nil)
 	s.emitState()
 	return s.GetState()
 }
 
-// SetBaseURL 用于处理与 SetBaseURL 相关的逻辑。
+// SetBaseURL handles logic related to SetBaseURL.
 func (s *ProxyService) SetBaseURL(baseURL string) (ProxyState, error) {
 	_ = strings.TrimSpace(baseURL)
 	err := fmt.Errorf("backend/proxy 地址已固定，不再支持直接修改 baseURL")
@@ -219,7 +219,7 @@ func (s *ProxyService) SetBaseURL(baseURL string) (ProxyState, error) {
 	return s.GetState(), err
 }
 
-// setLastError 用于处理与 setLastError 相关的逻辑。
+// setLastError handles logic related to setLastError.
 func (s *ProxyService) setLastError(err error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -234,7 +234,7 @@ func (s *ProxyService) setLastError(err error) {
 	s.lastError = msg
 }
 
-// emitState 用于处理与 emitState 相关的逻辑。
+// emitState handles logic related to emitState.
 func (s *ProxyService) emitState() {
 	app := application.Get()
 	if app == nil {
@@ -247,7 +247,7 @@ func (s *ProxyService) emitState() {
 	app.Event.Emit("proxy:state", state)
 }
 
-// ShutdownForQuit 用于处理与 ShutdownForQuit 相关的逻辑。
+// ShutdownForQuit handles logic related to ShutdownForQuit.
 func (s *ProxyService) ShutdownForQuit() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

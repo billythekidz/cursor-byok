@@ -11,12 +11,12 @@ import (
 	"cursor/gen/agentv1"
 )
 
-// BuildUserQueryReplayMessage 构造一条可直接回放给模型的用户消息。
+// BuildUserQueryReplayMessage constructs a user message that can be replayed directly to the model.
 func BuildUserQueryReplayMessage(text string) (Message, bool) {
 	return buildUserReplayMessage(strings.TrimSpace(text), nil)
 }
 
-// BuildUserMessageReplayMessage 把包含 selected_context 的用户消息还原为 replay message。
+// BuildUserMessageReplayMessage restores a user message containing selected_context into a replay message.
 func BuildUserMessageReplayMessage(userMessage *agentv1.UserMessage) (Message, bool) {
 	if userMessage == nil {
 		return Message{}, false
@@ -208,7 +208,7 @@ func buildSelectedImageContentParts(selectedContext *agentv1.SelectedContext) []
 	return parts
 }
 
-// EncodeReplayMessages 把 canonical replay message 编码为 root_prompt_messages_json。
+// EncodeReplayMessages encodes canonical replay messages into root_prompt_messages_json.
 func EncodeReplayMessages(messages []Message) ([][]byte, error) {
 	if len(messages) == 0 {
 		return nil, nil
@@ -262,7 +262,7 @@ func marshalReplayMessage(message Message) ([]byte, error) {
 	return json.Marshal(payload)
 }
 
-// DecodeReplayMessages 从 root_prompt_messages_json 解码 canonical replay message。
+// DecodeReplayMessages decodes canonical replay messages from root_prompt_messages_json.
 func DecodeReplayMessages(rawItems [][]byte) ([]Message, error) {
 	if len(rawItems) == 0 {
 		return nil, nil
@@ -284,7 +284,7 @@ func DecodeReplayMessages(rawItems [][]byte) ([]Message, error) {
 	return messages, nil
 }
 
-// BuildReplayMessagesFromPendingAssistantOutputs 把 pending assistant raw 还原为 canonical replay message。
+// BuildReplayMessagesFromPendingAssistantOutputs restores pending assistant raw into canonical replay messages.
 func BuildReplayMessagesFromPendingAssistantOutputs(rawValues []string) []Message {
 	if len(rawValues) == 0 {
 		return nil
@@ -296,7 +296,7 @@ func BuildReplayMessagesFromPendingAssistantOutputs(rawValues []string) []Messag
 	return messages
 }
 
-// BuildLegacyMessagesFromConversationStep 使用 legacy XML 文本形状回放单个 step。
+// BuildLegacyMessagesFromConversationStep replays a single step using the legacy XML text shape.
 func BuildLegacyMessagesFromConversationStep(step *agentv1.ConversationStep) []Message {
 	if step == nil {
 		return nil
@@ -332,7 +332,7 @@ func BuildLegacyMessagesFromConversationStep(step *agentv1.ConversationStep) []M
 	}
 }
 
-// BuildToolCallReplayMessages 把已完成的 ToolCall step 还原为 native assistant/tool replay message。
+// BuildToolCallReplayMessages restores a completed ToolCall step into native assistant/tool replay messages.
 func BuildToolCallReplayMessages(toolCallID string, toolCall *agentv1.ToolCall) ([]Message, bool) {
 	descriptor, toolResult, ok := extractToolCallReplay(toolCallID, toolCall)
 	if !ok {
@@ -348,8 +348,8 @@ func BuildToolCallReplayMessages(toolCallID string, toolCall *agentv1.ToolCall) 
 	}, true
 }
 
-// BuildToolResultReplayMessage 从已完成的 ToolCall 中提取 tool replay message，
-// 用于 history 已经单独记录过 assistant tool_call 时仅回放真实工具结果。
+// BuildToolResultReplayMessage extracts the tool replay message from a completed ToolCall,
+// used to replay only the real tool result when the assistant tool_call has already been recorded separately in history.
 func BuildToolResultReplayMessage(toolCallID string, toolCall *agentv1.ToolCall) (Message, bool) {
 	if toolCall == nil || strings.TrimSpace(toolCallID) == "" {
 		return Message{}, false
@@ -366,7 +366,7 @@ func BuildToolResultReplayMessage(toolCallID string, toolCall *agentv1.ToolCall)
 	}, true
 }
 
-// BuildAssistantToolCallReplayMessage 把未完成或已完成的 ToolCall 还原为 assistant tool-call replay message。
+// BuildAssistantToolCallReplayMessage restores an incomplete or completed ToolCall into an assistant tool-call replay message.
 func BuildAssistantToolCallReplayMessage(toolCallID string, toolCall *agentv1.ToolCall) (Message, bool) {
 	descriptor, ok := BuildToolCallReplayDescriptor(toolCallID, toolCall)
 	if !ok {
@@ -379,7 +379,7 @@ func BuildAssistantToolCallReplayMessage(toolCallID string, toolCall *agentv1.To
 	}, true
 }
 
-// BuildToolCallReplayDescriptor 从 ToolCall proto 提取 assistant replay 所需的工具调用描述。
+// BuildToolCallReplayDescriptor extracts the tool call description needed for assistant replay from the ToolCall proto.
 func BuildToolCallReplayDescriptor(toolCallID string, toolCall *agentv1.ToolCall) (ToolCallDescriptor, bool) {
 	if toolCall == nil || strings.TrimSpace(toolCallID) == "" {
 		return ToolCallDescriptor{}, false

@@ -1,4 +1,4 @@
-// types.go 定义 forwarder 的核心数据结构与最小接口边界。
+// types.go defines the forwarder's core data structures and minimal interface boundaries.
 package forwarder
 
 import (
@@ -300,12 +300,12 @@ const (
 	ToolRequestInteraction ToolRequestKind = "interaction"
 )
 
-// providerTerminalError 表示底层 LLM/provider 返回的真实错误。
+// providerTerminalError represents the real error returned by the underlying LLM/provider.
 type providerTerminalError struct {
 	cause error
 }
 
-// Error 返回 provider 错误的字符串形式。
+// Error returns the string form of the provider error.
 func (err providerTerminalError) Error() string {
 	if err.cause == nil {
 		return "provider error"
@@ -313,7 +313,7 @@ func (err providerTerminalError) Error() string {
 	return err.cause.Error()
 }
 
-// Unwrap 允许调用方继续取到底层原始错误。
+// Unwrap lets callers keep unwrapping to the underlying original error.
 func (err providerTerminalError) Unwrap() error {
 	return err.cause
 }
@@ -429,7 +429,7 @@ type InboundIntent struct {
 	Prewarm                  bool
 }
 
-// normalizeMode 对外部传入的 mode 做最小归一化，但不再静默降级。
+// normalizeMode performs minimal normalization on an externally supplied mode, but no longer silently downgrades it.
 func normalizeMode(mode agentv1.AgentMode) agentv1.AgentMode {
 	return mode
 }
@@ -463,7 +463,7 @@ func resolveExplicitMode(mode agentv1.AgentMode, source ModeSource) (agentv1.Age
 	return normalized, source, true, nil
 }
 
-// modeAlias 把协议枚举转换为写入 JSON history 的简短模式名。
+// modeAlias converts a protocol enum into the short mode name written to JSON history.
 func modeAlias(mode agentv1.AgentMode) (string, error) {
 	switch normalizeMode(mode) {
 	case agentv1.AgentMode_AGENT_MODE_AGENT:
@@ -481,7 +481,7 @@ func modeAlias(mode agentv1.AgentMode) (string, error) {
 	}
 }
 
-// parseModeAlias 把写入 JSON history 的模式名恢复为协议枚举。
+// parseModeAlias restores a mode name written to JSON history back into the protocol enum.
 func parseModeAlias(raw string) (agentv1.AgentMode, error) {
 	switch strings.ToLower(strings.TrimSpace(raw)) {
 	case "agent":

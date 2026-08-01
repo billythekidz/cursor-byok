@@ -1,4 +1,4 @@
-// openai.go 实现 OpenAI 兼容流式适配器。
+// openai.go triển khai adapter luồng tương thích OpenAI.
 package modeladapter
 
 import (
@@ -18,9 +18,9 @@ import (
 	"cursor/internal/netproxy"
 )
 
-// OpenAIAdapter 实现 OpenAI 兼容流式请求。
+// OpenAIAdapter triển khai các yêu cầu luồng tương thích OpenAI.
 type OpenAIAdapter struct {
-	// client 负责发送 HTTP 请求。
+	// client chịu trách nhiệm gửi yêu cầu HTTP.
 	client *http.Client
 }
 
@@ -92,7 +92,7 @@ type openAIContentPart struct {
 	Text string
 }
 
-// openAIThinkTagParser 负责把某些 OpenAI 兼容 provider 放进 content 的 <think> 标签拆回 reasoning 流。
+// openAIThinkTagParser chịu trách nhiệm tách thẻ <think> mà một số provider tương thích OpenAI đặt trong content ra thành luồng reasoning.
 type openAIThinkTagParser struct {
 	carry   string
 	inThink bool
@@ -172,7 +172,7 @@ func (parser *openAIThinkTagParser) Flush() []openAIContentPart {
 	}}
 }
 
-// NewOpenAIAdapter 创建一个 OpenAI 兼容适配器。
+// NewOpenAIAdapter tạo một adapter tương thích OpenAI.
 func NewOpenAIAdapter() *OpenAIAdapter {
 	return &OpenAIAdapter{
 		client: netproxy.NewHTTPClient(0),
@@ -304,32 +304,32 @@ func OpenAIEndpointURL(baseURL string, endpoint string) string {
 	if !strings.HasPrefix(normalizedEndpoint, "/") {
 		normalizedEndpoint = "/" + normalizedEndpoint
 	}
-	// 规则0：自定义路径模式
-	// - baseURL 已含 endpoint 后缀（/chat/completions 或 /responses）→ 直接用 base
-	// - 否则追加 /chat/completions（默认协议形态，覆盖 Z.AI /v4 等场景）
+	// Quy tắc 0: chế độ đường dẫn tùy chỉnh
+	// - baseURL đã chứa hậu tố endpoint (/chat/completions hoặc /responses) → dùng thẳng base
+	// - ngược lại thêm /chat/completions (dạng giao thức mặc định, bao phủ các trường hợp như Z.AI /v4)
 	if normalizedEndpoint == modelchannel.OpenAIEndpointCustom {
 		if OpenAIEndpointFromBaseURL(base) != "" {
 			return base
 		}
 		return base + "/chat/completions"
 	}
-	// 规则1：baseURL 已含 endpoint 后缀 → 直接用 base
+	// Quy tắc 1: baseURL đã chứa hậu tố endpoint → dùng thẳng base
 	if OpenAIEndpointFromBaseURL(base) != "" {
 		return base
 	}
-	// 规则2：baseURL 以 /vN 结尾时，剥离 endpoint 的版本前缀（/v1/、/v2/ 等）
-	// 这样 base=.../v4 + endpoint=/v1/chat/completions → .../v4/chat/completions
+	// Quy tắc 2: khi baseURL kết thúc bằng /vN, tách tiền tố phiên bản của endpoint (/v1/, /v2/ ...)
+	// như vậy base=.../v4 + endpoint=/v1/chat/completions → .../v4/chat/completions
 	if _, ok := trailingVersionSegment(base); ok {
 		if rest, stripped := stripEndpointVersionPrefix(normalizedEndpoint); stripped {
 			return base + rest
 		}
 	}
-	// 规则3：兜底原样拼接
+	// Quy tắc 3: dự phòng nối nguyên trạng
 	return base + normalizedEndpoint
 }
 
-// trailingVersionSegment 检测 URL 末尾是否以 /vN 形式结尾（N 为数字），
-// 返回版本段（如 "v4"）和是否匹配。用于通用版本段去重。
+// trailingVersionSegment kiểm tra cuối URL có kết thúc dạng /vN hay không (N là chữ số),
+// trả về đoạn phiên bản (ví dụ "v4") và có khớp hay không. Dùng để loại bỏ trùng đoạn phiên bản chung.
 func trailingVersionSegment(base string) (string, bool) {
 	idx := strings.LastIndex(base, "/")
 	if idx < 0 {
@@ -347,8 +347,8 @@ func trailingVersionSegment(base string) (string, bool) {
 	return seg, true
 }
 
-// stripEndpointVersionPrefix 剥离 endpoint 路径开头的版本段前缀（/vN/），
-// 返回剩余路径和是否成功剥离。
+// stripEndpointVersionPrefix tách tiền tố đoạn phiên bản (/vN/) ở đầu đường dẫn endpoint,
+// trả về đường dẫn còn lại và có tách thành công hay không.
 // /v1/chat/completions → ("/chat/completions", true)
 // /chat/completions    → ("", false)
 func stripEndpointVersionPrefix(endpoint string) (string, bool) {
@@ -404,7 +404,7 @@ func ProviderURLHasEndpoint(baseURL string, endpoints ...string) bool {
 	return false
 }
 
-// Stream 发送 OpenAI 兼容流式请求，并解析统一模型事件。
+// Stream gửi yêu cầu luồng tương thích OpenAI và phân tích các sự kiện mô hình thống nhất.
 func (adapter *OpenAIAdapter) Stream(ctx context.Context, req StreamRequest, sink func(ModelEvent) error) error {
 	baseURL := strings.TrimRight(strings.TrimSpace(req.BaseURL), "/")
 	if baseURL == "" {
@@ -1830,7 +1830,7 @@ func normalizeOpenAIProviderMessages(messages []Message, thinkingEnabled bool) (
 			"role":    strings.TrimSpace(message.Role),
 			"content": content,
 		}
-		// 开启 thinking 时，tool_calls 对应的 assistant message 也要显式携带空 reasoning_content。
+		// When thinking is enabled, the assistant message corresponding to tool_calls must also explicitly carry an empty reasoning_content.
 		if shouldIncludeOpenAIReasoningContent(message, thinkingEnabled) {
 			item["reasoning_content"] = message.ReasoningContent
 		}

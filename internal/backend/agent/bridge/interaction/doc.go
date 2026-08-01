@@ -1,2 +1,2 @@
-// Package interaction 负责把交互型工具调用映射为 InteractionQuery，并归一化 InteractionResponse。
+// Package interaction maps interaction-type tool calls to InteractionQuery and normalizes InteractionResponse.
 package interaction

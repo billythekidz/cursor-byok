@@ -1,4 +1,4 @@
-// router.go 按模型标识选择 OpenAI 或 Anthropic 兼容适配器。
+// router.go chọn adapter tương thích OpenAI hoặc Anthropic theo định danh mô hình.
 package modeladapter
 
 import (
@@ -10,13 +10,13 @@ import (
 	legacyruntime "cursor/internal/runtime"
 )
 
-// Router 是 MVP 阶段的模型适配路由器。
+// Router là bộ định tuyến adapter mô hình ở giai đoạn MVP.
 type Router struct {
-	// openai 负责 OpenAI 兼容流式请求。
+	// openai chịu trách nhiệm các yêu cầu luồng tương thích OpenAI.
 	openai ModelAdapter
-	// anthropic 负责 Anthropic 兼容流式请求。
+	// anthropic chịu trách nhiệm các yêu cầu luồng tương thích Anthropic.
 	anthropic ModelAdapter
-	// resolver 负责从本地配置中解析实际模型通道。
+	// resolver chịu trách nhiệm phân giải kênh mô hình thực tế từ cấu hình cục bộ.
 	resolver ChannelResolver
 }
 
@@ -25,7 +25,7 @@ type ChannelResolver interface {
 	ProviderStreamIdleTimeout(context.Context) time.Duration
 }
 
-// NewRouter 创建模型适配路由器。
+// NewRouter tạo bộ định tuyến adapter mô hình.
 func NewRouter(resolver ChannelResolver) *Router {
 	return &Router{
 		openai:    NewOpenAIAdapter(),
@@ -34,7 +34,7 @@ func NewRouter(resolver ChannelResolver) *Router {
 	}
 }
 
-// Stream 根据模型标识选择具体 provider 并转发请求。
+// Stream chọn provider cụ thể theo định danh mô hình và chuyển tiếp yêu cầu.
 func (router *Router) Stream(ctx context.Context, req StreamRequest, sink func(ModelEvent) error) error {
 	if router == nil || router.resolver == nil {
 		return fmt.Errorf("model adapter resolver is unavailable")

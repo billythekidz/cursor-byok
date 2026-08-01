@@ -675,9 +675,9 @@ func extractMessages(text string, moduleStarts []int) []Message {
 	var messages []Message
 
 	// Pattern 1: VarName = class InternalName extends l { ... this.typeName = "..." ... this.fields = ... }
-	// 先找所有 "变量名 = class 内部类名" 定义
-	// JS 变量名可以包含 $ 符号，如 B$e, qg 等
-	// 需要同时捕获外部变量名和内部类名，因为字段引用可能用任一个
+	// First find all "varName = class InternalClassName" definitions
+	// JS variable names may contain $, e.g. B$e, qg, etc.
+	// Capture both the outer variable name and the inner class name, since field references may use either one
 	classDefRe := regexp.MustCompile(`([\w$]+)\s*=\s*class\s+([\w$]+)\s+extends\s+[\w$.]+\s*\{`)
 	classMatches := classDefRe.FindAllStringSubmatchIndex(text, -1)
 
@@ -692,7 +692,7 @@ func extractMessages(text string, moduleStarts []int) []Message {
 		internalName := text[classMatch[4]:classMatch[5]]
 		classStart := classMatch[0]
 
-		// 找到类的结束位置（匹配大括号）
+		// Find the end of the class (matching braces)
 		classEnd := findClassEnd(text, classMatch[1]-1)
 		if classEnd == -1 {
 			continue
@@ -700,20 +700,20 @@ func extractMessages(text string, moduleStarts []int) []Message {
 
 		classBody := text[classStart:classEnd]
 
-		// 在类体内查找 typeName
+		// Search for typeName within the class body
 		typeMatch := typeNameRe.FindStringSubmatch(classBody)
 		if typeMatch == nil {
 			continue
 		}
 		typeName := typeMatch[1]
 
-		// 在类体内查找 fields
+		// Search for fields within the class body
 		fieldsMatch := fieldsRe.FindStringIndex(classBody)
 		if fieldsMatch == nil {
 			continue
 		}
 
-		// 找到 fields 数组的开始位置
+		// Find the start of the fields array
 		bracketPos := classStart + fieldsMatch[1] - 1
 		fields := extractFieldArray(text, bracketPos)
 
@@ -952,7 +952,7 @@ func extractEnums(text string, moduleStarts []int) []Enum {
 	var enums []Enum
 
 	// Pattern for enum: setEnumType(XXX, "xxx.v1.EnumName", [...]) (any package)
-	// JS 变量名可以包含 $ 符号
+	// JS variable names may contain $
 	enumRe := regexp.MustCompile(`setEnumType\s*\(\s*([\w$]+)\s*,\s*"([\w.]+)"\s*,\s*\[`)
 
 	matches := enumRe.FindAllStringSubmatchIndex(text, -1)

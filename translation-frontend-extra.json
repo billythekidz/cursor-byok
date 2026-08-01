@@ -1,0 +1,37 @@
+{
+  "components/AdModelProvider.vue": {
+    "113": "An ad entry failure must not affect the main UI."
+  },
+  "composables/useInputModal.js": {
+    "13": "Shows an input modal and returns a Promise<string|null>",
+    "15": "@returns {Promise<string|null>} - string=value after confirm, null=cancel"
+  },
+  "composables/useModal.js": {
+    "15": "Shows a confirm modal and returns a Promise<boolean>",
+    "17": "@returns {Promise<boolean>} - true=confirm, false=cancel"
+  },
+  "layouts/MainLayout.vue": {
+    "78": "  title: \"Confirm close\",",
+    "79": "  content: \"The app will be minimized to the tray. To fully exit, quit from the tray. Cursor will be unusable after closing.\","
+  },
+  "main.js": {
+    "39": "Keep the UI usable if startup fails; surface the error later in business interactions."
+  },
+  "state/appState.js": {
+    "176": "buildOpenAIEndpointGroupKey generates an OpenAI endpoint group key (FNV32a of baseURL\\napiKey).",
+    "177": "Keep the grouping semantics aligned with the Go side: the same baseURL + apiKey maps to the same endpoint group.",
+    "294": "normalizeOpenAIEndpoint normalizes the endpoint path.",
+    "295": "Supports three presets: /v1/responses, /v1/chat/completions, and /custom (custom path).",
+    "296": "When /custom is chosen, the user must fill in the full request URL in the endpoint address field.",
+    "1204": "saveModelAdapters persists the full model adapter list in a single write (writes config only once).",
+    "1205": "Used for bulk-change scenarios (e.g. scanning new models, toggling active) to avoid repeated disk writes."
+  },
+  "views/ModelConfig.vue": {
+    "51": "openaiGroups groups OpenAI adapters by openAIEndpointGroupID for display.",
+    "52": "Adapters with a groupID are merged into endpoint-group cards; manually added adapters (no groupID) each get their own card.",
+    "196": "Failures are synced to the UI through events; no extra modal interrupts the user here.",
+    "246": "Individual failures are shown by each card itself; testing continues here.",
+    "339": "At most one adapter can be active within the same endpoint group (mutually exclusive).",
+    "344": "Manual models (no group) toggle their own active independently."
+  }
+}

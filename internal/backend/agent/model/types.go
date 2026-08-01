@@ -1,4 +1,4 @@
-// types.go 定义模型适配层的统一请求、事件与路由接口。
+// types.go định nghĩa giao diện thống nhất về request, sự kiện và định tuyến của tầng adapter mô hình.
 package modeladapter
 
 import (
@@ -11,37 +11,37 @@ import (
 )
 
 const (
-	// ReasoningSignatureSourceAnthropic 表示 signature 来自 Anthropic thinking signature。
+	// ReasoningSignatureSourceAnthropic thể hiện signature đến từ Anthropic thinking signature.
 	ReasoningSignatureSourceAnthropic = "anthropic"
-	// ReasoningSignatureSourceOpenAIResponses 表示 signature 来自 OpenAI Responses encrypted reasoning content。
+	// ReasoningSignatureSourceOpenAIResponses thể hiện signature đến từ OpenAI Responses encrypted reasoning content.
 	ReasoningSignatureSourceOpenAIResponses = "openai_responses"
 )
 
-// Message 表示模型适配层统一使用的消息结构。
+// Message thể hiện cấu trúc thông điệp thống nhất được tầng adapter mô hình sử dụng.
 type Message struct {
-	// Role 表示消息角色。
+	// Role thể hiện vai trò của thông điệp.
 	Role string `json:"role"`
-	// Content 表示消息文本内容。
+	// Content thể hiện nội dung văn bản của thông điệp.
 	Content string `json:"content"`
-	// ContentParts 表示消息中的结构化内容块，例如文本或图片。
+	// ContentParts thể hiện các khối nội dung có cấu trúc trong thông điệp, ví dụ văn bản hoặc hình ảnh.
 	ContentParts []ContentPart `json:"content_parts,omitempty"`
-	// ReasoningContent 表示推理内容（用于支持 reasoning 的模型）。
+	// ReasoningContent thể hiện nội dung suy luận (dành cho mô hình hỗ trợ reasoning).
 	ReasoningContent string `json:"reasoning_content,omitempty"`
-	// ReasoningSignature 表示 provider 对推理内容签发的签名（如 Anthropic thinking signature）。
+	// ReasoningSignature thể hiện chữ ký provider cấp cho nội dung suy luận (ví dụ Anthropic thinking signature).
 	ReasoningSignature string `json:"reasoning_signature,omitempty"`
-	// ReasoningSignatureSource 表示 reasoning signature 的 provider 语义来源。
+	// ReasoningSignatureSource thể hiện nguồn ngữ nghĩa provider của reasoning signature.
 	ReasoningSignatureSource string `json:"reasoning_signature_source,omitempty"`
-	// OpenAIResponsesReasoningID 保存 Responses reasoning output item 的原始 id。
+	// OpenAIResponsesReasoningID lưu id gốc của reasoning output item trong Responses.
 	OpenAIResponsesReasoningID string `json:"openai_responses_reasoning_id,omitempty"`
-	// OpenAIResponsesReasoningStatus 保存 Responses reasoning output item 的原始 status。
+	// OpenAIResponsesReasoningStatus lưu status gốc của reasoning output item trong Responses.
 	OpenAIResponsesReasoningStatus string `json:"openai_responses_reasoning_status,omitempty"`
-	// OpenAIResponsesReasoningSummary 保存 Responses reasoning output item 的原始 summary。
+	// OpenAIResponsesReasoningSummary lưu summary gốc của reasoning output item trong Responses.
 	OpenAIResponsesReasoningSummary json.RawMessage `json:"openai_responses_reasoning_summary,omitempty"`
-	// ToolCalls 表示 assistant 发起的函数调用。
+	// ToolCalls thể hiện các lời gọi hàm do assistant khởi xướng.
 	ToolCalls []ToolCallDescriptor `json:"tool_calls,omitempty"`
-	// ToolCallID 表示 tool role 关联的调用 id。
+	// ToolCallID thể hiện id lời gọi mà role tool liên kết.
 	ToolCallID string `json:"tool_call_id,omitempty"`
-	// Name 表示 tool role 的工具名。
+	// Name thể hiện tên công cụ của role tool.
 	Name string `json:"name,omitempty"`
 }
 
@@ -60,184 +60,184 @@ type ToolCallFunctionShape struct {
 	Arguments string `json:"arguments"`
 }
 
-// StreamRequest 表示一次统一的模型流请求。
+// StreamRequest thể hiện một yêu cầu luồng mô hình thống nhất.
 type StreamRequest struct {
-	// RequestID 表示当前模型调用所属 request。
+	// RequestID thể hiện request mà lời gọi mô hình hiện tại thuộc về.
 	RequestID string
-	// RunID 表示当前模型调用所属 run。
+	// RunID thể hiện run mà lời gọi mô hình hiện tại thuộc về.
 	RunID string
-	// ModelCallID 表示当前模型调用标识。
+	// ModelCallID thể hiện định danh lời gọi mô hình hiện tại.
 	ModelCallID string
-	// ConversationID 表示当前模型调用所属会话，用于稳定 provider 侧 prompt cache 路由。
+	// ConversationID thể hiện phiên mà lời gọi mô hình hiện tại thuộc về, dùng để ổn định định tuyến prompt cache phía provider.
 	ConversationID string
-	// Mode 表示当前运行模式。
+	// Mode thể hiện chế độ chạy hiện tại.
 	Mode agentv1.AgentMode
-	// ModelID 表示当前模型标识。
+	// ModelID thể hiện định danh mô hình hiện tại.
 	ModelID string
-	// ThinkingEffort 表示客户端在本轮运行时选择的思考强度覆盖。
+	// ThinkingEffort thể hiện lựa chọn cường độ suy nghĩ do client chọn ở vòng chạy này.
 	ThinkingEffort string
-	// Provider 表示目标 provider 类型，例如 openai 或 anthropic。
+	// Provider thể hiện loại provider đích, ví dụ openai hoặc anthropic.
 	Provider string
-	// BaseURL 表示请求应发送到的 provider 基础地址。
+	// BaseURL thể hiện địa chỉ cơ sở provider mà request nên được gửi đến.
 	BaseURL string
-	// APIKey 表示 provider 鉴权凭据。
+	// APIKey thể hiện thông tin xác thực provider.
 	APIKey string
-	// ProviderModelID 表示 provider 侧真实模型标识。
+	// ProviderModelID thể hiện định danh mô hình thực tế phía provider.
 	ProviderModelID string
-	// ResolvedChannelID 表示本次请求实际命中的 adapter 渠道 ID。
+	// ResolvedChannelID thể hiện ID kênh adapter mà request này thực sự trúng.
 	ResolvedChannelID string
-	// ResolvedChannelName 表示本次请求实际命中的 adapter 展示名。
+	// ResolvedChannelName thể hiện tên hiển thị của kênh adapter mà request này thực sự trúng.
 	ResolvedChannelName string
-	// ResolvedContextWindowTokens 表示本次请求实际命中的 adapter 上下文窗口。
+	// ResolvedContextWindowTokens thể hiện cửa sổ ngữ cảnh của kênh adapter mà request này thực sự trúng.
 	ResolvedContextWindowTokens int
-	// ReasoningEffort 表示 OpenAI 兼容 provider 的推理强度。
+	// ReasoningEffort thể hiện cường độ suy luận của provider tương thích OpenAI.
 	ReasoningEffort string
-	// OpenAIEndpoint 表示 OpenAI 兼容 provider 使用的 API 端点。
+	// OpenAIEndpoint thể hiện endpoint API mà provider tương thích OpenAI sử dụng.
 	OpenAIEndpoint string
-	// OpenAIExtraParamsEnabled 表示是否启用 OpenAI 额外请求参数。
+	// OpenAIExtraParamsEnabled thể hiện có bật tham số yêu cầu bổ sung OpenAI hay không.
 	OpenAIExtraParamsEnabled bool
-	// OpenAIExtraParamsJSON 表示 OpenAI 额外请求参数 JSON 对象。
+	// OpenAIExtraParamsJSON thể hiện đối tượng JSON tham số yêu cầu bổ sung OpenAI.
 	OpenAIExtraParamsJSON string
-	// CustomHeadersEnabled 表示是否启用自定义请求头。
+	// CustomHeadersEnabled thể hiện có bật header tùy chỉnh hay không.
 	CustomHeadersEnabled bool
-	// CustomHeadersJSON 表示自定义请求头 JSON 对象。
+	// CustomHeadersJSON thể hiện đối tượng JSON header tùy chỉnh.
 	CustomHeadersJSON string
-	// AnthropicExtraParamsEnabled 表示是否启用 Anthropic 额外请求参数。
+	// AnthropicExtraParamsEnabled thể hiện có bật tham số yêu cầu bổ sung Anthropic hay không.
 	AnthropicExtraParamsEnabled bool
-	// AnthropicExtraParamsJSON 表示 Anthropic 额外请求参数 JSON 对象。
+	// AnthropicExtraParamsJSON thể hiện đối tượng JSON tham số yêu cầu bổ sung Anthropic.
 	AnthropicExtraParamsJSON string
-	// AnthropicMaxTokens 表示 Anthropic 兼容 provider 的 max_tokens。
+	// AnthropicMaxTokens thể hiện max_tokens của provider tương thích Anthropic.
 	AnthropicMaxTokens int
-	// AnthropicThinkingEffort 表示 Anthropic adaptive thinking 的 output_config.effort。
+	// AnthropicThinkingEffort thể hiện output_config.effort của Anthropic adaptive thinking.
 	AnthropicThinkingEffort string
-	// ThinkingBudgetTokens 表示 Anthropic thinking 预算。
+	// ThinkingBudgetTokens thể hiện ngân sách thinking của Anthropic.
 	ThinkingBudgetTokens int
-	// Messages 表示按顺序排列的消息列表。
+	// Messages thể hiện danh sách thông điệp theo thứ tự.
 	Messages []Message
-	// StableMessageCount 表示 messages 中可作为稳定缓存前缀的 provider-visible 消息数量。
+	// StableMessageCount thể hiện số lượng thông điệp provider-visible trong messages có thể dùng làm tiền tố cache ổn định.
 	StableMessageCount int
-	// Tools 表示原始工具描述 JSON 列表。
+	// Tools thể hiện danh sách JSON mô tả công cụ gốc.
 	Tools []json.RawMessage
-	// MaxTokens 表示本轮最大输出 token 数。
+	// MaxTokens thể hiện số token đầu ra tối đa của vòng này.
 	MaxTokens int
-	// Stream 表示当前请求必须使用流式。
+	// Stream thể hiện request hiện tại phải dùng luồng.
 	Stream bool
-	// RequestKnobs 保存本轮请求的附加参数摘要。
+	// RequestKnobs lưu tóm tắt tham số bổ sung của request vòng này.
 	RequestKnobs map[string]any
-	// CompileSummary 保存当前 prompt 编译摘要。
+	// CompileSummary lưu tóm tắt biên dịch prompt hiện tại.
 	CompileSummary string
-	// Observer 负责写入 request-scoped LLM 工件。
+	// Observer chịu trách nhiệm ghi các artifact LLM theo phạm vi request.
 	Observer LLMArtifactObserver
-	// ArtifactPaths 用于由 adapter 回填工件路径。
+	// ArtifactPaths để adapter điền lại đường dẫn artifact.
 	ArtifactPaths *LLMArtifactPaths
-	// RequestBodyOverride 表示直接复用的 provider 原始请求体；设置后由 adapter 原样发送。
+	// RequestBodyOverride thể hiện thân yêu cầu gốc của provider được tái sử dụng trực tiếp; sau khi đặt, adapter gửi nguyên trạng.
 	RequestBodyOverride map[string]any
-	// ProviderStreamIdleTimeout 表示 provider 流式响应无有效内容时的空闲超时。
+	// ProviderStreamIdleTimeout thể hiện thời gian chờ idle khi luồng phản hồi provider không có nội dung hiệu lực.
 	ProviderStreamIdleTimeout time.Duration
 }
 
-// LLMArtifactPaths 表示一次模型调用相关工件路径。
+// LLMArtifactPaths thể hiện các đường dẫn artifact liên quan đến một lời gọi mô hình.
 type LLMArtifactPaths struct {
 	RequestPath  string
 	ResponsePath string
 	SummaryPath  string
 }
 
-// LLMArtifactObserver 定义模型调用原始工件写入接口。
+// LLMArtifactObserver định nghĩa giao diện ghi artifact gốc của lời gọi mô hình.
 type LLMArtifactObserver interface {
 	RecordLLMRequest(requestID string, runID string, modelCallID string, payload map[string]any) (string, error)
 	AppendLLMResponseChunk(requestID string, runID string, modelCallID string, chunk string) (string, error)
 	RecordLLMSummary(requestID string, runID string, modelCallID string, payload map[string]any) (string, error)
 }
 
-// ModelEventKind 表示统一模型事件类型。
+// ModelEventKind thể hiện loại sự kiện mô hình thống nhất.
 type ModelEventKind string
 
 const (
-	// ModelEventKindTextDelta 表示文本增量事件。
+	// ModelEventKindTextDelta thể hiện sự kiện gia tăng văn bản.
 	ModelEventKindTextDelta ModelEventKind = "text_delta"
-	// ModelEventKindThinkingDelta 表示思考增量事件。
+	// ModelEventKindThinkingDelta thể hiện sự kiện gia tăng suy nghĩ.
 	ModelEventKindThinkingDelta ModelEventKind = "thinking_delta"
-	// ModelEventKindThinkingCompleted 表示思考结束事件。
+	// ModelEventKindThinkingCompleted thể hiện sự kiện kết thúc suy nghĩ.
 	ModelEventKindThinkingCompleted ModelEventKind = "thinking_completed"
-	// ModelEventKindPartialToolCall 表示工具调用已开始，但参数仍在流式生成中。
+	// ModelEventKindPartialToolCall thể hiện lời gọi công cụ đã bắt đầu nhưng tham số vẫn đang được tạo theo luồng.
 	ModelEventKindPartialToolCall ModelEventKind = "partial_tool_call"
-	// ModelEventKindToolCallDelta 表示工具调用参数或输出的流式增量。
+	// ModelEventKindToolCallDelta thể hiện gia tăng theo luồng của tham số hoặc đầu ra lời gọi công cụ.
 	ModelEventKindToolCallDelta ModelEventKind = "tool_call_delta"
-	// ModelEventKindToolLikeCompleted 表示工具意图已完整收口。
+	// ModelEventKindToolLikeCompleted thể hiện ý định công cụ đã được chốt đầy đủ.
 	ModelEventKindToolLikeCompleted ModelEventKind = "tool_like_completed"
-	// ModelEventKindTurnFinished 表示当前模型回合结束。
+	// ModelEventKindTurnFinished thể hiện lượt mô hình hiện tại đã kết thúc.
 	ModelEventKindTurnFinished ModelEventKind = "turn_finished"
-	// ModelEventKindProviderError 表示 provider 侧返回错误。
+	// ModelEventKindProviderError thể hiện phía provider trả về lỗi.
 	ModelEventKindProviderError ModelEventKind = "provider_error"
 )
 
-// ModelEvent 表示一条统一模型事件。
+// ModelEvent thể hiện một sự kiện mô hình thống nhất.
 type ModelEvent struct {
-	// Kind 表示事件类型。
+	// Kind thể hiện loại sự kiện.
 	Kind ModelEventKind
-	// OccurredAt 表示当前 provider 事件发生时间。
+	// OccurredAt thể hiện thời điểm sự kiện provider hiện tại xảy ra.
 	OccurredAt time.Time
-	// Provider 表示当前事件所属 provider。
+	// Provider thể hiện provider mà sự kiện hiện tại thuộc về.
 	Provider string
-	// Model 表示当前事件所属模型标识。
+	// Model thể hiện định danh mô hình mà sự kiện hiện tại thuộc về.
 	Model string
-	// Text 表示文本增量。
+	// Text thể hiện gia tăng văn bản.
 	Text string
-	// ThinkingStyle 表示思考样式。
+	// ThinkingStyle thể hiện kiểu suy nghĩ.
 	ThinkingStyle agentv1.ThinkingStyle
-	// ThinkingDurationMS 表示思考持续时长。
+	// ThinkingDurationMS thể hiện thời lượng suy nghĩ.
 	ThinkingDurationMS int32
-	// ThinkingSignature 表示 provider 返回的思考签名（如 Anthropic signature_delta）。
+	// ThinkingSignature thể hiện chữ ký suy nghĩ do provider trả về (ví dụ Anthropic signature_delta).
 	ThinkingSignature string
-	// ThinkingSignatureSource 表示思考签名的 provider 语义来源。
+	// ThinkingSignatureSource thể hiện nguồn ngữ nghĩa provider của chữ ký suy nghĩ.
 	ThinkingSignatureSource string
-	// ProviderItemID 保存 provider 原始 output item id，用于 stateless Responses replay。
+	// ProviderItemID lưu id output item gốc của provider, dùng cho stateless Responses replay.
 	ProviderItemID string
-	// ProviderStatus 保存 provider 原始 output item status，用于 stateless Responses replay。
+	// ProviderStatus lưu status output item gốc của provider, dùng cho stateless Responses replay.
 	ProviderStatus string
-	// ProviderSummary 保存 provider 原始 output item summary，用于 stateless Responses replay。
+	// ProviderSummary lưu summary output item gốc của provider, dùng cho stateless Responses replay.
 	ProviderSummary json.RawMessage
-	// ProviderCallID 保存 provider 原始 tool/function call id，用于 stateless Responses replay。
+	// ProviderCallID lưu id lời gọi tool/function gốc của provider, dùng cho stateless Responses replay.
 	ProviderCallID string
-	// ToolCallID 表示当前 partial/delta 对应的工具调用标识。
+	// ToolCallID thể hiện định danh lời gọi công cụ tương ứng với partial/delta hiện tại.
 	ToolCallID string
-	// ToolCall 保存 partial tool call 当前可公开的结构化快照。
+	// ToolCall lưu snapshot có cấu trúc hiện có thể công bố của partial tool call.
 	ToolCall *agentv1.ToolCall
-	// ToolCallDelta 保存与当前工具调用相关的流式增量。
+	// ToolCallDelta lưu gia tăng theo luồng liên quan đến lời gọi công cụ hiện tại.
 	ToolCallDelta *agentv1.ToolCallDelta
-	// ArgsTextDelta 保存原始工具参数文本增量，供兼容层透传。
+	// ArgsTextDelta lưu gia tăng văn bản tham số công cụ gốc, để tầng tương thích chuyển tiếp.
 	ArgsTextDelta string
-	// InputTokens 表示当前已知的输入 token 数。
+	// InputTokens thể hiện số token đầu vào đã biết hiện tại.
 	InputTokens int64
-	// OutputTokens 表示当前已知的输出 token 数。
+	// OutputTokens thể hiện số token đầu ra đã biết hiện tại.
 	OutputTokens int64
-	// CacheReadTokens 表示当前已知的 cache read token 数。
+	// CacheReadTokens thể hiện số token cache read đã biết hiện tại.
 	CacheReadTokens int64
-	// CacheWriteTokens 表示当前已知的 cache write token 数。
+	// CacheWriteTokens thể hiện số token cache write đã biết hiện tại.
 	CacheWriteTokens int64
-	// UsagePresent 表示 provider 本次流里实际返回过 usage 对象。
+	// UsagePresent thể hiện provider trong luồng này có thực sự trả về đối tượng usage hay không.
 	UsagePresent bool
-	// CacheReadPresent 表示 provider 明确返回了 cache read token 字段。
+	// CacheReadPresent thể hiện provider có tường minh trả về trường token cache read hay không.
 	CacheReadPresent bool
-	// CacheWritePresent 表示 provider 明确返回了 cache write token 字段。
+	// CacheWritePresent thể hiện provider có tường minh trả về trường token cache write hay không.
 	CacheWritePresent bool
-	// ToolInvocation 表示完成收口的工具调用意图。
+	// ToolInvocation thể hiện ý định gọi công cụ đã được chốt đầy đủ.
 	ToolInvocation *runtimecore.ToolInvocation
-	// FinishReason 表示回合结束原因。
+	// FinishReason thể hiện lý do kết thúc lượt.
 	FinishReason string
-	// Err 表示 provider 错误。
+	// Err thể hiện lỗi provider.
 	Err error
 }
 
-// ModelAdapter 定义具体 provider 适配器接口。
+// ModelAdapter định nghĩa giao diện adapter provider cụ thể.
 type ModelAdapter interface {
-	// Stream 按流式方式发送请求，并持续产出统一模型事件。
+	// Stream gửi yêu cầu theo kiểu luồng và liên tục tạo ra các sự kiện mô hình thống nhất.
 	Stream(ctx context.Context, req StreamRequest, sink func(ModelEvent) error) error
 }
 
-// ModelAdapterRouter 定义 provider 路由接口。
+// ModelAdapterRouter định nghĩa giao diện định tuyến provider.
 type ModelAdapterRouter interface {
-	// Stream 根据模型标识选择底层 provider 适配器。
+	// Stream chọn adapter provider cơ bản theo định danh mô hình.
 	Stream(ctx context.Context, req StreamRequest, sink func(ModelEvent) error) error
 }

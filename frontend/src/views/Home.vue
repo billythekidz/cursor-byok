@@ -11,6 +11,7 @@ import {
   appViewState,
   openConfigWindow,
   openModelConfigWindow,
+  saveDebugLogEnabled,
   saveRoutingMode,
   syncHomeMetrics,
   syncServiceState,
@@ -136,6 +137,15 @@ async function handleDirectModeChange(enabled) {
   message.success(enabled ? "已切换到直连 Cursor 模式" : "已切换到本地服务模式");
 }
 
+async function handleDebugLogChange(enabled) {
+  const result = await saveDebugLogEnabled(enabled);
+  if (!result.ok) {
+    await showActionError("切换失败", result.error);
+    return;
+  }
+  message.success(enabled ? "已开启调试日志" : "已关闭调试日志");
+}
+
 onMounted(() => {
   unsubscribeAdUpdated = Events.On(AD_UPDATED_EVENT, handleAdUpdated);
   void syncAdRuntimeQuietly();
@@ -190,6 +200,17 @@ onBeforeUnmount(() => {
           :busy="appState.configSaving"
           :disabled="appState.configSaving"
           @change="handleDirectModeChange"
+        />
+
+        <Switch
+          label="调试日志"
+          description="开启后记录请求/响应链路到 history/<会话ID>/debug/，用于排查问题"
+          enabled-text="调试日志已开启"
+          disabled-text="调试日志已关闭"
+          :enabled="appState.debugLogEnabled"
+          :busy="appState.configSaving"
+          :disabled="appState.configSaving"
+          @change="handleDebugLogChange"
         />
       </div>
     </Card>

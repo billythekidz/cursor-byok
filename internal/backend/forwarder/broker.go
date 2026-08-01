@@ -1,4 +1,4 @@
-// broker.go 负责 request 维度活动流的订阅、广播、取消和终态收口。
+// broker.go manages subscription, broadcast, cancellation, and terminal-state settlement of active streams at the request level.
 package forwarder
 
 import (
@@ -22,14 +22,14 @@ type StreamBroker struct {
 	nextID  atomic.Uint64
 }
 
-// NewStreamBroker 创建活动流注册表。
+// NewStreamBroker creates the active-stream registry.
 func NewStreamBroker() *StreamBroker {
 	return &StreamBroker{
 		streams: make(map[string]*ActiveStream),
 	}
 }
 
-// OpenStream 打开或复用指定 request 的活动流，并刷新其最新上下文。
+// OpenStream opens or reuses the active stream for the given request, refreshing its latest context.
 func (broker *StreamBroker) OpenStream(requestID string, conversationID string, turnSeq int64, modelID string, modelName string, mode agentv1.AgentMode, latestUserText string) (*ActiveStream, error) {
 	normalizedRequestID := strings.TrimSpace(requestID)
 	if normalizedRequestID == "" {
@@ -109,7 +109,7 @@ func (broker *StreamBroker) OpenStream(requestID string, conversationID string, 
 	return stream, nil
 }
 
-// Get 返回指定 request 对应的活动流句柄。
+// Get returns the active-stream handle for the given request.
 func (broker *StreamBroker) Get(requestID string) (*ActiveStream, bool) {
 	if broker == nil {
 		return nil, false
@@ -120,7 +120,7 @@ func (broker *StreamBroker) Get(requestID string) (*ActiveStream, bool) {
 	return stream, ok
 }
 
-// Subscribe 为指定 request 注册一个新订阅者，并返回用于唤醒 backlog 消费的信号通道。
+// Subscribe registers a new subscriber for the given request and returns a signal channel used to wake up backlog consumption.
 func (broker *StreamBroker) Subscribe(requestID string) (string, <-chan struct{}, error) {
 	normalizedRequestID := strings.TrimSpace(requestID)
 	if normalizedRequestID == "" {
@@ -128,8 +128,8 @@ func (broker *StreamBroker) Subscribe(requestID string) (string, <-chan struct{}
 	}
 	stream, ok := broker.Get(normalizedRequestID)
 	if !ok || stream == nil {
-		// RunSSE 可能先于 BidiAppend 到达。此时先创建一个占位活动流，
-		// 等待后续上行把真实 conversation/model/mode 信息补齐。
+		// RunSSE may arrive before BidiAppend. In that case, create a placeholder active stream first,
+		// and wait for later upstream messages to fill in the real conversation/model/mode information.
 		var err error
 		stream, err = broker.OpenStream(normalizedRequestID, "", 0, "", "", agentv1.AgentMode_AGENT_MODE_AGENT, "")
 		if err != nil {
@@ -159,7 +159,7 @@ func (broker *StreamBroker) stopTerminalCleanupTimerLocked(stream *ActiveStream)
 	}
 }
 
-// Unsubscribe 移除并关闭指定订阅者，并返回移除后的剩余订阅者数量。
+// Unsubscribe removes and closes the given subscriber, returning the remaining subscriber count.
 func (broker *StreamBroker) Unsubscribe(requestID string, subscriberID string) int {
 	stream, ok := broker.Get(requestID)
 	if !ok || stream == nil {
@@ -263,7 +263,7 @@ func (broker *StreamBroker) runScheduledTerminalCleanup(requestID string, sequen
 	broker.RemoveIfIdle(requestID)
 }
 
-// RemoveIfIdle 在没有订阅者时移除终态流，或移除仍为空壳的占位流。
+// RemoveIfIdle removes a terminal stream when it has no subscribers, or removes a placeholder stream that is still empty.
 func (broker *StreamBroker) RemoveIfIdle(requestID string) bool {
 	normalizedRequestID := strings.TrimSpace(requestID)
 	if normalizedRequestID == "" {
@@ -299,7 +299,7 @@ func (broker *StreamBroker) RemoveIfIdle(requestID string) bool {
 	return true
 }
 
-// Publish 把一个事件写入 backlog，并唤醒当前所有订阅者读取 backlog。
+// Publish writes an event into the backlog and wakes all current subscribers to read from it.
 func (broker *StreamBroker) Publish(requestID string, event StreamEvent) error {
 	stream, ok := broker.Get(requestID)
 	if !ok || stream == nil {
@@ -330,7 +330,7 @@ func (broker *StreamBroker) Publish(requestID string, event StreamEvent) error {
 	return nil
 }
 
-// ReadFromCursor 返回从 cursor 开始尚未消费的 backlog 事件副本。
+// ReadFromCursor returns a copy of the backlog events not yet consumed starting from cursor.
 func (broker *StreamBroker) ReadFromCursor(requestID string, cursor int) ([]StreamEvent, error) {
 	stream, ok := broker.Get(requestID)
 	if !ok || stream == nil {
@@ -347,7 +347,7 @@ func (broker *StreamBroker) ReadFromCursor(requestID string, cursor int) ([]Stre
 	return append([]StreamEvent(nil), stream.Backlog[cursor:]...), nil
 }
 
-// Complete 把活动流标记为成功完成，并发布一个成功 endstream 事件。
+// Complete marks the active stream as successfully finished and publishes a successful endstream event.
 func (broker *StreamBroker) Complete(requestID string, terminalCode string, terminalMessage string) error {
 	stream, ok := broker.Get(requestID)
 	if !ok || stream == nil {
@@ -376,7 +376,7 @@ func (broker *StreamBroker) Complete(requestID string, terminalCode string, term
 	return nil
 }
 
-// Fail 把活动流标记为失败，并发布一个失败 endstream 事件。
+// Fail marks the active stream as failed and publishes a failed endstream event.
 func (broker *StreamBroker) Fail(requestID string, terminalCode string, terminalMessage string) error {
 	stream, ok := broker.Get(requestID)
 	if !ok || stream == nil {
@@ -401,7 +401,7 @@ func (broker *StreamBroker) Fail(requestID string, terminalCode string, terminal
 	return nil
 }
 
-// Cancel 主动取消活动流，并发布 canceled endstream。
+// Cancel actively cancels the active stream and publishes a canceled endstream.
 func (broker *StreamBroker) Cancel(requestID string, terminalMessage string) error {
 	stream, ok := broker.Get(requestID)
 	if !ok || stream == nil {
@@ -431,7 +431,7 @@ func (broker *StreamBroker) Cancel(requestID string, terminalMessage string) err
 	return nil
 }
 
-// firstNonEmpty 返回第一个非空白字符串。
+// firstNonEmpty returns the first non-blank string.
 func firstNonEmpty(values ...string) string {
 	for _, value := range values {
 		if strings.TrimSpace(value) != "" {

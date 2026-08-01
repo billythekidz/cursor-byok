@@ -12,9 +12,9 @@ export const modalState = reactive({
 });
 
 /**
- * 显示确认弹窗，返回 Promise<boolean>
+ * Shows a confirm modal and returns a Promise<boolean>
  * @param {Object} options - { title, content }
- * @returns {Promise<boolean>} - true=确定, false=取消
+ * @returns {Promise<boolean>} - true=confirm, false=cancel
  */
 export function showModal(options = {}) {
   return new Promise((resolve) => {

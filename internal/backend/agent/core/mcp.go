@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// MCPToolPayload 表示 CallMcpTool 的宽容解码结果。
+// MCPToolPayload thể hiện kết quả giải mã linh hoạt của CallMcpTool.
 type MCPToolPayload struct {
 	Server             string
 	ProviderIdentifier string
@@ -14,7 +14,7 @@ type MCPToolPayload struct {
 	Arguments          map[string]any
 }
 
-// DecodeMCPToolPayload 解析 CallMcpTool 参数，并兼容字符串化的 arguments 对象。
+// DecodeMCPToolPayload phân tích tham số CallMcpTool và tương thích với đối tượng arguments dạng chuỗi.
 func DecodeMCPToolPayload(raw []byte) (MCPToolPayload, error) {
 	payload := MCPToolPayload{
 		Arguments: make(map[string]any),
@@ -42,7 +42,7 @@ func DecodeMCPToolPayload(raw []byte) (MCPToolPayload, error) {
 	return payload, nil
 }
 
-// InferMCPServerIdentifier 从 canonical lookup name 中反推出 server identifier。
+// InferMCPServerIdentifier suy ngược ra server identifier từ canonical lookup name.
 func InferMCPServerIdentifier(name string) string {
 	trimmed := strings.TrimSpace(name)
 	if trimmed == "" {
@@ -54,7 +54,7 @@ func InferMCPServerIdentifier(name string) string {
 	return ""
 }
 
-// InferMCPToolName 从 canonical lookup name 中反推出 tool name。
+// InferMCPToolName suy ngược ra tool name từ canonical lookup name.
 func InferMCPToolName(serverIdentifier string, name string) string {
 	trimmedName := strings.TrimSpace(name)
 	if trimmedName == "" {

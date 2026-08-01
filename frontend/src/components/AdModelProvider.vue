@@ -110,7 +110,7 @@ async function openCurrentAd(slotId = "") {
       await showAd(nextRuntime);
     }
   } catch (_error) {
-    // 广告入口失败不影响主界面。
+    // An ad entry failure must not affect the main UI.
   } finally {
     refreshPending = false;
   }

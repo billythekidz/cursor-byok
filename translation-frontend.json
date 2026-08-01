@@ -1,0 +1,61 @@
+{
+  "frontend/src/components/AdModelProvider.vue": {},
+  "frontend/src/composables/useInputModal.js": {},
+  "frontend/src/composables/useModal.js": {},
+  "frontend/src/layouts/MainLayout.vue": {},
+  "frontend/src/main.js": {},
+  "frontend/src/state/appState.js": {},
+  "frontend/src/views/ModelConfig.vue": {},
+  "proto/ext_tool/main.go": {
+    "20": "Try common prettier command names",
+    "31": "Command-line arguments",
+    "38": "If the -input flag is missing, try to take it from the positional argument",
+    "52": "Validate the input file",
+    "60": "Set the output directory",
+    "67": "Copy to a temp file (without modifying the original)",
+    "84": "Format the temp file",
+    "110": "Run the extractor",
+    "115": "Clean up the temp file"
+  },
+  "proto/ext_tool/extractor.go": {
+    "678": "First find all \"varName = class InternalClassName\" definitions",
+    "679": "JS variable names may contain $, e.g. B$e, qg, etc.",
+    "680": "Capture both the outer variable name and the inner class name, since field references may use either one",
+    "695": "Find the end of the class (matching braces)",
+    "703": "Search for typeName within the class body",
+    "710": "Search for fields within the class body",
+    "716": "Find the start of the fields array",
+    "955": "JS variable names may contain $"
+  },
+  "prompt/doc.go": {
+    "1": "Package prompt provides the ability to load static prompt and tool assets by mode."
+  },
+  "prompt/embed.go": {
+    "9": "Mode represents the runtime mode that a prompt asset corresponds to.",
+    "13": "ModeAsk represents the static assets for Ask mode.",
+    "15": "ModePlan represents the static assets for Plan mode.",
+    "17": "ModeAgent represents the static assets for Agent mode.",
+    "19": "ModeDebug represents the static assets for Debug mode.",
+    "21": "ModeMultitask represents the static assets for Multitask mode.",
+    "23": "ModeSubagent represents the static assets for subagent read-only sessions.",
+    "27": "assetFS holds static prompt and tools assets organized by mode.",
+    "32": "normalizeMode validates and normalizes the incoming mode value.",
+    "42": "PromptPath returns the static prompt asset path for the given mode.",
+    "51": "ToolsPath returns the static tools asset path for the given mode.",
+    "60": "ReadPrompt reads the static prompt text for the given mode.",
+    "85": "MustReadPrompt reads the static prompt text for the given mode and panics on failure.",
+    "94": "ReadTools reads the raw tools JSON for the given mode.",
+    "107": "MustReadTools reads the raw tools JSON for the given mode and panics on failure.",
+    "116": "ReadDebugSystemReminder reads the reminder asset appended each round in Debug mode.",
+    "129": "MustReadDebugSystemReminder reads the Debug mode reminder asset and panics on failure.",
+    "138": "ReadPlanSystemReminder reads the dynamic reminder asset appended each round in Plan mode.",
+    "148": "MustReadPlanSystemReminder reads the Plan mode dynamic reminder asset and panics on failure.",
+    "157": "ReadCompactionPrompt reads the shared compaction prompt asset.",
+    "167": "MustReadCompactionPrompt reads the shared compaction prompt asset and panics on failure.",
+    "176": "ReadCommitPrompt reads the prompt asset dedicated to commit message generation.",
+    "186": "MustReadCommitPrompt reads the commit message generation prompt asset and panics on failure."
+  },
+  "prompt/render.go": {
+    "7": "RenderPromptTemplate replaces the placeholder in the prompt asset with the real model name of the current request."
+  }
+}

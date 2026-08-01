@@ -1,4 +1,4 @@
-// inbound.go 实现上行协议的解码、摘要与命令类型识别。
+// inbound.go implements decoding, summarization, and command type identification of the upstream protocol.
 package protocol
 
 import (
@@ -14,7 +14,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-// ReadAppendRequestID 从 BidiAppendRequest 中读取 request_id 文本。
+// ReadAppendRequestID reads the request_id text from a BidiAppendRequest.
 func ReadAppendRequestID(input *aiserverv1.BidiAppendRequest) string {
 	if input == nil {
 		return ""
@@ -22,7 +22,7 @@ func ReadAppendRequestID(input *aiserverv1.BidiAppendRequest) string {
 	return ReadBidiRequestID(input.GetRequestId())
 }
 
-// ReadBidiRequestID 从 BidiRequestId 结构中提取并去除首尾空白。
+// ReadBidiRequestID extracts the request id from a BidiRequestId structure and trims leading/trailing whitespace.
 func ReadBidiRequestID(input *aiserverv1.BidiRequestId) string {
 	if input == nil {
 		return ""
@@ -30,12 +30,12 @@ func ReadBidiRequestID(input *aiserverv1.BidiRequestId) string {
 	return strings.TrimSpace(input.GetRequestId())
 }
 
-// NormalizeRequestID 规范化请求标识并去除首尾空白。
+// NormalizeRequestID normalizes the request id and trims leading/trailing whitespace.
 func NormalizeRequestID(requestID string) string {
 	return strings.TrimSpace(requestID)
 }
 
-// DecodeAgentClientMessage 解析 hex 文本为 AgentClientMessage，并返回消息类型标签。
+// DecodeAgentClientMessage parses hex text into an AgentClientMessage and returns a message type label.
 func DecodeAgentClientMessage(hexData string) (*agentv1.AgentClientMessage, string, error) {
 	trimmed := strings.TrimSpace(hexData)
 	if trimmed == "" {
@@ -52,7 +52,7 @@ func DecodeAgentClientMessage(hexData string) (*agentv1.AgentClientMessage, stri
 	return clientMessage, detectClientMessageKind(clientMessage), nil
 }
 
-// MapClientMessageToCommandKind 将上行协议消息映射为运行时命令类型。
+// MapClientMessageToCommandKind maps upstream protocol messages to runtime command kinds.
 func MapClientMessageToCommandKind(message *agentv1.AgentClientMessage, clientKind string) (runtimecore.CommandKind, error) {
 	switch strings.TrimSpace(clientKind) {
 	case "run_request":
@@ -95,7 +95,7 @@ func MapClientMessageToCommandKind(message *agentv1.AgentClientMessage, clientKi
 	}
 }
 
-// IsResumeRunRequest 判断当前消息是否为带 `resume_action` 的 `run_request`。
+// IsResumeRunRequest reports whether the current message is a `run_request` carrying a `resume_action`.
 func IsResumeRunRequest(message *agentv1.AgentClientMessage) bool {
 	if message == nil || message.GetRunRequest() == nil {
 		return false
@@ -108,7 +108,7 @@ func IsResumeRunRequest(message *agentv1.AgentClientMessage) bool {
 	return ok
 }
 
-// BuildClientHistoryEntry 将消息类型与负载摘要拼接成会话历史记录文本。
+// BuildClientHistoryEntry concatenates the message type and payload summary into conversation history record text.
 func BuildClientHistoryEntry(kind string, message *agentv1.AgentClientMessage) string {
 	normalizedKind := strings.TrimSpace(kind)
 	if normalizedKind == "" {
@@ -126,7 +126,7 @@ func BuildClientHistoryEntry(kind string, message *agentv1.AgentClientMessage) s
 	return fmt.Sprintf("%s:%s", normalizedKind, summary)
 }
 
-// detectClientMessageKind 判断 oneof message 当前承载的消息分支类型。
+// detectClientMessageKind reports which message branch kind the oneof message currently carries.
 func detectClientMessageKind(message *agentv1.AgentClientMessage) string {
 	if message == nil || message.GetMessage() == nil {
 		return ""
@@ -153,7 +153,7 @@ func detectClientMessageKind(message *agentv1.AgentClientMessage) string {
 	}
 }
 
-// extractClientMessagePayload 从 oneof 分支中提取原始 bytes 负载。
+// extractClientMessagePayload extracts the raw bytes payload from a oneof branch.
 func extractClientMessagePayload(message *agentv1.AgentClientMessage) []byte {
 	if message == nil || message.GetMessage() == nil {
 		return nil
@@ -181,7 +181,7 @@ func extractClientMessagePayload(message *agentv1.AgentClientMessage) []byte {
 	}
 }
 
-// marshalProtoMessage 将 proto 消息重新编码为 bytes，用于调试摘要展示。
+// marshalProtoMessage re-encodes a proto message into bytes for debug summary display.
 func marshalProtoMessage(message proto.Message) []byte {
 	if message == nil {
 		return nil
@@ -193,7 +193,7 @@ func marshalProtoMessage(message proto.Message) []byte {
 	return payload
 }
 
-// summarizePayload 生成可读摘要：优先文本，无法直接读时回退为 hex 片段。
+// summarizePayload generates a readable summary: text is preferred, falling back to a hex snippet when it cannot be read directly.
 func summarizePayload(payload []byte) string {
 	if len(payload) == 0 {
 		return ""
@@ -211,7 +211,7 @@ func summarizePayload(payload []byte) string {
 	return "hex:" + truncateText(hex.EncodeToString(payload), 120)
 }
 
-// truncateText 按 rune 数截断文本，避免在多字节字符中间截断导致乱码。
+// truncateText truncates text by rune count to avoid cutting in the middle of a multi-byte character and producing garbled output.
 func truncateText(text string, maxRunes int) string {
 	if maxRunes <= 0 {
 		return ""

@@ -1,2 +1,2 @@
-// Package modeladapter 提供 OpenAI / Anthropic 兼容流式模型适配器与路由器。
+// Package modeladapter cung cấp các adapter mô hình luồng tương thích OpenAI / Anthropic và bộ định tuyến.
 package modeladapter

@@ -1,4 +1,4 @@
-// compiler.go 负责把固定 prompt、自然历史和 tool catalog 编译成 provider 请求。
+// compiler.go compiles the fixed prompt, natural history, and tool catalog into a provider request.
 package forwarder
 
 import (
@@ -22,7 +22,7 @@ type DefaultPromptCompiler struct {
 	rules     *UserRuleStore
 }
 
-// NewPromptCompiler 创建默认 prompt 编译器。
+// NewPromptCompiler creates the default prompt compiler.
 func NewPromptCompiler(projector *HistoryProjector, catalog ToolCatalog, reminders ReminderInjector, rules *UserRuleStore) *DefaultPromptCompiler {
 	return &DefaultPromptCompiler{
 		projector: projector,
@@ -32,7 +32,7 @@ func NewPromptCompiler(projector *HistoryProjector, catalog ToolCatalog, reminde
 	}
 }
 
-// Compile 生成当前 turn 应发送给 provider 的消息和工具集合。
+// Compile produces the messages and tool set that should be sent to the provider for the current turn.
 func (compiler *DefaultPromptCompiler) Compile(conversation *ConversationFile, mode agentv1.AgentMode, latestUserText string, modelName string) (CompiledConversation, error) {
 	if compiler == nil || compiler.projector == nil || compiler.catalog == nil {
 		return CompiledConversation{}, fmt.Errorf("prompt compiler dependencies are not initialized")
@@ -188,7 +188,7 @@ func stableReplayEntriesBeforeTurn(entries []HistoryEntry, currentTurnSeq int64)
 	return filtered
 }
 
-// filterNonEmpty 过滤掉空白字符串，便于安全拼接 system prompt 片段。
+// filterNonEmpty drops blank strings so system prompt fragments can be safely concatenated.
 func filterNonEmpty(items []string) []string {
 	filtered := make([]string, 0, len(items))
 	for _, item := range items {

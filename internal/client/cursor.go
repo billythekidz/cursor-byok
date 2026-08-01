@@ -8,7 +8,7 @@ import (
 	"cursor/internal/cursor"
 )
 
-// ApplyCursorSettings 用于处理与 ApplyCursorSettings 相关的逻辑。
+// ApplyCursorSettings handles logic related to ApplyCursorSettings.
 func (s *ProxyService) ApplyCursorSettings() error {
 	if s == nil || s.proxy == nil {
 		return fmt.Errorf("proxy is not initialized")
@@ -44,7 +44,7 @@ func (s *ProxyService) ApplyCursorSettings() error {
 	return nil
 }
 
-// ClearCursorSettings 用于处理与 ClearCursorSettings 相关的逻辑。
+// ClearCursorSettings handles logic related to ClearCursorSettings.
 func (s *ProxyService) ClearCursorSettings() error {
 	var cleanupErr error
 	if goruntime.GOOS == "darwin" {
@@ -64,7 +64,7 @@ func (s *ProxyService) ClearCursorSettings() error {
 	return nil
 }
 
-// GetDeviceID 用于处理与 GetDeviceID 相关的逻辑。
+// GetDeviceID handles logic related to GetDeviceID.
 func (s *ProxyService) GetDeviceID() (string, error) {
 	return cursor.GetDeviceID()
 }

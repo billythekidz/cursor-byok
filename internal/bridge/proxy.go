@@ -9,139 +9,147 @@ import (
 )
 
 // Public DTOs remain in package main for Wails service compatibility.
-// ProxyState 定义了当前模块中的 ProxyState 类型。
+// ProxyState defines the ProxyState type in this module.
 type ProxyState = client.ProxyState
 
-// UserConfig 定义了当前模块中的 UserConfig 类型。
+// UserConfig defines the UserConfig type in this module.
 type UserConfig = client.UserConfig
 
-// ModelAdapterConfig 定义模型测速使用的模型配置结构。
+// ModelAdapterConfig defines the model config structure used for model speed testing.
 type ModelAdapterConfig = serverconfig.ModelAdapterConfig
 
-// ModelAdapterTestResult 定义一次模型测速结果。
+// ModelAdapterTestResult defines the result of one model speed test.
 type ModelAdapterTestResult = client.ModelAdapterTestResult
 
-// ModelAdapterTestResultsPayload 定义测速结果事件载荷。
+// ModelAdapterTestResultsPayload defines the speed test results event payload.
 type ModelAdapterTestResultsPayload = client.ModelAdapterTestResultsPayload
 
-// LicenseActionRequest 定义了当前模块中的 LicenseActionRequest 类型。
+// OpenAIModelInfo defines a single model info returned by one OpenAI /v1/models scan.
+type OpenAIModelInfo = client.OpenAIModelInfo
+
+// LicenseActionRequest defines the LicenseActionRequest type in this module.
 type LicenseActionRequest = client.LicenseActionRequest
 
-// LicenseSwitchDeviceRequest 定义了当前模块中的 LicenseSwitchDeviceRequest 类型。
+// LicenseSwitchDeviceRequest defines the LicenseSwitchDeviceRequest type in this module.
 type LicenseSwitchDeviceRequest = client.LicenseSwitchDeviceRequest
 
-// LicenseAPIResult 定义了当前模块中的 LicenseAPIResult 类型。
+// LicenseAPIResult defines the LicenseAPIResult type in this module.
 type LicenseAPIResult = client.LicenseAPIResult
 
-// UsageRecordsRequest 定义了当前模块中的 UsageRecordsRequest 类型。
+// UsageRecordsRequest defines the UsageRecordsRequest type in this module.
 type UsageRecordsRequest = client.UsageRecordsRequest
 
-// UsageRecord 定义了当前模块中的 UsageRecord 类型。
+// UsageRecord defines the UsageRecord type in this module.
 type UsageRecord = client.UsageRecord
 
-// UsageRecordsData 定义了当前模块中的 UsageRecordsData 类型。
+// UsageRecordsData defines the UsageRecordsData type in this module.
 type UsageRecordsData = client.UsageRecordsData
 
-// UsageRecordsResult 定义了当前模块中的 UsageRecordsResult 类型。
+// UsageRecordsResult defines the UsageRecordsResult type in this module.
 type UsageRecordsResult = client.UsageRecordsResult
 
-// ProxyService 定义了当前模块中的 ProxyService 类型。
+// ProxyService defines the ProxyService type in this module.
 type ProxyService struct {
-	// core 表示当前声明中的 core。
+	// core represents the core field in this declaration.
 	core *client.ProxyService
 }
 
-// NewProxyService 用于处理与 NewProxyService 相关的逻辑。
+// NewProxyService handles logic related to NewProxyService.
 func NewProxyService(proxy *mitm.ProxyServer, certManager *certs.Manager, caCertPEM []byte) *ProxyService {
 	return &ProxyService{core: client.NewProxyService(proxy, certManager, caCertPEM)}
 }
 
-// StartProxy 用于处理与 StartProxy 相关的逻辑。
+// StartProxy handles logic related to StartProxy.
 func (s *ProxyService) StartProxy() (ProxyState, error) {
 	return s.core.StartProxy()
 }
 
-// StopProxy 用于处理与 StopProxy 相关的逻辑。
+// StopProxy handles logic related to StopProxy.
 func (s *ProxyService) StopProxy() (ProxyState, error) {
 	return s.core.StopProxy()
 }
 
-// GetState 用于处理与 GetState 相关的逻辑。
+// GetState handles logic related to GetState.
 func (s *ProxyService) GetState() ProxyState {
 	return s.core.GetState()
 }
 
-// ClearLastError 用于处理与 ClearLastError 相关的逻辑。
+// ClearLastError handles logic related to ClearLastError.
 func (s *ProxyService) ClearLastError() ProxyState {
 	return s.core.ClearLastError()
 }
 
-// SetBaseURL 用于处理与 SetBaseURL 相关的逻辑。
+// SetBaseURL handles logic related to SetBaseURL.
 func (s *ProxyService) SetBaseURL(baseURL string) (ProxyState, error) {
 	return s.core.SetBaseURL(baseURL)
 }
 
-// LoadUserConfig 用于处理与 LoadUserConfig 相关的逻辑。
+// LoadUserConfig handles logic related to LoadUserConfig.
 func (s *ProxyService) LoadUserConfig() (UserConfig, error) {
 	return s.core.LoadUserConfig()
 }
 
-// SaveUserConfig 用于处理与 SaveUserConfig 相关的逻辑。
+// SaveUserConfig handles logic related to SaveUserConfig.
 func (s *ProxyService) SaveUserConfig(cfg UserConfig) error {
 	return s.core.SaveUserConfig(cfg)
 }
 
-// TestModelAdapter 用于处理与 TestModelAdapter 相关的逻辑。
+// TestModelAdapter handles logic related to TestModelAdapter.
 func (s *ProxyService) TestModelAdapter(adapter ModelAdapterConfig) (ModelAdapterTestResult, error) {
 	return s.core.TestModelAdapter(adapter)
 }
 
-// GetModelAdapterTestResults 用于处理与 GetModelAdapterTestResults 相关的逻辑。
+// GetModelAdapterTestResults handles logic related to GetModelAdapterTestResults.
 func (s *ProxyService) GetModelAdapterTestResults() []ModelAdapterTestResult {
 	return s.core.GetModelAdapterTestResults()
 }
 
-// GetDeviceID 用于处理与 GetDeviceID 相关的逻辑。
+// ScanOpenAIModels handles logic related to ScanOpenAIModels.
+func (s *ProxyService) ScanOpenAIModels(baseURL string, apiKey string) ([]OpenAIModelInfo, error) {
+	return s.core.ScanOpenAIModels(baseURL, apiKey)
+}
+
+// GetDeviceID handles logic related to GetDeviceID.
 func (s *ProxyService) GetDeviceID() (string, error) {
 	return s.core.GetDeviceID()
 }
 
-// ActivateLicense 用于处理与 ActivateLicense 相关的逻辑。
+// ActivateLicense handles logic related to ActivateLicense.
 func (s *ProxyService) ActivateLicense(req LicenseActionRequest) (LicenseAPIResult, error) {
 	return s.core.ActivateLicense(req)
 }
 
-// BindLicenseDevice 用于处理与 BindLicenseDevice 相关的逻辑。
+// BindLicenseDevice handles logic related to BindLicenseDevice.
 func (s *ProxyService) BindLicenseDevice(req LicenseActionRequest) (LicenseAPIResult, error) {
 	return s.core.BindLicenseDevice(req)
 }
 
-// SwitchLicenseDevice 用于处理与 SwitchLicenseDevice 相关的逻辑。
+// SwitchLicenseDevice handles logic related to SwitchLicenseDevice.
 func (s *ProxyService) SwitchLicenseDevice(req LicenseSwitchDeviceRequest) (LicenseAPIResult, error) {
 	return s.core.SwitchLicenseDevice(req)
 }
 
-// QueryUsageRecords 用于处理与 QueryUsageRecords 相关的逻辑。
+// QueryUsageRecords handles logic related to QueryUsageRecords.
 func (s *ProxyService) QueryUsageRecords(req UsageRecordsRequest) (UsageRecordsResult, error) {
 	return s.core.QueryUsageRecords(req)
 }
 
-// ApplyCursorSettings 用于处理与 ApplyCursorSettings 相关的逻辑。
+// ApplyCursorSettings handles logic related to ApplyCursorSettings.
 func (s *ProxyService) ApplyCursorSettings() error {
 	return s.core.ApplyCursorSettings()
 }
 
-// ClearCursorSettings 用于处理与 ClearCursorSettings 相关的逻辑。
+// ClearCursorSettings handles logic related to ClearCursorSettings.
 func (s *ProxyService) ClearCursorSettings() error {
 	return s.core.ClearCursorSettings()
 }
 
-// ShutdownForQuit 用于处理与 ShutdownForQuit 相关的逻辑。
+// ShutdownForQuit handles logic related to ShutdownForQuit.
 func (s *ProxyService) ShutdownForQuit() {
 	s.core.ShutdownForQuit()
 }
 
-// IsWindows 用于处理与 IsWindows 相关的逻辑。
+// IsWindows handles logic related to IsWindows.
 func (s *ProxyService) IsWindows() bool {
 	return runtime.GOOS == "windows"
 }

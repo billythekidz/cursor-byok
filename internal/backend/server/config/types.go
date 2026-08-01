@@ -41,6 +41,10 @@ type ModelAdapterConfig struct {
 	AnthropicMaxTokens          int    `json:"anthropicMaxTokens" yaml:"anthropicMaxTokens"`
 	AnthropicThinkingEffort     string `json:"anthropicThinkingEffort,omitempty" yaml:"anthropicThinkingEffort,omitempty"`
 	ThinkingBudgetTokens        int    `json:"thinkingBudgetTokens" yaml:"thinkingBudgetTokens"`
+	// OpenAIEndpointGroupID identifies the OpenAI endpoint group this adapter belongs to. Adapters added manually leave it empty.
+	OpenAIEndpointGroupID string `json:"openAIEndpointGroupID" yaml:"openAIEndpointGroupID"`
+	// Active reports whether this adapter is injected into Cursor. At most one model per endpoint group is active.
+	Active bool `json:"active" yaml:"active"`
 }
 
 type RoutingConfig struct {
@@ -117,18 +121,20 @@ func NormalizeModelAdapterConfigs(input []ModelAdapterConfig) ([]ModelAdapterCon
 		}
 		nextType := normalizeModelAdapterType(item.Type)
 		next := ModelAdapterConfig{
-			DisplayName:          strings.TrimSpace(item.DisplayName),
-			Type:                 nextType,
-			BaseURL:              baseURL,
-			APIKey:               strings.TrimSpace(item.APIKey),
-			TooltipData:          strings.TrimSpace(item.TooltipData),
-			ModelID:              strings.TrimSpace(item.ModelID),
-			ReasoningEffort:      normalizeReasoningEffort(item.ReasoningEffort),
-			OpenAIEndpoint:       modelchannel.NormalizeOpenAIEndpoint(item.Type, item.OpenAIEndpoint),
-			ContextWindowTokens:  normalizeMaxCompletionTokens(item.ContextWindowTokens),
-			MaxCompletionTokens:  normalizeMaxCompletionTokens(item.MaxCompletionTokens),
-			AnthropicMaxTokens:   normalizeMaxCompletionTokens(item.AnthropicMaxTokens),
-			ThinkingBudgetTokens: normalizeMaxCompletionTokens(item.ThinkingBudgetTokens),
+			DisplayName:           strings.TrimSpace(item.DisplayName),
+			Type:                  nextType,
+			BaseURL:               baseURL,
+			APIKey:                strings.TrimSpace(item.APIKey),
+			TooltipData:           strings.TrimSpace(item.TooltipData),
+			ModelID:               strings.TrimSpace(item.ModelID),
+			ReasoningEffort:       normalizeReasoningEffort(item.ReasoningEffort),
+			OpenAIEndpoint:        modelchannel.NormalizeOpenAIEndpoint(item.Type, item.OpenAIEndpoint),
+			ContextWindowTokens:   normalizeMaxCompletionTokens(item.ContextWindowTokens),
+			MaxCompletionTokens:   normalizeMaxCompletionTokens(item.MaxCompletionTokens),
+			AnthropicMaxTokens:    normalizeMaxCompletionTokens(item.AnthropicMaxTokens),
+			ThinkingBudgetTokens:  normalizeMaxCompletionTokens(item.ThinkingBudgetTokens),
+			OpenAIEndpointGroupID: strings.TrimSpace(item.OpenAIEndpointGroupID),
+			Active:                item.Active,
 		}
 		if next.Type == "openai" {
 			next.OpenAIExtraParamsEnabled = item.OpenAIExtraParamsEnabled

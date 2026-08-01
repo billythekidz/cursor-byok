@@ -11,7 +11,7 @@ const (
 	legacyAppDirName = ".cursor-local-assistant"
 )
 
-// RootDir 返回应用配置根目录。
+// RootDir returns the application config root directory.
 func RootDir() string {
 	return appRootDir(appDirName)
 }
@@ -28,7 +28,7 @@ func appRootDir(dirName string) string {
 	return filepath.Join(homeDir, dirName)
 }
 
-// ConfigFilePath 返回统一用户配置文件路径。
+// ConfigFilePath returns the unified user config file path.
 func ConfigFilePath() string {
 	return filepath.Join(RootDir(), "config.yaml")
 }
@@ -61,17 +61,17 @@ func RulesRootPath() string {
 	return filepath.Join(RootDir(), "rules")
 }
 
-// LogsRootPath 返回统一日志根目录路径。
+// LogsRootPath returns the unified logs root directory path.
 func LogsRootPath() string {
 	return filepath.Join(RootDir(), "logs")
 }
 
-// CACertFilePath 返回注入给宿主的 CA 文件路径。
+// CACertFilePath returns the path of the CA file injected into the host.
 func CACertFilePath() string {
 	return filepath.Join(DataRootPath(), "ca.crt")
 }
 
-// CAKeyFilePath 返回注入给宿主的 CA 私钥文件路径。
+// CAKeyFilePath returns the path of the CA private key file injected into the host.
 func CAKeyFilePath() string {
 	return filepath.Join(DataRootPath(), "ca.key")
 }

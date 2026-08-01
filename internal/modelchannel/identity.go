@@ -40,9 +40,9 @@ func NormalizeBaseURL(raw string) (string, error) {
 	return normalized, nil
 }
 
-// NormalizeOpenAIEndpoint 归一化 OpenAI endpoint 路径。
-// 支持三个预设值：/v1/responses、/v1/chat/completions、/custom（自定义路径）。
-// 选 /custom 时，用户需在接口地址栏填写完整请求 URL。
+// NormalizeOpenAIEndpoint normalizes the OpenAI endpoint path.
+// Supports three preset values: /v1/responses, /v1/chat/completions, and /custom (custom path).
+// When /custom is selected, the user must fill in the full request URL in the endpoint address field.
 func NormalizeOpenAIEndpoint(providerType string, endpoint string) string {
 	if strings.TrimSpace(strings.ToLower(providerType)) != "openai" {
 		return ""
@@ -58,9 +58,9 @@ func NormalizeOpenAIEndpoint(providerType string, endpoint string) string {
 	}
 }
 
-// OpenAIEndpointShape 根据 endpoint 路径末段推断协议形态。
-// 返回 "responses"（Responses API）或 "chat/completions"（Chat Completions API）。
-// 这样 /v1/chat/completions、/v4/chat/completions、/chat/completions 都走同一协议分支。
+// OpenAIEndpointShape infers the protocol shape from the last segment of the endpoint path.
+// Returns "responses" (Responses API) or "chat/completions" (Chat Completions API).
+// This way /v1/chat/completions, /v4/chat/completions, and /chat/completions all take the same protocol branch.
 func OpenAIEndpointShape(endpoint string) string {
 	lower := strings.ToLower(strings.TrimSpace(endpoint))
 	switch {

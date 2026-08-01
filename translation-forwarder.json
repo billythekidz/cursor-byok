@@ -1,0 +1,174 @@
+{
+  "internal/backend/forwarder/artifacts.go": {
+    "14": "artifactRecorder only caches the request summary of the current provider call, to fill in usage/model information within this turn.",
+    "15": "Conversation recovery facts live only in state.json and context.json."
+  },
+  "internal/backend/forwarder/broker.go": {
+    "1": "broker.go manages subscription, broadcast, cancellation, and terminal-state settlement of active streams at the request level.",
+    "25": "NewStreamBroker creates the active-stream registry.",
+    "32": "OpenStream opens or reuses the active stream for the given request, refreshing its latest context.",
+    "112": "Get returns the active-stream handle for the given request.",
+    "123": "Subscribe registers a new subscriber for the given request and returns a signal channel used to wake up backlog consumption.",
+    "131": "RunSSE may arrive before BidiAppend. In that case, create a placeholder active stream first,",
+    "132": "and wait for later upstream messages to fill in the real conversation/model/mode information.",
+    "162": "Unsubscribe removes and closes the given subscriber, returning the remaining subscriber count.",
+    "266": "RemoveIfIdle removes a terminal stream when it has no subscribers, or removes a placeholder stream that is still empty.",
+    "302": "Publish writes an event into the backlog and wakes all current subscribers to read from it.",
+    "333": "ReadFromCursor returns a copy of the backlog events not yet consumed starting from cursor.",
+    "350": "Complete marks the active stream as successfully finished and publishes a successful endstream event.",
+    "379": "Fail marks the active stream as failed and publishes a failed endstream event.",
+    "404": "Cancel actively cancels the active stream and publishes a canceled endstream.",
+    "434": "firstNonEmpty returns the first non-blank string."
+  },
+  "internal/backend/forwarder/compiler.go": {
+    "1": "compiler.go compiles the fixed prompt, natural history, and tool catalog into a provider request.",
+    "25": "NewPromptCompiler creates the default prompt compiler.",
+    "35": "Compile produces the messages and tool set that should be sent to the provider for the current turn.",
+    "191": "filterNonEmpty drops blank strings so system prompt fragments can be safely concatenated."
+  },
+  "internal/backend/forwarder/events.go": {
+    "1": "events.go builds legacy RunSSE messages that remain compatible with the client.",
+    "16": "buildHeartbeatMessage builds a server heartbeat message.",
+    "29": "buildTextDeltaMessage builds a text delta message.",
+    "42": "buildThinkingDeltaMessage builds a thinking text delta message.",
+    "59": "buildThinkingCompletedMessage builds a thinking-phase-completed message.",
+    "74": "buildSummaryStartedMessage builds a summary-started message.",
+    "87": "buildSummaryMessage builds a summary delta/completion content message.",
+    "100": "buildSummaryCompletedMessage builds a summary-completed message.",
+    "101": "field 11 is decoded by the client as GetThoughtAnnotationRequest in the legacy aiserver protocol,",
+    "102": "so request_id must be written into field 1 here to drive the client into querying the \"Chat context summarized\" annotation.",
+    "122": "buildToolCallStartedMessage builds a tool call started message.",
+    "139": "buildPartialToolCallMessage builds a compatibility message emitted while tool call arguments are still being streamed.",
+    "157": "buildToolCallDeltaMessage builds a streaming delta message for tool calls.",
+    "174": "buildToolCallCompletedMessage builds a tool call completed message.",
+    "191": "buildShellOutputDeltaMessage wraps shell stream output into a compatibility message.",
+    "204": "buildTurnEndedMessage builds a turn-ended message carrying normalized token statistics.",
+    "226": "buildCheckpointMessage generates a legacy checkpoint message from the projected state.",
+    "248": "buildExecAbortMessage builds an abort control message for the client execution bridge.",
+    "263": "buildStartedToolCall maps a tool intent into a started ToolCall struct that can be sent to the client.",
+    "567": "stringPtr returns a pointer when the string is non-empty, avoiding empty strings in optional fields."
+  },
+  "internal/backend/forwarder/file_store.go": {
+    "1": "file_store.go owns the two persisted facts of a conversation: state.json and context.json.",
+    "55": "NewConversationFileStore creates the JSON history file store.",
+    "60": "HistoryDir returns the history root path.",
+    "68": "CreateConversation ensures the state/context files for the given session exist and completes metadata initialization.",
+    "113": "LoadConversation reads state.json + context.json.",
+    "121": "AppendEntries appends the semantic events that already happened to context.json and syncs state.json.",
+    "212": "UpdateConversationMeta updates state.json; context.json is left unchanged.",
+    "256": "ReplaceEntries atomically replaces context.json and syncs the sequence/version state in state.json.",
+    "305": "GetConversationSummary returns a lightweight conversation summary.",
+    "321": "ListConversationIDs returns the conversation ids under the history root that have state/context."
+  },
+  "internal/backend/forwarder/legacy_stream.go": {
+    "1": "legacy_stream.go provides an HTTP wrapper that is compatible with Cursor's legacy RunSSE response headers.",
+    "16": "NewLegacyRunSSEHandler builds a Connect ServerStream handler that presents itself as text/event-stream.",
+    "28": "legacyRunSSEHeaderWriter overrides Content-Type when the header is actually written.",
+    "34": "newLegacyRunSSEHeaderWriter creates a response-header wrapper.",
+    "39": "WriteHeader fills in the legacy-required response headers before writing the status code.",
+    "46": "Write lazily writes the header on the first body write.",
+    "54": "Flush attempts to flush the underlying buffer to the client immediately.",
+    "61": "Unwrap returns the underlying ResponseWriter.",
+    "66": "applyLegacyHeaders sets the response headers required by Cursor legacy RunSSE."
+  },
+  "internal/backend/forwarder/module.go": {
+    "1": "module.go assembles the forwarder service into a legacy HTTP/Connect handler.",
+    "21": "NewModule creates the forwarder module and exports the local Bidi / RunSSE handlers."
+  },
+  "internal/backend/forwarder/projector.go": {
+    "1": "projector.go projects the JSON history into prompt replay and legacy checkpoint views.",
+    "22": "NewHistoryProjector creates the history projector.",
+    "27": "ProjectPromptReplay restores the conversation history into a list of messages consumable by the provider.",
+    "476": "ProjectLegacyCheckpoint projects, on demand, a checkpoint structure compatible with older clients from the JSON history.",
+    "1458": "toModelMessage converts a promptengine message structure into a modeladapter message structure.",
+    "1520": "toModelToolCalls converts promptengine tool call descriptions into the modeladapter version.",
+    "1540": "toPromptToolCalls converts modeladapter tool call descriptions back into the promptengine version."
+  },
+  "internal/backend/forwarder/provider.go": {
+    "1": "provider.go hands forwarder canonical requests over to the existing provider adapter layer.",
+    "16": "NewProviderGateway creates the default provider gateway.",
+    "23": "StartStream translates the forwarder's provider request into a modeladapter.StreamRequest and starts a streaming call."
+  },
+  "internal/backend/forwarder/reasoning_metadata.go": {
+    "1": "reasoning_metadata.go holds the reasoning metadata decisions shared by history and replay."
+  },
+  "internal/backend/forwarder/reminders.go": {
+    "1": "reminders.go generates the minimal system reminder set per mode and context.",
+    "29": "NewReminderInjector creates the default reminder injector.",
+    "34": "Inject generates the additional reminders for the current turn based on mode, the latest user input, and tool context."
+  },
+  "internal/backend/forwarder/service.go": {
+    "1": "service.go implements the forwarder's main pipeline: Bidi upstream normalization, history writes, provider driving, and RunSSE downstream.",
+    "271": "NewService creates the forwarder service with default dependencies.",
+    "308": "newServiceWithDependencies is mainly used in test scenarios, allowing stub dependencies to be injected.",
+    "333": "BidiAppend handles legacy Bidi upstream messages, normalizing user input and external results before writing them to history.",
+    "416": "RunSSE subscribes to the active stream of the given request, replays the backlog first, and sends heartbeats every 5 seconds while the backlog is drained.",
+    "439": "When the RunSSE connection briefly flaps, give the active provider a reconnect grace period",
+    "440": "so that a request that could still settle normally is not marked context canceled outright.",
+    "540": "decodeInboundIntent maps a legacy AgentClientMessage into a forwarder-internal intent.",
+    "680": "handleRunIntent handles run/prewarm intents: creating the session, writing the turn, and starting the provider.",
+    "823": "handleCancelIntent handles cancellation requests and sends an execution-bridge abort to the client.",
+    "868": "handleExecResult handles execution-bridge results returned by the client and writes tool_result back to history at terminal state.",
+    "951": "handleExecControl handles execution-bridge control-plane results such as stream_close or throw.",
+    "1177": "handleMetadataIntent handles lightweight metadata upstream messages that do not drive the provider.",
+    "1270": "driveProvider triggers one provider pass from the actor and wraps the real stream into a provider_event posted back to the mailbox.",
+    "1625": "handleToolInvocation converts model-produced tool intents into exec/interaction requests and dispatches them to the client.",
+    "1861": "shouldBufferExecDispatch turns fast tools that only need complete arguments into \"send exec first, then started, then checkpoint\",",
+    "1862": "so the client does not start its timer before the arguments are stable, while still keeping an explicit tool-start signal.",
+    "1872": "appendToolResult appends completed tool results to history for later prompt replay.",
+    "1874": "reasoning should hang on assistant_text / tool_call entries in the committed history.",
+    "1875": "tool_result keeps a reasoning_content fallback; replay only uses it to rebuild the assistant tool_use when the tool_call entry is missing",
+    "1876": "and reasoning is replayable, without copying thinking onto tool messages.",
+    "1985": "closeStreamWithProviderError passes the error back through RunSSE when the real LLM/provider fails, and ends the stream normally.",
+    "2147": "publishCheckpoint projects a checkpoint from the current in-memory session mirror and broadcasts it to all RunSSE subscribers.",
+    "2237": "flushAssistantText writes the assistant text accumulated this turn back to history in one go.",
+    "2248": "failStream writes the error to history and settles the active stream when the provider or projection fails.",
+    "2319": "buildRunEntries builds the initial batch of entries a run intent needs to write to history.",
+    "2413": "newAssistantTextEntry builds an assistant text entry.",
+    "2437": "newToolCallEntry builds a tool_call entry.",
+    "2467": "newToolResultEntry builds a tool_result entry.",
+    "2487": "newMetadataEntry builds a metadata entry.",
+    "2502": "extractUserMessage extracts the user message from a legacy run_request.",
+    "2517": "extractRequestContext extracts request_context from a legacy request.",
+    "2706": "extractRunMode derives the mode to use for this turn.",
+    "2753": "extractRequestedModelID extracts the model ID explicitly requested for this turn.",
+    "2922": "userMessageText returns the plain text of the user message.",
+    "2951": "selectPendingExec finds a pending execution bridge in the current stream by exec_id or message_id.",
+    "2979": "selectPendingExecByControl finds a pending execution bridge by the bridge message ID in the control message.",
+    "3196": "markExecCompleted keeps a short-lived tombstone so a late transport-level control is not misjudged as a protocol error.",
+    "3384": "inferToolName derives the canonical tool name back from the full ToolCall proto.",
+    "3437": "deriveToolNameFromPendingExec derives the canonical tool name from the execution-bridge kind.",
+    "3546": "buildTerminalStreamError converts a broker terminal event into a Connect endstream error.",
+    "3569": "buildRunSSEProviderError builds the provider-specific RunSSE error wrapper.",
+    "3581": "buildRunSSECustomError builds a RunSSE structured error carrying CustomErrorDetails.",
+    "3586": "buildRunSSEStructuredError uniformly builds a Connect endstream error carrying ErrorDetails."
+  },
+  "internal/backend/forwarder/tool_catalog.go": {
+    "1": "tool_catalog.go loads and filters the canonical tool catalog from static prompt assets.",
+    "16": "NewToolCatalog creates the default tool catalog implementation.",
+    "21": "Load reads the tool assets per mode and filters out the tools actually allowed to be exposed at the current stage.",
+    "246": "mapPromptMode maps a protocol mode to the directory name of the corresponding static prompt asset.",
+    "264": "extractToolName extracts the function name from the raw tool descriptor JSON.",
+    "281": "sanitizePromptAsset strips descriptive titles from asset files, keeping only the actual prompt text."
+  },
+  "internal/backend/forwarder/types.go": {
+    "1": "types.go defines the forwarder's core data structures and minimal interface boundaries.",
+    "303": "providerTerminalError represents the real error returned by the underlying LLM/provider.",
+    "308": "Error returns the string form of the provider error.",
+    "316": "Unwrap lets callers keep unwrapping to the underlying original error.",
+    "432": "normalizeMode performs minimal normalization on an externally supplied mode, but no longer silently downgrades it.",
+    "466": "modeAlias converts a protocol enum into the short mode name written to JSON history.",
+    "484": "parseModeAlias restores a mode name written to JSON history back into the protocol enum."
+  },
+  "internal/backend/server/config/types.go": {
+    "44": "OpenAIEndpointGroupID identifies the OpenAI endpoint group this adapter belongs to. Adapters added manually leave it empty.",
+    "46": "Active reports whether this adapter is injected into Cursor. At most one model per endpoint group is active."
+  },
+  "internal/backend/server/doc.go": {
+    "1": "Package server provides the ConnectRPC server entry point and forwards protocol requests to the runtime coordination layer."
+  },
+  "internal/backend/server/policy.go": {
+    "6": "ModeLocal indicates local mode, used when the request is handled directly.",
+    "8": "ModeUpstream indicates direct-upstream mode, used when requests are forwarded to the original address."
+  }
+}

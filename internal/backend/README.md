@@ -1,28 +1,28 @@
-# Backend 架构说明
+# Backend Architecture
 
-`internal/backend` 当前支持本地助手模式与直连上游模式。
+`internal/backend` currently supports local assistant mode and direct upstream mode.
 
-关于 backend agent「最小事实集合」的第一阶段研究文档，见 [`../../docs/backend-agent-minimum-facts-phase1.md`](../../docs/backend-agent-minimum-facts-phase1.md)。
+For the phase-1 research document on the backend agent's "minimum fact set", see [`../../docs/backend-agent-minimum-facts-phase1.md`](../../docs/backend-agent-minimum-facts-phase1.md).
 
-核心边界：
+Core boundaries:
 
 - `server`
-  - 本地 HTTP/Connect 入口层
-  - 负责路由、中间件、错误编码和少量本地 mock
+  - Local HTTP/Connect entry layer
+  - Handles routing, middleware, error encoding, and a small amount of local mocking
 - `forwarder`
-  - 本地协议兼容与 LLM 转发内核
-  - 负责 `BidiAppend`、`RunSSE`、history JSON、prompt 编译、provider 流式调用和广播
+  - Local protocol compatibility and LLM forwarding core
+  - Handles `BidiAppend`, `RunSSE`, history JSON, prompt compilation, provider streaming calls, and broadcasting
 - `host`
-  - 唯一组装点
-  - 负责把 `server/config.Manager`、`forwarder.Module` 和根路由装起来
+  - The single assembly point
+  - Responsible for wiring up `server/config.Manager`, `forwarder.Module`, and the root routes
 
-当前实现不再支持：
+The current implementation no longer supports:
 
 - Pro / `cursor-byok`
 - HTTP/protocol trace debug UI
-- DB-backed store、会话索引和 searchable conversation memory
+- DB-backed store, conversation index, and searchable conversation memory
 
-## 目录结构
+## Directory Structure
 
 ```text
 internal/backend/
@@ -92,9 +92,9 @@ internal/backend/
       inbound.go
 ```
 
-## 持久化布局
+## Persistence Layout
 
-助手目录固定为：
+The assistant directory is fixed at:
 
 - `~/.cursor-local-assistant-v2/config.yaml`
 - `~/.cursor-local-assistant-v2/data/ca.crt`
@@ -102,15 +102,15 @@ internal/backend/
 - `~/.cursor-local-assistant-v2/history/`
 - `~/.cursor-local-assistant-v2/logs/`
 
-约定：
+Conventions:
 
-- `config.yaml` 是用户配置
-- `data/ca.crt` 是注入给宿主的 CA 证书
-- `data/ads/` 是广告包与资源缓存目录
-- `history/` 是会话事实与全局 usage JSON 目录，不属于日志
-- `logs/` 只保留必要文本运行日志
+- `config.yaml` is the user configuration
+- `data/ca.crt` is the CA certificate injected into the host
+- `data/ads/` is the ad package and resource cache directory
+- `history/` is the directory for conversation facts and global usage JSON, and is not part of the logs
+- `logs/` only keeps the necessary text runtime logs
 
-当前 `history/` 目录布局：
+Current `history/` directory layout:
 
 ```text
 history/
@@ -121,29 +121,29 @@ history/
     conversation.lock
 ```
 
-`state.json` 只表达当前 loop 状态与持久化内存，不保存可投射给 LLM 的历史内容。当前 loop status 语义为：
+`state.json` only expresses the current loop state and persistent memory; it does not save history content that can be projected to the LLM. Current loop status semantics:
 
-- `idle`：没有正在推进的 loop。
-- `running`：已落入本轮输入或中间上下文，正在等待/发起模型推进。
-- `waiting_tool`：已落完整 tool call，正在等待工具结果。
-- `completed`：本轮已正常完成。
-- `canceled`：本轮被取消，不制造 assistant 输出。
-- `provider_error`：provider/LLM 调用失败，错误作为 context tag 记录。
-- `failed`：本地内部失败，例如投影、持久化、usage JSON 写入或桥接收口失败；它不等同于 provider 错误。
+- `idle`: no loop is currently in progress.
+- `running`: the current turn's input or intermediate context has been persisted, and model advancement is being awaited/initiated.
+- `waiting_tool`: the full tool call has been persisted and we are waiting for the tool result.
+- `completed`: the current turn finished normally.
+- `canceled`: the current turn was canceled and produces no assistant output.
+- `provider_error`: the provider/LLM call failed; the error is recorded as a context tag.
+- `failed`: local internal failure, e.g., projection, persistence, usage JSON write, or bridge intake failure; it is not the same as a provider error.
 
-## 请求流
+## Request Flow
 
-1. 请求进入 backend 根路由。
-2. `PolicyMiddleware` 根据 `routing.mode` 与 `X-Server-Upstream-URL` 选择本地或上游分支。
-3. `BidiAppend` / `RunSSE` 进入 `forwarder`。
-4. `forwarder` 先把当前 loop 状态写入 `state.json`，再把已发生语义事件追加到 `context.json`。
-5. 发给 LLM 的 prompt 只由 `context.json` 投射生成；`state.json` 不保存可投射历史。
-6. provider usage/cache 与聚合统计写入 `history/usage.json`，不从 conversation 文件现场扫描。
-7. `checkpoint` 只表示同一 backend 进程内的 live state。
+1. Requests enter the backend root route.
+2. `PolicyMiddleware` selects the local or upstream branch based on `routing.mode` and `X-Server-Upstream-URL`.
+3. `BidiAppend` / `RunSSE` enters the `forwarder`.
+4. The `forwarder` first writes the current loop state to `state.json`, then appends the semantic events that occurred to `context.json`.
+5. The prompt sent to the LLM is projected only from `context.json`; `state.json` does not save projectable history.
+6. Provider usage/cache and aggregate statistics are written to `history/usage.json`, not scanned on the fly from conversation files.
+7. `checkpoint` only represents live state within the same backend process.
 
-## 模型渠道
+## Model Channels
 
-- 用户在配置里填写 `displayName`、`baseURL`、`apiKey`、`modelID`
-- 运行时渠道唯一 ID 不再由 `modelID` 决定
-- 当前唯一 ID 是 `url + modelID + key + name` 的短 `SHA-256` hash（前 16 个十六进制字符）
-- `modelID` 仅表示 provider model
+- Users fill in `displayName`, `baseURL`, `apiKey`, and `modelID` in the config
+- The runtime channel's unique ID is no longer determined by `modelID`
+- The current unique ID is a short `SHA-256` hash of `url + modelID + key + name` (first 16 hex characters)
+- `modelID` only denotes the provider model

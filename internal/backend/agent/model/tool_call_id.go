@@ -12,11 +12,11 @@ const (
 	toolCallValueHashLen     = 12
 )
 
-// namespaceToolCallID 为 provider 原始 tool call id 增加 model-call 级别命名空间，
-// 避免像 functions.Shell:0 这类跨轮复用的 id 在客户端被误判为同一个 bubble。
+// namespaceToolCallID thêm namespace cấp model-call cho tool call id gốc của provider,
+// tránh các id tái sử dụng qua nhiều lượt như functions.Shell:0 bị client nhầm thành cùng một bubble.
 //
-// OpenAI 等 provider 对 tool_call_id 长度有限制，因此这里使用 model_call_id 的短哈希
-// 而不是完整 UUID，保证内部存储的 tool_call_id 既稳定又能安全回放给 provider。
+// Các provider như OpenAI giới hạn độ dài tool_call_id, vì vậy ở đây dùng băm ngắn của model_call_id
+// thay vì UUID đầy đủ, đảm bảo tool_call_id lưu nội bộ vừa ổn định vừa phát lại an toàn cho provider.
 func namespaceToolCallID(modelCallID string, rawToolCallID string) string {
 	raw := strings.TrimSpace(rawToolCallID)
 	if raw == "" {
@@ -32,8 +32,8 @@ func namespaceToolCallID(modelCallID string, rawToolCallID string) string {
 	return buildProviderSafeToolCallID(shortToolCallHash(model, toolCallNamespaceHashLen), raw)
 }
 
-// providerToolCallID 把内部持久化的 tool_call_id 规整成 provider 可接受的安全长度。
-// 这样旧会话里已经落盘的 legacy "<modelCallID>::<rawID>" 也能继续回放。
+// providerToolCallID chỉnh tool_call_id lưu bền nội bộ thành độ dài an toàn mà provider chấp nhận.
+// Như vậy legacy "<modelCallID>::<rawID>" đã ghi xuống trong các phiên cũ vẫn tiếp tục phát lại được.
 func providerToolCallID(toolCallID string) string {
 	trimmed := strings.TrimSpace(toolCallID)
 	if trimmed == "" {

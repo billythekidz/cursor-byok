@@ -1,2 +1,2 @@
-// Package bridge 负责向 Wails 暴露稳定的桌面桥接服务与 DTO。
+// Package bridge exposes stable desktop bridge services and DTOs to Wails.
 package bridge

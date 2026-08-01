@@ -1,0 +1,37 @@
+{
+  "components/AdModelProvider.vue": {
+    "113": "广告入口失败不影响主界面。"
+  },
+  "composables/useInputModal.js": {
+    "13": "显示输入弹窗，返回 Promise<string|null>",
+    "15": "@returns {Promise<string|null>} - string=确定后的输入值, null=取消"
+  },
+  "composables/useModal.js": {
+    "15": "显示确认弹窗，返回 Promise<boolean>",
+    "17": "@returns {Promise<boolean>} - true=确定, false=取消"
+  },
+  "layouts/MainLayout.vue": {
+    "78": "  title: \"确认关闭\",",
+    "79": "  content: \"程序将会最小化到托盘，彻底关闭请在托盘退出，关闭后无法使用Cursor\","
+  },
+  "main.js": {
+    "39": "启动阶段失败时保持界面可用，错误在业务交互中再提示。"
+  },
+  "state/appState.js": {
+    "176": "buildOpenAIEndpointGroupKey 生成 OpenAI endpoint 组 key（baseURL\\napiKey 的 FNV32a）。",
+    "177": "前端与 Go 侧分组语义保持一致：同一 baseURL + apiKey 视为同一 endpoint 组。",
+    "294": "normalizeOpenAIEndpoint 归一化 endpoint 路径。",
+    "295": "支持三个预设值：/v1/responses、/v1/chat/completions、/custom（自定义路径）。",
+    "296": "选 /custom 时，用户需在接口地址栏填写完整请求 URL。",
+    "1204": "saveModelAdapters 一次性持久化完整模型适配器列表（仅写入一次配置）。",
+    "1205": "用于批量变更场景（如扫描新增模型、切换 active），避免多次写盘。"
+  },
+  "views/ModelConfig.vue": {
+    "51": "openaiGroups 将 OpenAI 适配器按 openAIEndpointGroupID 分组展示。",
+    "52": "有 groupID 的合并为 endpoint 组卡片；手动添加（无 groupID）的每个模型单独成卡片。",
+    "196": "失败结果会通过事件同步到界面，这里不再额外弹窗打断用户。",
+    "246": "单个失败结果由卡片自行展示，这里继续后续测试。",
+    "339": "同一 endpoint 组内至多一个 active（互斥）。",
+    "344": "手动模型（无分组）独立切换自身 active。"
+  }
+}

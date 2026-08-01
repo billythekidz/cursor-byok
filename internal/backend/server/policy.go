@@ -3,9 +3,9 @@ package server
 type ExecutionMode string
 
 const (
-	// ModeLocal 表示本地模式，适用于直接处理请求的情况。
+	// ModeLocal indicates local mode, used when the request is handled directly.
 	ModeLocal ExecutionMode = "local"
-	// ModeUpstream 表示直连上游模式，适用于将请求转发到原始地址。
+	// ModeUpstream indicates direct-upstream mode, used when requests are forwarded to the original address.
 	ModeUpstream ExecutionMode = "upstream"
 )
 

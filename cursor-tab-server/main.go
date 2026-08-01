@@ -21,7 +21,7 @@ import (
 
 const (
 	defaultConfigPath = "./config.yaml"
-	defaultListenAddr = ":8041"
+	defaultListenAddr = "127.0.0.1:8041"
 )
 
 var hopByHopHeaders = map[string]struct{}{

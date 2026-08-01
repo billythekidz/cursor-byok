@@ -7,25 +7,25 @@ import (
 	"sync"
 )
 
-// localRelayResponseWriter 定义了当前模块中的 localRelayResponseWriter 类型。
+// localRelayResponseWriter defines the localRelayResponseWriter type in this module.
 type localRelayResponseWriter struct {
-	// header 表示当前声明中的 header。
+	// header represents the header field in this declaration.
 	header http.Header
-	// pipeWriter 表示当前声明中的 pipeWriter。
+	// pipeWriter represents the pipeWriter field in this declaration.
 	pipeWriter *io.PipeWriter
-	// ready 表示当前声明中的 ready。
+	// ready represents the ready field in this declaration.
 	ready chan struct{}
-	// wroteHeader 表示当前声明中的 wroteHeader。
+	// wroteHeader represents the wroteHeader field in this declaration.
 	wroteHeader bool
-	// statusCode 表示当前声明中的 statusCode。
+	// statusCode represents the statusCode field in this declaration.
 	statusCode int
-	// once 表示当前声明中的 once。
+	// once represents the once field in this declaration.
 	once sync.Once
-	// mu 表示当前声明中的 mu。
+	// mu represents the mu field in this declaration.
 	mu sync.Mutex
 }
 
-// newLocalRelayResponseWriter 用于处理与 newLocalRelayResponseWriter 相关的逻辑。
+// newLocalRelayResponseWriter handles logic related to newLocalRelayResponseWriter.
 func newLocalRelayResponseWriter(pipeWriter *io.PipeWriter) *localRelayResponseWriter {
 	return &localRelayResponseWriter{
 		header:     make(http.Header),
@@ -35,12 +35,12 @@ func newLocalRelayResponseWriter(pipeWriter *io.PipeWriter) *localRelayResponseW
 	}
 }
 
-// Header 用于处理与 Header 相关的逻辑。
+// Header handles logic related to Header.
 func (w *localRelayResponseWriter) Header() http.Header {
 	return w.header
 }
 
-// WriteHeader 用于处理与 WriteHeader 相关的逻辑。
+// WriteHeader handles logic related to WriteHeader.
 func (w *localRelayResponseWriter) WriteHeader(statusCode int) {
 	w.mu.Lock()
 	if !w.wroteHeader {
@@ -53,7 +53,7 @@ func (w *localRelayResponseWriter) WriteHeader(statusCode int) {
 	w.mu.Unlock()
 }
 
-// Write 用于处理与 Write 相关的逻辑。
+// Write handles logic related to Write.
 func (w *localRelayResponseWriter) Write(body []byte) (int, error) {
 	if !w.headerWritten() {
 		w.WriteHeader(http.StatusOK)
@@ -61,14 +61,14 @@ func (w *localRelayResponseWriter) Write(body []byte) (int, error) {
 	return w.pipeWriter.Write(body)
 }
 
-// Flush 用于处理与 Flush 相关的逻辑。
+// Flush handles logic related to Flush.
 func (w *localRelayResponseWriter) Flush() {
 	if !w.headerWritten() {
 		w.WriteHeader(http.StatusOK)
 	}
 }
 
-// Finish 用于处理与 Finish 相关的逻辑。
+// Finish handles logic related to Finish.
 func (w *localRelayResponseWriter) Finish(err error) {
 	if err != nil && !w.headerWritten() {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -83,12 +83,12 @@ func (w *localRelayResponseWriter) Finish(err error) {
 	_ = w.pipeWriter.Close()
 }
 
-// Ready 用于处理与 Ready 相关的逻辑。
+// Ready handles logic related to Ready.
 func (w *localRelayResponseWriter) Ready() <-chan struct{} {
 	return w.ready
 }
 
-// Response 用于处理与 Response 相关的逻辑。
+// Response handles logic related to Response.
 func (w *localRelayResponseWriter) Response(request *http.Request, body io.ReadCloser) *http.Response {
 	w.mu.Lock()
 	statusCode := w.statusCode
@@ -104,7 +104,7 @@ func (w *localRelayResponseWriter) Response(request *http.Request, body io.ReadC
 	}
 }
 
-// headerWritten 用于处理与 headerWritten 相关的逻辑。
+// headerWritten handles logic related to headerWritten.
 func (w *localRelayResponseWriter) headerWritten() bool {
 	w.mu.Lock()
 	defer w.mu.Unlock()

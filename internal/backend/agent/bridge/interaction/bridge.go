@@ -1,4 +1,4 @@
-// bridge.go 实现 MVP 阶段的交互桥协议映射。
+// bridge.go implements the MVP-stage interaction bridge protocol mapping.
 package interaction
 
 import (
@@ -26,44 +26,44 @@ import (
 	"cursor/internal/netproxy"
 )
 
-// InteractionApplyResult 表示一次交互桥结果归一化后的最小产物。
+// InteractionApplyResult represents the minimal normalized result of an interaction bridge result.
 type InteractionApplyResult struct {
-	// ToolCallID 表示该结果所属工具调用标识。
+	// ToolCallID is the tool call identifier the result belongs to.
 	ToolCallID string
-	// InteractionID 表示该结果所属交互桥标识。
+	// InteractionID is the interaction bridge identifier the result belongs to.
 	InteractionID string
-	// IsTerminal 表示交互桥是否已经收口。
+	// IsTerminal reports whether the interaction bridge has been finalized.
 	IsTerminal bool
-	// ToolResultPayload 表示可继续喂给模型的结果摘要。
+	// ToolResultPayload represents the result summary that can continue to be fed to the model.
 	ToolResultPayload string
-	// ToolCall 保存可用于发 ToolCallCompletedUpdate 的工具调用对象。
+	// ToolCall holds the tool call object that can be used to send ToolCallCompletedUpdate.
 	ToolCall *agentv1.ToolCall
 }
 
-// InteractionBridge 定义交互桥接口。
+// InteractionBridge defines the interaction bridge interface.
 type InteractionBridge interface {
-	// OpenQuery 打开一条交互型工具调用。
+	// OpenQuery opens an interaction-type tool call.
 	OpenQuery(toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingInteraction, error)
-	// ApplyInteractionResponse 处理交互响应。
+	// ApplyInteractionResponse handles interaction responses.
 	ApplyInteractionResponse(msg *agentv1.InteractionResponse, pending runtimecore.PendingInteraction) (InteractionApplyResult, error)
 }
 
-// Bridge 实现 MVP 阶段的交互桥。
+// Bridge implements the interaction bridge for the current MVP stage.
 type Bridge struct {
-	// nextID 生成交互消息编号。
+	// nextID generates interaction message sequence numbers.
 	nextID atomic.Uint32
-	// httpClient 负责执行 web search / web fetch 等需要外网的操作。
+	// httpClient is responsible for operations that require external network access, such as web search / web fetch.
 	httpClient *http.Client
 }
 
-// NewBridge 创建一个交互桥实例。
+// NewBridge creates an interaction bridge instance.
 func NewBridge() *Bridge {
 	return &Bridge{
 		httpClient: netproxy.NewHTTPClient(15 * time.Second),
 	}
 }
 
-// OpenQuery 打开一条交互型工具调用。
+// OpenQuery opens an interaction-type tool call.
 func (bridge *Bridge) OpenQuery(toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingInteraction, error) {
 	switch toolCall.ToolName {
 	case "AskQuestion":
@@ -81,7 +81,7 @@ func (bridge *Bridge) OpenQuery(toolCall runtimecore.ToolInvocation) (*agentv1.A
 	}
 }
 
-// ApplyInteractionResponse 处理交互响应。
+// ApplyInteractionResponse handles interaction responses.
 func (bridge *Bridge) ApplyInteractionResponse(msg *agentv1.InteractionResponse, pending runtimecore.PendingInteraction) (InteractionApplyResult, error) {
 	if msg == nil {
 		return InteractionApplyResult{}, fmt.Errorf("interaction response is required")
@@ -169,7 +169,7 @@ func (bridge *Bridge) ApplyInteractionResponse(msg *agentv1.InteractionResponse,
 	}
 }
 
-// nextMessageID 返回下一个交互消息编号。
+// nextMessageID returns the next interaction message sequence number.
 func (bridge *Bridge) nextMessageID() uint32 {
 	current := bridge.nextID.Add(1)
 	if current == 0 {
@@ -178,7 +178,7 @@ func (bridge *Bridge) nextMessageID() uint32 {
 	return current
 }
 
-// openAskQuestion 构造 AskQuestion 交互查询。
+// openAskQuestion constructs an AskQuestion interaction query.
 func (bridge *Bridge) openAskQuestion(toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingInteraction, error) {
 	var args agentv1.AskQuestionArgs
 	if err := json.Unmarshal(toolCall.ArgsJSON, &args); err != nil {
@@ -206,7 +206,7 @@ func (bridge *Bridge) openAskQuestion(toolCall runtimecore.ToolInvocation) (*age
 	}, nil
 }
 
-// openCreatePlan 构造 CreatePlan 交互查询。
+// openCreatePlan constructs a CreatePlan interaction query.
 func (bridge *Bridge) openCreatePlan(toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingInteraction, error) {
 	args, err := runtimecore.DecodeCreatePlanArgsJSON(toolCall.ArgsJSON)
 	if err != nil {
@@ -234,7 +234,7 @@ func (bridge *Bridge) openCreatePlan(toolCall runtimecore.ToolInvocation) (*agen
 	}, nil
 }
 
-// openWebSearch 构造 WebSearch 交互查询。
+// openWebSearch constructs a WebSearch interaction query.
 func (bridge *Bridge) openWebSearch(toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingInteraction, error) {
 	var input struct {
 		SearchTerm string `json:"search_term"`
@@ -266,7 +266,7 @@ func (bridge *Bridge) openWebSearch(toolCall runtimecore.ToolInvocation) (*agent
 	}, nil
 }
 
-// openWebFetch 构造 WebFetch 交互查询。
+// openWebFetch constructs a WebFetch interaction query.
 func (bridge *Bridge) openWebFetch(toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingInteraction, error) {
 	var input struct {
 		URL string `json:"url"`
@@ -302,7 +302,7 @@ func (bridge *Bridge) openWebFetch(toolCall runtimecore.ToolInvocation) (*agentv
 	}, nil
 }
 
-// openSwitchMode 构造 SwitchMode 交互查询。
+// openSwitchMode constructs a SwitchMode interaction query.
 func (bridge *Bridge) openSwitchMode(toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingInteraction, error) {
 	var args agentv1.SwitchModeArgs
 	if err := json.Unmarshal(toolCall.ArgsJSON, &args); err != nil {
@@ -343,7 +343,7 @@ func validateSwitchModeTargetID(raw string) error {
 	}
 }
 
-// summarizeAskQuestionResponse 生成 AskQuestion 响应摘要。
+// summarizeAskQuestionResponse generates the AskQuestion response summary.
 func summarizeAskQuestionResponse(response *agentv1.AskQuestionInteractionResponse) string {
 	if response == nil || response.GetResult() == nil {
 		return "ask question response missing"
@@ -367,7 +367,7 @@ func summarizeAskQuestionResponse(response *agentv1.AskQuestionInteractionRespon
 
 const createPlanEmptyURIError = "create plan failed: Cursor returned success with empty planUri"
 
-// normalizeCreatePlanResult 兜底客户端 success 但未返回 planUri 的异常形态。
+// normalizeCreatePlanResult handles the abnormal shape where the client succeeded but did not return planUri.
 func normalizeCreatePlanResult(response *agentv1.CreatePlanRequestResponse) *agentv1.CreatePlanResult {
 	if response == nil || response.GetResult() == nil {
 		return nil
@@ -383,7 +383,7 @@ func normalizeCreatePlanResult(response *agentv1.CreatePlanRequestResponse) *age
 	return result
 }
 
-// summarizeCreatePlanResult 生成 CreatePlan 响应摘要。
+// summarizeCreatePlanResult generates the CreatePlan response summary.
 func summarizeCreatePlanResult(result *agentv1.CreatePlanResult) string {
 	if result == nil {
 		return "create plan response missing"
@@ -398,7 +398,7 @@ func summarizeCreatePlanResult(result *agentv1.CreatePlanResult) string {
 	}
 }
 
-// summarizeWebSearchResponse 生成 WebSearch 响应摘要。
+// summarizeWebSearchResponse generates the WebSearch response summary.
 func summarizeWebSearchResponse(response *agentv1.WebSearchRequestResponse) string {
 	if response == nil {
 		return "web search response missing"
@@ -414,7 +414,7 @@ func summarizeWebSearchResponse(response *agentv1.WebSearchRequestResponse) stri
 	}
 }
 
-// applyWebSearchResponse 把 WebSearch approval 响应转换成最终工具结果。
+// applyWebSearchResponse converts the WebSearch approval response into the final tool result.
 func (bridge *Bridge) applyWebSearchResponse(response *agentv1.WebSearchRequestResponse, args *agentv1.WebSearchArgs) (*agentv1.WebSearchResult, string) {
 	if response == nil {
 		return &agentv1.WebSearchResult{
@@ -455,7 +455,7 @@ func (bridge *Bridge) applyWebSearchResponse(response *agentv1.WebSearchRequestR
 	}
 }
 
-// applyWebFetchResponse 把 WebFetch approval 响应转换成最终工具结果。
+// applyWebFetchResponse converts the WebFetch approval response into the final tool result.
 func (bridge *Bridge) applyWebFetchResponse(response *agentv1.WebFetchRequestResponse, args *agentv1.WebFetchArgs) (*agentv1.WebFetchResult, string) {
 	if response == nil {
 		return &agentv1.WebFetchResult{
@@ -507,7 +507,7 @@ func (bridge *Bridge) applyWebFetchResponse(response *agentv1.WebFetchRequestRes
 	}
 }
 
-// buildSwitchModeResult 把 SwitchMode approval 响应转换成最终工具结果。
+// buildSwitchModeResult converts the SwitchMode approval response into the final tool result.
 func buildSwitchModeResult(response *agentv1.SwitchModeRequestResponse, args *agentv1.SwitchModeArgs) *agentv1.SwitchModeResult {
 	if response == nil {
 		return &agentv1.SwitchModeResult{
@@ -543,7 +543,7 @@ func buildSwitchModeResult(response *agentv1.SwitchModeRequestResponse, args *ag
 	}
 }
 
-// summarizeSwitchModeResponse 生成 SwitchMode 响应摘要。
+// summarizeSwitchModeResponse generates the SwitchMode response summary.
 func summarizeSwitchModeResponse(result *agentv1.SwitchModeResult) string {
 	if result == nil {
 		return "switch mode result missing"
@@ -586,19 +586,19 @@ func (bridge *Bridge) executeWebSearch(searchTerm string) ([]*agentv1.WebSearchR
 		client = netproxy.NewHTTPClient(15 * time.Second)
 	}
 
-	// 先尝试百度搜索
+	// Try Baidu search first
 	baiduReferences, baiduPayload, baiduErr := bridge.tryBaiduWebSearch(client, searchTerm)
 	if baiduErr == nil && len(baiduReferences) > 0 {
 		return baiduReferences, baiduPayload, nil
 	}
 
-	// 百度失败，回退到 DuckDuckGo
+	// Baidu failed, fall back to DuckDuckGo
 	duckReferences, duckPayload, duckErr := bridge.tryDuckDuckGoWebSearch(client, searchTerm)
 	if duckErr == nil && len(duckReferences) > 0 {
 		return duckReferences, duckPayload, nil
 	}
 
-	// 两者都失败，返回综合错误
+	// Both failed, return a combined error
 	if baiduErr != nil && duckErr != nil {
 		return nil, "", fmt.Errorf("web search failed: baidu=%v, duckduckgo=%v", baiduErr, duckErr)
 	}

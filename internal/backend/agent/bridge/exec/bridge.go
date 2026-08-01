@@ -1,4 +1,4 @@
-// bridge.go 实现 MVP 阶段的执行桥协议映射。
+// bridge.go implements the MVP-stage execution bridge protocol mapping.
 package execbridge
 
 import (
@@ -17,55 +17,55 @@ import (
 	runtimecore "cursor/internal/backend/agent/core"
 )
 
-// ExecApplyResult 表示一次执行桥结果归一化后的最小产物。
+// ExecApplyResult represents the minimal normalized result of an execution bridge result.
 type ExecApplyResult struct {
-	// ToolCallID 表示结果所属工具调用标识。
+	// ToolCallID is the tool call identifier the result belongs to.
 	ToolCallID string
-	// ExecID 表示结果所属执行桥标识。
+	// ExecID is the execution bridge identifier the result belongs to.
 	ExecID string
-	// IsTerminal 表示该执行桥是否已经收口。
+	// IsTerminal reports whether the execution bridge has been finalized.
 	IsTerminal bool
-	// ShellOutputDelta 保存 shell 流输出的增量事件。
+	// ShellOutputDelta holds the incremental shell stream output event.
 	ShellOutputDelta *agentv1.ShellOutputDeltaUpdate
-	// ToolResultPayload 保存可回写给模型的工具结果摘要。
+	// ToolResultPayload holds the tool result summary that can be written back to the model.
 	ToolResultPayload string
-	// ToolCall 保存可用于发 ToolCallCompletedUpdate 的工具调用对象；当前仅对支持 ToolCall 的执行型工具可用。
+	// ToolCall holds the tool call object that can be used to send ToolCallCompletedUpdate; currently only available for execution tools that support ToolCall.
 	ToolCall *agentv1.ToolCall
-	// ExecuteHookResponse 保存 execute hook 的结构化响应。
+	// ExecuteHookResponse holds the structured execute hook response.
 	ExecuteHookResponse *agentv1.ExecuteHookResponse
 }
 
-// OpenExecContext 表示执行桥打开请求时需要的最小上下文。
+// OpenExecContext represents the minimal context required when opening an execution bridge request.
 type OpenExecContext struct {
 	ConversationID         string
 	ModelID                string
 	SubagentModelOverrides map[string]runtimecore.SubagentModelOverrideSelection
 }
 
-// ExecBridge 定义执行桥接口。
+// ExecBridge defines the execution bridge interface.
 type ExecBridge interface {
-	// OpenExec 打开一条执行桥请求。
+	// OpenExec opens an execution bridge request.
 	OpenExec(openContext OpenExecContext, toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingExec, error)
-	// OpenExecuteHook 打开一条 execute hook 请求。
+	// OpenExecuteHook opens an execute hook request.
 	OpenExecuteHook(request *agentv1.ExecuteHookRequest, execKind string) (*agentv1.AgentServerMessage, runtimecore.PendingExec, error)
-	// ApplyExecClientMessage 处理客户端执行结果。
+	// ApplyExecClientMessage handles client execution results.
 	ApplyExecClientMessage(msg *agentv1.ExecClientMessage, pending runtimecore.PendingExec) (ExecApplyResult, error)
-	// ApplyExecClientControl 处理客户端执行控制消息。
+	// ApplyExecClientControl handles client execution control messages.
 	ApplyExecClientControl(msg *agentv1.ExecClientControlMessage, pending runtimecore.PendingExec) (ExecApplyResult, error)
 }
 
-// Bridge 实现当前 MVP 阶段的执行桥。
+// Bridge implements the execution bridge for the current MVP stage.
 type Bridge struct {
-	// nextMessageID 生成 uint32 级别的桥消息编号。
+	// nextMessageID generates uint32-level bridge message sequence numbers.
 	nextMessageID atomic.Uint32
 }
 
-// NewBridge 创建一个执行桥实例。
+// NewBridge creates an execution bridge instance.
 func NewBridge() *Bridge {
 	return &Bridge{}
 }
 
-// OpenExec 打开一条执行型工具调用。
+// OpenExec opens an execution-type tool call.
 func (bridge *Bridge) OpenExec(openContext OpenExecContext, toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingExec, error) {
 	switch strings.TrimSpace(toolCall.ToolName) {
 	case "Read":
@@ -101,7 +101,7 @@ func (bridge *Bridge) OpenExec(openContext OpenExecContext, toolCall runtimecore
 	}
 }
 
-// OpenExecuteHook 打开一条 execute hook 请求。
+// OpenExecuteHook opens an execute hook request.
 func (bridge *Bridge) OpenExecuteHook(request *agentv1.ExecuteHookRequest, execKind string) (*agentv1.AgentServerMessage, runtimecore.PendingExec, error) {
 	if request == nil {
 		return nil, runtimecore.PendingExec{}, fmt.Errorf("execute hook request is required")
@@ -130,7 +130,7 @@ func (bridge *Bridge) OpenExecuteHook(request *agentv1.ExecuteHookRequest, execK
 	}, nil
 }
 
-// ApplyExecClientMessage 处理客户端执行结果消息。
+// ApplyExecClientMessage handles client execution result messages.
 func (bridge *Bridge) ApplyExecClientMessage(msg *agentv1.ExecClientMessage, pending runtimecore.PendingExec) (ExecApplyResult, error) {
 	if msg == nil {
 		return ExecApplyResult{}, fmt.Errorf("exec client message is required")
@@ -294,7 +294,7 @@ func (bridge *Bridge) ApplyExecClientMessage(msg *agentv1.ExecClientMessage, pen
 	}
 }
 
-// ApplyExecClientControl 处理客户端执行控制消息。
+// ApplyExecClientControl handles client execution control messages.
 func (bridge *Bridge) ApplyExecClientControl(msg *agentv1.ExecClientControlMessage, pending runtimecore.PendingExec) (ExecApplyResult, error) {
 	if msg == nil {
 		return ExecApplyResult{}, fmt.Errorf("exec client control message is required")
@@ -330,7 +330,7 @@ func (bridge *Bridge) ApplyExecClientControl(msg *agentv1.ExecClientControlMessa
 	}
 }
 
-// isStreamingExecKind 判断当前 exec kind 是否属于依赖后续数据面终态的流式执行桥。
+// isStreamingExecKind reports whether the current exec kind is a streaming execution bridge that depends on the eventual data-plane terminal state.
 func isStreamingExecKind(kind string) bool {
 	switch strings.TrimSpace(kind) {
 	case "shell":
@@ -340,7 +340,7 @@ func isStreamingExecKind(kind string) bool {
 	}
 }
 
-// nextID 返回下一个桥消息编号。
+// nextID returns the next bridge message sequence number.
 func (bridge *Bridge) nextID() uint32 {
 	current := bridge.nextMessageID.Add(1)
 	if current == 0 {
@@ -379,7 +379,7 @@ func decodeReadExecArgs(raw []byte) (readExecArgs, error) {
 	return result, nil
 }
 
-// openRead 构造 Read 对应的执行桥请求。
+// openRead constructs the execution bridge request for Read.
 func (bridge *Bridge) openRead(toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingExec, error) {
 	args, err := decodeReadExecArgs(toolCall.ArgsJSON)
 	if err != nil {
@@ -414,7 +414,7 @@ func (bridge *Bridge) openRead(toolCall runtimecore.ToolInvocation) (*agentv1.Ag
 	}, nil
 }
 
-// openWrite 构造 Write 对应的执行桥请求。
+// openWrite constructs the execution bridge request for Write.
 func (bridge *Bridge) openWrite(toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingExec, error) {
 	var args struct {
 		Path     string `json:"path"`
@@ -453,7 +453,7 @@ func (bridge *Bridge) openWrite(toolCall runtimecore.ToolInvocation) (*agentv1.A
 	}, nil
 }
 
-// openDelete 构造 Delete 对应的执行桥请求。
+// openDelete constructs the execution bridge request for Delete.
 func (bridge *Bridge) openDelete(toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingExec, error) {
 	var args struct {
 		Path string `json:"path"`
@@ -487,7 +487,7 @@ func (bridge *Bridge) openDelete(toolCall runtimecore.ToolInvocation) (*agentv1.
 	}, nil
 }
 
-// openGlob 构造 Glob 对应的执行桥请求；当前通过 grep files mode 交给本地宿主处理。
+// openGlob constructs the execution bridge request for Glob; currently delegated to the local host via grep files mode.
 func (bridge *Bridge) openGlob(toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingExec, error) {
 	globArgs, err := DecodeGlobToolArgs(toolCall.ArgsJSON)
 	if err != nil {
@@ -610,7 +610,7 @@ func buildShellOutputNotificationConfig(input *shellOutputNotificationArgs) *age
 	}
 }
 
-// openShell 构造 Shell 对应的流式执行桥请求。
+// openShell constructs the streaming execution bridge request for Shell.
 func (bridge *Bridge) openShell(toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingExec, error) {
 	args, err := decodeShellArgs(toolCall.ArgsJSON)
 	if err != nil {
@@ -760,7 +760,7 @@ func (bridge *Bridge) openForceBackgroundShell(toolCall runtimecore.ToolInvocati
 	}, nil
 }
 
-// openTask 构造 Task 对应的执行桥请求。
+// openTask constructs the execution bridge request for Task.
 func (bridge *Bridge) openTask(openContext OpenExecContext, toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingExec, error) {
 	args, err := decodeArgsMap(toolCall.ArgsJSON)
 	if err != nil {
@@ -821,7 +821,7 @@ func (bridge *Bridge) openTask(openContext OpenExecContext, toolCall runtimecore
 	}, nil
 }
 
-// openGrep 构造 Grep 对应的执行桥请求。
+// openGrep constructs the execution bridge request for Grep.
 func (bridge *Bridge) openGrep(toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingExec, error) {
 	input, err := DecodeGrepToolArgs(toolCall.ArgsJSON, toolCall.CallID)
 	if err != nil {
@@ -851,7 +851,7 @@ func (bridge *Bridge) openGrep(toolCall runtimecore.ToolInvocation) (*agentv1.Ag
 	}, nil
 }
 
-// openReadLints 构造 ReadLints 对应的执行桥请求。
+// openReadLints constructs the execution bridge request for ReadLints.
 func (bridge *Bridge) openReadLints(toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingExec, error) {
 	args, err := decodeArgsMap(toolCall.ArgsJSON)
 	if err != nil {
@@ -888,7 +888,7 @@ func (bridge *Bridge) openReadLints(toolCall runtimecore.ToolInvocation) (*agent
 	}, nil
 }
 
-// openLs 构造 Ls 对应的执行桥请求。
+// openLs constructs the execution bridge request for Ls.
 func (bridge *Bridge) openLs(toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingExec, error) {
 	var input struct {
 		Path   string   `json:"path"`
@@ -925,7 +925,7 @@ func (bridge *Bridge) openLs(toolCall runtimecore.ToolInvocation) (*agentv1.Agen
 	}, nil
 }
 
-// openMcp 构造 CallMcpTool 对应的执行桥请求。
+// openMcp constructs the execution bridge request for CallMcpTool.
 func (bridge *Bridge) openMcp(toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingExec, error) {
 	input, err := runtimecore.DecodeMCPToolPayload(toolCall.ArgsJSON)
 	if err != nil {
@@ -971,7 +971,7 @@ func (bridge *Bridge) openMcp(toolCall runtimecore.ToolInvocation) (*agentv1.Age
 	}, nil
 }
 
-// openListMcpResources 构造 ListMcpResources 对应的执行桥请求。
+// openListMcpResources constructs the execution bridge request for ListMcpResources.
 func (bridge *Bridge) openListMcpResources(toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingExec, error) {
 	var input struct {
 		Server string `json:"server,omitempty"`
@@ -1004,7 +1004,7 @@ func (bridge *Bridge) openListMcpResources(toolCall runtimecore.ToolInvocation) 
 	}, nil
 }
 
-// openReadMcpResource 构造 FetchMcpResource 对应的执行桥请求。
+// openReadMcpResource constructs the execution bridge request for FetchMcpResource.
 func (bridge *Bridge) openReadMcpResource(toolCall runtimecore.ToolInvocation) (*agentv1.AgentServerMessage, runtimecore.PendingExec, error) {
 	var input struct {
 		Server       string `json:"server"`
@@ -1082,7 +1082,7 @@ func countLFReadLines(content string) int32 {
 	return count
 }
 
-// summarizeReadResult 生成 Read 结果摘要。
+// summarizeReadResult generates the Read result summary.
 func summarizeReadResult(result *agentv1.ReadResult) string {
 	if result == nil {
 		return "read result missing"
@@ -1112,7 +1112,7 @@ func summarizeReadResult(result *agentv1.ReadResult) string {
 	}
 }
 
-// summarizeWriteResult 生成 Write 结果摘要。
+// summarizeWriteResult generates the Write result summary.
 func summarizeWriteResult(result *agentv1.WriteResult) string {
 	if result == nil {
 		return "write result missing"
@@ -1136,7 +1136,7 @@ func summarizeWriteResult(result *agentv1.WriteResult) string {
 	}
 }
 
-// summarizeDiagnosticsResult 生成 ReadLints 对应的执行结果摘要。
+// summarizeDiagnosticsResult generates the execution result summary for ReadLints.
 func summarizeDiagnosticsResult(result *agentv1.DiagnosticsResult) string {
 	if result == nil {
 		return "diagnostics result missing"
@@ -1157,7 +1157,7 @@ func summarizeDiagnosticsResult(result *agentv1.DiagnosticsResult) string {
 	}
 }
 
-// summarizeSubagentResult 生成 Task 对应的执行结果摘要。
+// summarizeSubagentResult generates the execution result summary for Task.
 func summarizeSubagentResult(result *agentv1.SubagentResult) string {
 	if result == nil {
 		return "subagent result missing"
@@ -1182,7 +1182,7 @@ func summarizeSubagentResult(result *agentv1.SubagentResult) string {
 	}
 }
 
-// summarizeDeleteResult 生成 Delete 结果摘要。
+// summarizeDeleteResult generates the Delete result summary.
 func summarizeDeleteResult(result *agentv1.DeleteResult) string {
 	if result == nil {
 		return "delete result missing"
@@ -1207,7 +1207,7 @@ func summarizeDeleteResult(result *agentv1.DeleteResult) string {
 	}
 }
 
-// summarizeGrepResult 生成 Grep 结果摘要。
+// summarizeGrepResult generates the Grep result summary.
 func summarizeGrepResult(result *agentv1.GrepResult) string {
 	if result == nil {
 		return "grep result missing"
@@ -1254,7 +1254,7 @@ func formatGlobNoMatches(pattern string, target string) string {
 	return fmt.Sprintf("no matches for %s in %s", pattern, target)
 }
 
-// summarizeLsResult 生成 Ls 结果摘要。
+// summarizeLsResult generates the Ls result summary.
 func summarizeLsResult(result *agentv1.LsResult) string {
 	if result == nil {
 		return "ls result missing"
@@ -1273,7 +1273,7 @@ func summarizeLsResult(result *agentv1.LsResult) string {
 	}
 }
 
-// summarizeMcpResult 生成 MCP 执行结果摘要。
+// summarizeMcpResult generates the MCP execution result summary.
 func summarizeMcpResult(result *agentv1.McpToolResult) string {
 	if result == nil {
 		return "mcp result missing"
@@ -1292,7 +1292,7 @@ func summarizeMcpResult(result *agentv1.McpToolResult) string {
 	}
 }
 
-// convertMcpResult 把 ExecClientMessage 中的 McpResult 映射为 ToolCall 使用的 McpToolResult。
+// convertMcpResult maps the McpResult in ExecClientMessage to the McpToolResult used by ToolCall.
 func convertMcpResult(result *agentv1.McpResult) *agentv1.McpToolResult {
 	if result == nil {
 		return &agentv1.McpToolResult{
@@ -1408,7 +1408,7 @@ func truncateMcpToolResultForReplay(result *agentv1.McpToolResult) *agentv1.McpT
 	return cloned
 }
 
-// summarizeListMcpResourcesResult 生成 MCP 资源列表结果摘要。
+// summarizeListMcpResourcesResult generates the MCP resource list result summary.
 func summarizeListMcpResourcesResult(result *agentv1.ListMcpResourcesExecResult) string {
 	if result == nil {
 		return "list mcp resources result missing"
@@ -1425,7 +1425,7 @@ func summarizeListMcpResourcesResult(result *agentv1.ListMcpResourcesExecResult)
 	}
 }
 
-// summarizeReadMcpResourceResult 生成读取 MCP 资源结果摘要。
+// summarizeReadMcpResourceResult generates the MCP resource read result summary.
 func summarizeReadMcpResourceResult(result *agentv1.ReadMcpResourceExecResult) string {
 	if result == nil {
 		return "read mcp resource result missing"
@@ -1516,7 +1516,7 @@ func truncateReadMcpResourceResultForReplay(result *agentv1.ReadMcpResourceExecR
 	return cloned
 }
 
-// buildReadCompletedToolCall 构造 Read 对应的完成态 ToolCall。
+// buildReadCompletedToolCall constructs the completed ToolCall for Read.
 func buildReadCompletedToolCall(toolCallID string, argsJSON []byte, result *agentv1.ReadResult) *agentv1.ToolCall {
 	args, err := DecodeReadToolArgs(argsJSON)
 	if err != nil || args == nil {
@@ -1535,7 +1535,7 @@ func buildReadCompletedToolCall(toolCallID string, argsJSON []byte, result *agen
 	}
 }
 
-// buildDeleteCompletedToolCall 构造 Delete 对应的完成态 ToolCall。
+// buildDeleteCompletedToolCall constructs the completed ToolCall for Delete.
 func buildDeleteCompletedToolCall(toolCallID string, argsJSON []byte, result *agentv1.DeleteResult) *agentv1.ToolCall {
 	var args agentv1.DeleteArgs
 	_ = json.Unmarshal(argsJSON, &args)
@@ -1550,7 +1550,7 @@ func buildDeleteCompletedToolCall(toolCallID string, argsJSON []byte, result *ag
 	}
 }
 
-// buildGlobCompletedToolCall 构造 Glob 对应的完成态 ToolCall。
+// buildGlobCompletedToolCall constructs the completed ToolCall for Glob.
 func buildGlobCompletedToolCall(toolCallID string, argsJSON []byte, result *agentv1.GrepResult) *agentv1.ToolCall {
 	args, _ := decodeArgsMap(argsJSON)
 	return &agentv1.ToolCall{
@@ -1718,7 +1718,7 @@ func replayTruncationNotice(toolName string, limit int, kept int, original int) 
 	return fmt.Sprintf("[truncated: %s result exceeded %d bytes; showing %d of %d bytes]", toolName, limit, kept, original)
 }
 
-// buildWriteCompletedToolCall 构造 Write 对应的完成态 ToolCall。
+// buildWriteCompletedToolCall constructs the completed ToolCall for Write.
 func buildWriteCompletedToolCall(toolCallID string, argsJSON []byte, result *agentv1.WriteResult) *agentv1.ToolCall {
 	args, _ := decodeArgsMap(argsJSON)
 	streamContent := stringPtr(readStringArg(args, "contents", "content", "stream_content", "streamContent"))
@@ -1735,7 +1735,7 @@ func buildWriteCompletedToolCall(toolCallID string, argsJSON []byte, result *age
 	}
 }
 
-// buildReadLintsCompletedToolCall 构造 ReadLints 对应的完成态 ToolCall。
+// buildReadLintsCompletedToolCall constructs the completed ToolCall for ReadLints.
 func buildReadLintsCompletedToolCall(argsJSON []byte, result *agentv1.DiagnosticsResult) *agentv1.ToolCall {
 	args, _ := decodeArgsMap(argsJSON)
 	return &agentv1.ToolCall{
@@ -1750,7 +1750,7 @@ func buildReadLintsCompletedToolCall(argsJSON []byte, result *agentv1.Diagnostic
 	}
 }
 
-// buildTaskCompletedToolCall 构造 Task 对应的完成态 ToolCall。
+// buildTaskCompletedToolCall constructs the completed ToolCall for Task.
 func buildTaskCompletedToolCall(argsJSON []byte, result *agentv1.SubagentResult) *agentv1.ToolCall {
 	args, _ := decodeArgsMap(argsJSON)
 	readonly := readBoolArg(args, "readonly", "readOnly")
@@ -1802,7 +1802,7 @@ func subagentTypeProtoFromString(raw string) *agentv1.SubagentType {
 	}
 }
 
-// buildShellCompletedToolCall 构造 Shell 对应的完成态 ToolCall。
+// buildShellCompletedToolCall constructs the completed ToolCall for Shell.
 func buildShellCompletedToolCall(toolCallID string, argsJSON []byte, stdout string, stderr string, exit *agentv1.ShellStreamExit) *agentv1.ToolCall {
 	args := decodeShellArgsForResult(argsJSON)
 	shellArgs := &agentv1.ShellArgs{
@@ -1854,7 +1854,7 @@ func buildShellCompletedToolCall(toolCallID string, argsJSON []byte, stdout stri
 	}
 }
 
-// buildShellBackgroundedToolCall 构造 Shell 被转入后台时的完成态 ToolCall。
+// buildShellBackgroundedToolCall constructs the completed ToolCall for when Shell is moved to the background.
 func buildShellBackgroundedToolCall(toolCallID string, argsJSON []byte, backgrounded *agentv1.ShellStreamBackgrounded) *agentv1.ToolCall {
 	args := decodeShellArgsForResult(argsJSON)
 	shellArgs := &agentv1.ShellArgs{
@@ -1898,7 +1898,7 @@ func buildShellBackgroundedToolCall(toolCallID string, argsJSON []byte, backgrou
 	}
 }
 
-// buildShellSuccessPayload 构造 shell 终态结果。
+// buildShellSuccessPayload constructs the shell terminal result.
 func buildShellSuccessPayload(args shellResultArgs, stdout string, stderr string, exit *agentv1.ShellStreamExit) *agentv1.ShellSuccess {
 	stdout, stderr = truncateShellStreamsForReplay(stdout, stderr)
 	payload := &agentv1.ShellSuccess{
@@ -1950,7 +1950,7 @@ func truncateShellStreamsForReplay(stdout string, stderr string) (string, string
 		truncateReplayTextMiddle("Shell stderr", stderr, shellReplayStreamLimit)
 }
 
-// buildShellRejectedToolCall 构造 Shell 被拒绝时的完成态 ToolCall。
+// buildShellRejectedToolCall constructs the completed ToolCall for when Shell is rejected.
 func buildShellRejectedToolCall(toolCallID string, argsJSON []byte, rejected *agentv1.ShellRejected) *agentv1.ToolCall {
 	args := decodeShellArgsForResult(argsJSON)
 	return &agentv1.ToolCall{
@@ -1974,7 +1974,7 @@ func buildShellRejectedToolCall(toolCallID string, argsJSON []byte, rejected *ag
 	}
 }
 
-// buildShellPermissionDeniedToolCall 构造 Shell 权限拒绝时的完成态 ToolCall。
+// buildShellPermissionDeniedToolCall constructs the completed ToolCall for when Shell permission is denied.
 func buildShellPermissionDeniedToolCall(toolCallID string, argsJSON []byte, denied *agentv1.ShellPermissionDenied) *agentv1.ToolCall {
 	args := decodeShellArgsForResult(argsJSON)
 	return &agentv1.ToolCall{
@@ -1998,7 +1998,7 @@ func buildShellPermissionDeniedToolCall(toolCallID string, argsJSON []byte, deni
 	}
 }
 
-// buildSimpleShellCommands 生成最小 simple_commands 列表。
+// buildSimpleShellCommands generates a minimal simple_commands list.
 func buildSimpleShellCommands(command string) []string {
 	trimmed := strings.TrimSpace(command)
 	if trimmed == "" {
@@ -2007,7 +2007,7 @@ func buildSimpleShellCommands(command string) []string {
 	return []string{trimmed}
 }
 
-// buildShellParsingResultProto 生成最小 shell parsing_result。
+// buildShellParsingResultProto generates a minimal shell parsing_result.
 func buildShellParsingResultProto(command string) *agentv1.ShellCommandParsingResult {
 	trimmed := strings.TrimSpace(command)
 	if trimmed == "" {
@@ -2039,7 +2039,7 @@ func buildShellParsingResultProto(command string) *agentv1.ShellCommandParsingRe
 	}
 }
 
-// summarizeShellTerminalPayload 返回 shell 对模型可消费的终态结果文本。
+// summarizeShellTerminalPayload returns the terminal result text of shell consumable by the model.
 func summarizeShellTerminalPayload(stdout string, stderr string, exit *agentv1.ShellStreamExit, closedWithoutExit bool) string {
 	trimmedStdout := strings.TrimSpace(stdout)
 	trimmedStderr := strings.TrimSpace(stderr)
@@ -2082,7 +2082,7 @@ type shellOutputNotificationArgs struct {
 	NotificationLimit *int32
 }
 
-// decodeShellArgsForResult 解码 shell 参数，供完成态 ToolCall 复用。
+// decodeShellArgsForResult decodes shell arguments for reuse by the completed ToolCall.
 func decodeShellArgsForResult(argsJSON []byte) shellResultArgs {
 	args, err := decodeShellArgs(argsJSON)
 	if err != nil {
@@ -2098,7 +2098,7 @@ func decodeShellArgsForResult(argsJSON []byte) shellResultArgs {
 	return args
 }
 
-// shellTimeoutFromArgs 把工具 JSON 中的 block_until_ms 映射回 proto timeout。
+// shellTimeoutFromArgs maps the block_until_ms value in the tool JSON back to the proto timeout.
 func shellTimeoutFromArgs(args shellResultArgs) int32 {
 	if !args.BlockUntilMSSet {
 		return 30000
@@ -2109,7 +2109,7 @@ func shellTimeoutFromArgs(args shellResultArgs) int32 {
 	return int32(args.BlockUntilMS)
 }
 
-// buildWriteShellStdinCompletedToolCall 构造 WriteShellStdin 对应的完成态 ToolCall。
+// buildWriteShellStdinCompletedToolCall constructs the completed ToolCall for WriteShellStdin.
 func buildWriteShellStdinCompletedToolCall(argsJSON []byte, result *agentv1.WriteShellStdinResult) *agentv1.ToolCall {
 	args, err := decodeWriteShellStdinArgs(argsJSON)
 	if err != nil {
@@ -2166,7 +2166,7 @@ func summarizeForceBackgroundShellResult(result *agentv1.ForceBackgroundShellRes
 	}
 }
 
-// buildGrepCompletedToolCall 构造 Grep 对应的完成态 ToolCall。
+// buildGrepCompletedToolCall constructs the completed ToolCall for Grep.
 func buildGrepCompletedToolCall(toolCallID string, argsJSON []byte, result *agentv1.GrepResult) *agentv1.ToolCall {
 	args, err := DecodeGrepToolArgs(argsJSON, toolCallID)
 	if err != nil && args == nil {
@@ -2182,7 +2182,7 @@ func buildGrepCompletedToolCall(toolCallID string, argsJSON []byte, result *agen
 	}
 }
 
-// buildLsCompletedToolCall 构造 Ls 对应的完成态 ToolCall。
+// buildLsCompletedToolCall constructs the completed ToolCall for Ls.
 func buildLsCompletedToolCall(toolCallID string, argsJSON []byte, result *agentv1.LsResult) *agentv1.ToolCall {
 	var input struct {
 		Path   string   `json:"path"`
@@ -2203,7 +2203,7 @@ func buildLsCompletedToolCall(toolCallID string, argsJSON []byte, result *agentv
 	}
 }
 
-// buildMcpCompletedToolCall 构造 CallMcpTool 对应的完成态 ToolCall。
+// buildMcpCompletedToolCall constructs the completed ToolCall for CallMcpTool.
 func buildMcpCompletedToolCall(toolCallID string, argsJSON []byte, result *agentv1.McpToolResult) *agentv1.ToolCall {
 	input, _ := runtimecore.DecodeMCPToolPayload(argsJSON)
 	serverIdentifier := strings.TrimSpace(input.Server)
@@ -2245,7 +2245,7 @@ func canonicalMCPToolLookupName(server string, toolName string) string {
 	return trimmedServer + "-" + trimmedToolName
 }
 
-// buildListMcpResourcesCompletedToolCall 构造 ListMcpResources 对应的完成态 ToolCall。
+// buildListMcpResourcesCompletedToolCall constructs the completed ToolCall for ListMcpResources.
 func buildListMcpResourcesCompletedToolCall(argsJSON []byte, result *agentv1.ListMcpResourcesExecResult) *agentv1.ToolCall {
 	var input struct {
 		Server string `json:"server,omitempty"`
@@ -2263,7 +2263,7 @@ func buildListMcpResourcesCompletedToolCall(argsJSON []byte, result *agentv1.Lis
 	}
 }
 
-// buildReadMcpResourceCompletedToolCall 构造 FetchMcpResource 对应的完成态 ToolCall。
+// buildReadMcpResourceCompletedToolCall constructs the completed ToolCall for FetchMcpResource.
 func buildReadMcpResourceCompletedToolCall(argsJSON []byte, result *agentv1.ReadMcpResourceExecResult) *agentv1.ToolCall {
 	var input struct {
 		Server       string `json:"server"`
@@ -2285,7 +2285,7 @@ func buildReadMcpResourceCompletedToolCall(argsJSON []byte, result *agentv1.Read
 	}
 }
 
-// convertReadResultToReadToolResult 把 `ReadResult` 映射为 `ReadToolResult`。
+// convertReadResultToReadToolResult maps `ReadResult` to `ReadToolResult`.
 func convertReadResultToReadToolResult(result *agentv1.ReadResult) *agentv1.ReadToolResult {
 	if result == nil {
 		return &agentv1.ReadToolResult{
@@ -2371,7 +2371,7 @@ func convertReadResultToReadToolResult(result *agentv1.ReadResult) *agentv1.Read
 	}
 }
 
-// convertGrepResultToGlobToolResult 把 grep files mode 结果映射为 GlobToolResult。
+// convertGrepResultToGlobToolResult maps the grep files mode result to GlobToolResult.
 func convertGrepResultToGlobToolResult(result *agentv1.GrepResult, args map[string]any) *agentv1.GlobToolResult {
 	if result == nil {
 		return &agentv1.GlobToolResult{
@@ -2597,7 +2597,7 @@ func grepContentBytes(files []*agentv1.GrepFileMatch) int {
 	return used
 }
 
-// firstGrepFilesResult 取 workspaceResults 中首个 files 结果。
+// firstGrepFilesResult returns the first files result in workspaceResults.
 func firstGrepFilesResult(success *agentv1.GrepSuccess) *agentv1.GrepFilesResult {
 	if success == nil {
 		return nil
@@ -2642,7 +2642,7 @@ func buildEmptyGlobResult(argsJSON []byte) *agentv1.GrepResult {
 	}
 }
 
-// convertWriteResultToEditResult 把 WriteResult 映射为 EditResult。
+// convertWriteResultToEditResult maps WriteResult to EditResult.
 func convertWriteResultToEditResult(result *agentv1.WriteResult) *agentv1.EditResult {
 	if result == nil {
 		return &agentv1.EditResult{
@@ -2707,7 +2707,7 @@ func convertWriteResultToEditResult(result *agentv1.WriteResult) *agentv1.EditRe
 	}
 }
 
-// convertDiagnosticsResultToReadLintsToolResult 把 DiagnosticsResult 映射为 ReadLintsToolResult。
+// convertDiagnosticsResultToReadLintsToolResult maps DiagnosticsResult to ReadLintsToolResult.
 func convertDiagnosticsResultToReadLintsToolResult(result *agentv1.DiagnosticsResult) *agentv1.ReadLintsToolResult {
 	if result == nil {
 		return &agentv1.ReadLintsToolResult{
@@ -2753,7 +2753,7 @@ func convertDiagnosticsResultToReadLintsToolResult(result *agentv1.DiagnosticsRe
 	}
 }
 
-// convertDiagnostics 把 Diagnostic 转成 DiagnosticItem。
+// convertDiagnostics converts Diagnostic to DiagnosticItem.
 func convertDiagnostics(items []*agentv1.Diagnostic) []*agentv1.DiagnosticItem {
 	if len(items) == 0 {
 		return nil
@@ -2778,7 +2778,7 @@ func convertDiagnostics(items []*agentv1.Diagnostic) []*agentv1.DiagnosticItem {
 	return result
 }
 
-// convertSubagentResultToTaskResult 把 SubagentResult 映射为 TaskResult。
+// convertSubagentResultToTaskResult maps SubagentResult to TaskResult.
 func convertSubagentResultToTaskResult(result *agentv1.SubagentResult) *agentv1.TaskResult {
 	if result == nil {
 		return &agentv1.TaskResult{
@@ -2847,7 +2847,7 @@ func isBackgroundSubagentSuccess(success *agentv1.SubagentSuccess) bool {
 		strings.TrimSpace(success.GetTranscriptPath()) != ""
 }
 
-// DecodeGlobToolArgs 解析并归一化 Glob 参数，兼容历史与模型常见别名。
+// DecodeGlobToolArgs parses and normalizes Glob arguments, compatible with legacy and common model aliases.
 func DecodeGlobToolArgs(raw []byte) (*agentv1.GlobToolArgs, error) {
 	args, err := decodeArgsMap(raw)
 	if err != nil {
@@ -2938,7 +2938,7 @@ func DecodeGrepToolArgs(raw []byte, toolCallID string) (*agentv1.GrepArgs, error
 	return result, nil
 }
 
-// stringPtr 在需要 optional string 时构造指针值。
+// stringPtr constructs a pointer value when an optional string is needed.
 func stringPtr(value string) *string {
 	if value == "" {
 		return nil
@@ -2954,7 +2954,7 @@ func stringPtrIfNonEmpty(value string) *string {
 	return &value
 }
 
-// DecodeShellStdout 直接返回 shell stream stdout 的文本内容。
+// DecodeShellStdout directly returns the text content of the shell stream stdout.
 func DecodeShellStdout(stdout *agentv1.ShellStreamStdout) string {
 	if stdout == nil {
 		return ""
@@ -2962,27 +2962,27 @@ func DecodeShellStdout(stdout *agentv1.ShellStreamStdout) string {
 	return stdout.GetData()
 }
 
-// int32Ptr 在需要 optional int32 时构造指针值。
+// int32Ptr constructs a pointer value when an optional int32 is needed.
 func int32Ptr(value int32) *int32 {
 	return &value
 }
 
-// uint32Ptr 在需要 optional uint32 时构造指针值。
+// uint32Ptr constructs a pointer value when an optional uint32 is needed.
 func uint32Ptr(value uint32) *uint32 {
 	return &value
 }
 
-// uint64Ptr 在需要 optional uint64 时构造指针值。
+// uint64Ptr constructs a pointer value when an optional uint64 is needed.
 func uint64Ptr(value uint64) *uint64 {
 	return &value
 }
 
-// shellAbortReasonPtr 在需要 optional ShellAbortReason 时构造指针值。
+// shellAbortReasonPtr constructs a pointer value when an optional ShellAbortReason is needed.
 func shellAbortReasonPtr(value agentv1.ShellAbortReason) *agentv1.ShellAbortReason {
 	return &value
 }
 
-// buildStructValueMap 把普通 JSON 对象映射为 protobuf Struct value 映射。
+// buildStructValueMap maps a plain JSON object to a protobuf Struct value map.
 func buildStructValueMap(items map[string]any) map[string]*structpb.Value {
 	if len(items) == 0 {
 		return make(map[string]*structpb.Value)
@@ -2998,7 +2998,7 @@ func buildStructValueMap(items map[string]any) map[string]*structpb.Value {
 	return result
 }
 
-// decodeArgsMap 把工具 JSON 参数解析为通用 map。
+// decodeArgsMap parses tool JSON arguments into a generic map.
 func decodeArgsMap(raw []byte) (map[string]any, error) {
 	return runtimecore.DecodeArgsMap(raw)
 }
@@ -3018,22 +3018,22 @@ func readGlobTargetDirectoryArg(args map[string]any) string {
 	return strings.TrimSpace(readStringArg(args, "target_directory", "targetDirectory", "path"))
 }
 
-// readStringArg 从参数映射中按多个候选键读取字符串。
+// readStringArg reads a string from the argument map by trying multiple candidate keys.
 func readStringArg(args map[string]any, keys ...string) string {
 	return runtimecore.ReadStringArg(args, keys...)
 }
 
-// readBoolArg 从参数映射中按多个候选键读取布尔值。
+// readBoolArg reads a boolean from the argument map by trying multiple candidate keys.
 func readBoolArg(args map[string]any, keys ...string) bool {
 	return runtimecore.ReadBoolArg(args, keys...)
 }
 
-// hasArgKey 判断参数映射中是否存在任一候选键。
+// hasArgKey reports whether the argument map contains any of the candidate keys.
 func hasArgKey(args map[string]any, keys ...string) bool {
 	return runtimecore.HasArgKey(args, keys...)
 }
 
-// readStringSliceArg 读取字符串数组参数。
+// readStringSliceArg reads a string array argument.
 func readStringSliceArg(args map[string]any, keys ...string) []string {
 	return runtimecore.ReadStringSliceArg(args, keys...)
 }

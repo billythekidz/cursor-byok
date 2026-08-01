@@ -75,8 +75,8 @@ async function closeWindow() {
     return;
   }
   // const confirmed = await showModal({
-  //   title: "确认关闭",
-  //   content: "程序将会最小化到托盘，彻底关闭请在托盘退出，关闭后无法使用Cursor",
+  //   title: "Confirm close",
+  //   content: "The app will be minimized to the tray. To fully exit, quit from the tray. Cursor will be unusable after closing.",
   // });
   // if (!confirmed) {
   //   return;

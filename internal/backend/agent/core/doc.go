@@ -1,2 +1,2 @@
-// Package runtimecore 定义 runtime/loop、checkpoint、session 之间共享的状态与事件模型。
+// Package runtimecore định nghĩa mô hình trạng thái và sự kiện dùng chung giữa runtime/loop, checkpoint và session.
 package runtimecore

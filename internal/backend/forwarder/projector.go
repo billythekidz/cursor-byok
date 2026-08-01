@@ -1,4 +1,4 @@
-// projector.go 负责把 JSON history 投影成 prompt replay 和 legacy checkpoint 视图。
+// projector.go projects the JSON history into prompt replay and legacy checkpoint views.
 package forwarder
 
 import (
@@ -14,17 +14,17 @@ import (
 	promptengine "cursor/internal/backend/agent/prompt"
 )
 
-const projectedConversationMaxTokens = 130000
+const projectedConversationMaxTokens = 200_000
 
 type HistoryProjector struct {
 }
 
-// NewHistoryProjector 创建 history 投影器。
+// NewHistoryProjector creates the history projector.
 func NewHistoryProjector() *HistoryProjector {
 	return &HistoryProjector{}
 }
 
-// ProjectPromptReplay 把 conversation history 还原为 provider 可消费的消息列表。
+// ProjectPromptReplay restores the conversation history into a list of messages consumable by the provider.
 func (projector *HistoryProjector) ProjectPromptReplay(conversation *ConversationFile) ([]modeladapter.Message, error) {
 	if conversation == nil {
 		return nil, nil
@@ -473,7 +473,7 @@ func isHistoricalReplayToolResult(conversation *ConversationFile, entry HistoryE
 	return currentTurnSeq > 0 && entry.TurnSeq < currentTurnSeq
 }
 
-// ProjectLegacyCheckpoint 按需从 JSON history 投影出兼容旧客户端的 checkpoint 结构。
+// ProjectLegacyCheckpoint projects, on demand, a checkpoint structure compatible with older clients from the JSON history.
 func (projector *HistoryProjector) ProjectLegacyCheckpoint(conversation *ConversationFile) (*agentv1.ConversationStateStructure, error) {
 	state := &agentv1.ConversationStateStructure{
 		TokenDetails: &agentv1.ConversationTokenDetails{
@@ -1455,7 +1455,7 @@ func isInternalPromptContextContent(content string) bool {
 	}
 }
 
-// toModelMessage 把 promptengine 的消息结构转换为 modeladapter 消息结构。
+// toModelMessage converts a promptengine message structure into a modeladapter message structure.
 func toModelMessage(message promptengine.Message) modeladapter.Message {
 	return modeladapter.Message{
 		Role:                            message.Role,
@@ -1517,7 +1517,7 @@ func toPromptContentParts(items []modeladapter.ContentPart) []promptengine.Conte
 	return output
 }
 
-// toModelToolCalls 把 promptengine 的 tool call 描述转换为 modeladapter 版本。
+// toModelToolCalls converts promptengine tool call descriptions into the modeladapter version.
 func toModelToolCalls(items []promptengine.ToolCallDescriptor) []modeladapter.ToolCallDescriptor {
 	output := make([]modeladapter.ToolCallDescriptor, 0, len(items))
 	for _, item := range items {
@@ -1537,7 +1537,7 @@ func toModelToolCalls(items []promptengine.ToolCallDescriptor) []modeladapter.To
 	return output
 }
 
-// toPromptToolCalls 把 modeladapter 的 tool call 描述转换回 promptengine 版本。
+// toPromptToolCalls converts modeladapter tool call descriptions back into the promptengine version.
 func toPromptToolCalls(items []modeladapter.ToolCallDescriptor) []promptengine.ToolCallDescriptor {
 	output := make([]promptengine.ToolCallDescriptor, 0, len(items))
 	for _, item := range items {

@@ -12,7 +12,7 @@ var footerAuthorInfo = FooterAuthorInfo{
 	DialogCancelText:  "关闭",
 }
 
-// FooterAuthorInfo 定义首页底部作者入口的展示信息。
+// FooterAuthorInfo defines the display info of the author entry at the bottom of the home page.
 type FooterAuthorInfo struct {
 	ButtonText        string `json:"buttonText"`
 	DialogTitle       string `json:"dialogTitle"`
@@ -21,12 +21,12 @@ type FooterAuthorInfo struct {
 	DialogCancelText  string `json:"dialogCancelText"`
 }
 
-// GetFooterAuthorInfo 返回首页底部作者入口的展示信息。
+// GetFooterAuthorInfo returns the display info of the author entry at the bottom of the home page.
 func (s *WindowService) GetFooterAuthorInfo() FooterAuthorInfo {
 	return footerAuthorInfo
 }
 
-// OpenFooterAuthorHome 打开作者主页。
+// OpenFooterAuthorHome opens the author's homepage.
 func (s *WindowService) OpenFooterAuthorHome() error {
 	return browser.OpenURL(footerAuthorHomeURL)
 }

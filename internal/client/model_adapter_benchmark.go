@@ -42,7 +42,7 @@ const (
 	ModelAdapterTestStatusError   ModelAdapterTestStatus = "error"
 )
 
-// ModelAdapterTestResult 表示一次模型测速结果。
+// ModelAdapterTestResult represents the result of one model speed test.
 type ModelAdapterTestResult struct {
 	AdapterID        string  `json:"adapterID"`
 	RequestHash      string  `json:"requestHash"`
@@ -58,7 +58,7 @@ type ModelAdapterTestResult struct {
 	TestedAt         string  `json:"testedAt"`
 }
 
-// ModelAdapterTestResultsPayload 用于向前端广播当前测速结果快照。
+// ModelAdapterTestResultsPayload is used to broadcast the current speed test result snapshot to the frontend.
 type ModelAdapterTestResultsPayload struct {
 	Results []ModelAdapterTestResult `json:"results"`
 }

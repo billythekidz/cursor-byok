@@ -31,7 +31,7 @@ var (
 	logFilePath string
 )
 
-// Init 配置默认 slog logger，并把标准库 log 接到同一输出。
+// Init configures the default slog logger and connects the standard library log to the same output.
 func Init() {
 	initOnce.Do(func() {
 		handlers := []slog.Handler{tint.NewHandler(colorable.NewColorableStdout(), &tint.Options{
@@ -58,25 +58,25 @@ func Init() {
 	})
 }
 
-// Info 输出 info 级日志。
+// Info outputs an info-level log.
 func Info(msg string, args ...any) {
 	Init()
 	slog.Info(msg, args...)
 }
 
-// Error 输出 error 级日志。
+// Error outputs an error-level log.
 func Error(msg string, args ...any) {
 	Init()
 	slog.Error(msg, args...)
 }
 
-// Infof 输出格式化的 info 级日志。
+// Infof outputs a formatted info-level log.
 func Infof(format string, args ...any) {
 	Init()
 	slog.Info(formatMessage(format, args...))
 }
 
-// Errorf 输出格式化的 error 级日志。
+// Errorf outputs a formatted error-level log.
 func Errorf(format string, args ...any) {
 	Init()
 	slog.Error(formatMessage(format, args...))

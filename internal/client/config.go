@@ -9,10 +9,10 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
-// UserConfig 定义了当前模块中的 UserConfig 类型。
+// UserConfig defines the UserConfig type in this module.
 type UserConfig = serverconfig.Config
 
-// LoadUserConfig 用于处理与 LoadUserConfig 相关的逻辑。
+// LoadUserConfig handles logic related to LoadUserConfig.
 func (s *ProxyService) LoadUserConfig() (UserConfig, error) {
 	if s == nil {
 		return serverconfig.DefaultConfig(), nil
@@ -31,7 +31,7 @@ func (s *ProxyService) LoadUserConfig() (UserConfig, error) {
 	return s.store.Load(ctx)
 }
 
-// SaveUserConfig 用于处理与 SaveUserConfig 相关的逻辑。
+// SaveUserConfig handles logic related to SaveUserConfig.
 func (s *ProxyService) SaveUserConfig(cfg UserConfig) error {
 	if s == nil {
 		return nil
@@ -67,22 +67,22 @@ func (s *ProxyService) emitUserConfigChanged(cfg UserConfig) {
 	app.Event.Emit("user-config:changed", cfg)
 }
 
-// resolveUserConfigPath 用于处理与 resolveUserConfigPath 相关的逻辑。
+// resolveUserConfigPath handles logic related to resolveUserConfigPath.
 func resolveUserConfigPath() string {
 	return appdata.ConfigFilePath()
 }
 
-// resolveLogsRootPath 用于处理与 resolveLogsRootPath 相关的逻辑。
+// resolveLogsRootPath handles logic related to resolveLogsRootPath.
 func resolveLogsRootPath() string {
 	return appdata.LogsRootPath()
 }
 
-// ResolveLogsRootPath 用于处理与 ResolveLogsRootPath 相关的逻辑。
+// ResolveLogsRootPath handles logic related to ResolveLogsRootPath.
 func ResolveLogsRootPath() string {
 	return resolveLogsRootPath()
 }
 
-// ResolveSettingsRootPath 用于处理与 ResolveSettingsRootPath 相关的逻辑。
+// ResolveSettingsRootPath handles logic related to ResolveSettingsRootPath.
 func ResolveSettingsRootPath() string {
 	return appdata.RootDir()
 }

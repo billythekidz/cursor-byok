@@ -1,2 +1,2 @@
-// Package protocol 负责协议层解码、摘要与上行消息种类判断。
+// Package protocol is responsible for protocol-layer decoding, summarization, and classification of upstream message kinds.
 package protocol

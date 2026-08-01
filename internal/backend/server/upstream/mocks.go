@@ -435,6 +435,7 @@ func buildAvailableModelsPayload(reqCtx *RequestContext) (map[string]any, error)
 	if err != nil {
 		return nil, err
 	}
+	adapters = filterActiveModelAdapters(adapters)
 	modelRefs := collectModelAdapterRefs(adapters)
 	defaultModel := ""
 	if len(modelRefs) > 0 {
@@ -480,10 +481,37 @@ func buildDefaultModelNudgeDataPayload(reqCtx *RequestContext) (map[string]any, 
 	if err != nil {
 		return nil, err
 	}
+	adapters = filterActiveModelAdapters(adapters)
 	return map[string]any{
 		"modelsWithNoDefaultSwitch": collectModelAdapterRefs(adapters),
 		"nudgeDate":                 "0",
 	}, nil
+}
+
+// filterActiveModelAdapters 按 active 语义过滤待注入 Cursor 的适配器。
+// 向后兼容：若没有任何适配器显式设置 active=true（旧数据未配置该字段），
+// 则视为全部未配置，不过滤，保持原有"全部注入"行为，避免升级后模型列表变空。
+func filterActiveModelAdapters(adapters []legacyruntime.ModelAdapterConfig) []legacyruntime.ModelAdapterConfig {
+	if len(adapters) == 0 {
+		return adapters
+	}
+	hasActive := false
+	for _, adapter := range adapters {
+		if adapter.Active {
+			hasActive = true
+			break
+		}
+	}
+	if !hasActive {
+		return adapters
+	}
+	filtered := make([]legacyruntime.ModelAdapterConfig, 0, len(adapters))
+	for _, adapter := range adapters {
+		if adapter.Active {
+			filtered = append(filtered, adapter)
+		}
+	}
+	return filtered
 }
 
 func buildBootstrapStatsigPayload(reqCtx *RequestContext) (map[string]any, error) {

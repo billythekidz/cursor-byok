@@ -1,4 +1,4 @@
-// reminders.go 负责按 mode 和上下文生成最小的 system reminder 集合。
+// reminders.go generates the minimal system reminder set per mode and context.
 package forwarder
 
 import (
@@ -26,12 +26,12 @@ const (
 	promptContextSourceDebugModeReminder         = "debug_mode_reminder"
 )
 
-// NewReminderInjector 创建默认 reminder 注入器。
+// NewReminderInjector creates the default reminder injector.
 func NewReminderInjector() *DefaultReminderInjector {
 	return &DefaultReminderInjector{}
 }
 
-// Inject 根据 mode、最近用户输入和工具上下文生成本轮附加提醒。
+// Inject generates the additional reminders for the current turn based on mode, the latest user input, and tool context.
 func (injector *DefaultReminderInjector) Inject(mode agentv1.AgentMode, conversation *ConversationFile, replayMessages []modeladapter.Message, latestUserText string, toolNames []string) PromptReminders {
 	_ = toolNames
 	reminders := make([]string, 0, 6)

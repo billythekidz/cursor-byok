@@ -9,7 +9,7 @@
 - Fixed qwen-3.8-max interruption issue (mimo should also belong to the same type of issue)
 - Fixed issue where claude model might fail to recognize images @GGHansome
 - Supported custom OpenAI endpoint @Sxuan-Coder
-- WebSearch connected to Baidu search, DuckDuckGo as fallback @杨超
+- WebSearch connected to Baidu search, DuckDuckGo as fallback @Yang Chao
 - Fixed some compatibility issues @kael-odin 
 - Fixed some display issues on Windows @philau2512
 

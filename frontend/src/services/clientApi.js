@@ -146,3 +146,16 @@ export function getModelAdapterTestResults() {
     Call.ByName(`${PROXY_SERVICE_NAME}.GetModelAdapterTestResults`),
   );
 }
+
+export function scanOpenAIModels(baseURL, apiKey) {
+  return Call.ByName(`${PROXY_SERVICE_NAME}.ScanOpenAIModels`, baseURL, apiKey).then(
+    (result) => {
+      logSuccess("ScanOpenAIModels", { baseURL, apiKey }, result);
+      return result;
+    },
+    (error) => {
+      logError("ScanOpenAIModels", { baseURL, apiKey }, error);
+      throw error;
+    },
+  );
+}

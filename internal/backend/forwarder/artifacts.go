@@ -11,8 +11,8 @@ import (
 	"time"
 )
 
-// artifactRecorder 只缓存当前 provider call 的请求摘要，用于本轮内 usage/model 信息补齐。
-// 对话恢复事实只存在 state.json 与 context.json。
+// artifactRecorder only caches the request summary of the current provider call, to fill in usage/model information within this turn.
+// Conversation recovery facts live only in state.json and context.json.
 type artifactRecorder struct {
 	store  *ConversationFileStore
 	broker *StreamBroker

@@ -1,4 +1,4 @@
-// retry.go 保留 provider HTTP 请求入口的历史命名；provider 错误交给客户端重连链路处理。
+// retry.go giữ lại tên gọi lịch sử của điểm vào yêu cầu HTTP provider; lỗi provider được giao cho chuỗi kết nối lại của client xử lý.
 package modeladapter
 
 import (
@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// DoProviderRequestWithRetry 保留旧入口名；本地模式不在服务端重试 provider 请求。
+// DoProviderRequestWithRetry giữ lại tên điểm vào cũ; chế độ cục bộ không thử lại yêu cầu provider ở phía máy chủ.
 func DoProviderRequestWithRetry(
 	ctx context.Context,
 	client *http.Client,
@@ -43,7 +43,7 @@ func doProviderRequestWithRetry(
 	return resp, nil
 }
 
-// ProviderRetryAttemptSummary 返回空值；provider 请求不再有服务端内部重试摘要。
+// ProviderRetryAttemptSummary trả về giá trị rỗng; yêu cầu provider không còn tóm tắt thử lại nội bộ phía máy chủ.
 func ProviderRetryAttemptSummary(resp *http.Response) string {
 	return ""
 }

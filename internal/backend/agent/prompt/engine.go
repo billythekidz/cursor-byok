@@ -1,4 +1,4 @@
-// engine.go 实现 MVP 阶段的 prompt 编译器与工具过滤逻辑。
+// engine.go implements the MVP-stage prompt compiler and tool filtering logic.
 package promptengine
 
 import (
@@ -18,31 +18,31 @@ import (
 
 const todoSectionReminderMessage = "<system_reminder>\nYou are currently under the todo section, be sure to track tasks and do not forget to update.\n</system_reminder>"
 
-// Message 表示内部统一的模型消息结构。
+// Message represents the internal unified model message structure.
 type Message struct {
-	// Role 表示消息角色，例如 system、user、assistant。
+	// Role is the message role, e.g. system, user, assistant.
 	Role string `json:"role"`
-	// Content 表示消息文本内容。
+	// Content is the message text content.
 	Content string `json:"content"`
-	// ContentParts 表示消息中的结构化内容块，例如文本或图片。
+	// ContentParts are the structured content blocks of a message, e.g. text or images.
 	ContentParts []ContentPart `json:"content_parts,omitempty"`
-	// ReasoningContent 表示推理内容（用于支持 reasoning 的模型）。
+	// ReasoningContent is the reasoning content (for models that support reasoning).
 	ReasoningContent string `json:"reasoning_content,omitempty"`
-	// ReasoningSignature 表示 provider 对推理内容签发的签名。
+	// ReasoningSignature is the signature issued by the provider for the reasoning content.
 	ReasoningSignature string `json:"reasoning_signature,omitempty"`
-	// ReasoningSignatureSource 表示 reasoning signature 的 provider 语义来源。
+	// ReasoningSignatureSource is the provider semantic source of the reasoning signature.
 	ReasoningSignatureSource string `json:"reasoning_signature_source,omitempty"`
-	// OpenAIResponsesReasoningID 保存 Responses reasoning output item 的原始 id。
+	// OpenAIResponsesReasoningID holds the original id of a Responses reasoning output item.
 	OpenAIResponsesReasoningID string `json:"openai_responses_reasoning_id,omitempty"`
-	// OpenAIResponsesReasoningStatus 保存 Responses reasoning output item 的原始 status。
+	// OpenAIResponsesReasoningStatus holds the original status of a Responses reasoning output item.
 	OpenAIResponsesReasoningStatus string `json:"openai_responses_reasoning_status,omitempty"`
-	// OpenAIResponsesReasoningSummary 保存 Responses reasoning output item 的原始 summary。
+	// OpenAIResponsesReasoningSummary holds the original summary of a Responses reasoning output item.
 	OpenAIResponsesReasoningSummary json.RawMessage `json:"openai_responses_reasoning_summary,omitempty"`
-	// ToolCalls 表示 assistant 消息中的函数调用。
+	// ToolCalls are the function calls in an assistant message.
 	ToolCalls []ToolCallDescriptor `json:"tool_calls,omitempty"`
-	// ToolCallID 表示 tool role 关联的调用 id。
+	// ToolCallID is the call id associated with a tool role.
 	ToolCallID string `json:"tool_call_id,omitempty"`
-	// Name 表示 tool role 工具名。
+	// Name is the tool name of a tool role.
 	Name string `json:"name,omitempty"`
 }
 
@@ -61,58 +61,58 @@ type ToolCallFunctionShape struct {
 	Arguments string `json:"arguments"`
 }
 
-// CompileInput 描述一次 prompt 编译所需的最小输入。
+// CompileInput describes the minimal input required for one prompt compilation.
 type CompileInput struct {
-	// Mode 表示当前运行模式。
+	// Mode is the current running mode.
 	Mode agentv1.AgentMode
-	// RequestedModelName 表示当前请求实际使用的模型名称。
+	// RequestedModelName is the model name actually used by the current request.
 	RequestedModelName string
-	// ConversationState 表示当前会话结构化状态。
+	// ConversationState is the current structured conversation state.
 	ConversationState *agentv1.ConversationStateStructure
-	// RequestContext 表示本轮用户动作携带的 request_context。
+	// RequestContext is the request_context carried by the current user action.
 	RequestContext *agentv1.RequestContext
-	// PendingAssistantOutputs 表示尚未收口的 assistant 输出记录。
+	// PendingAssistantOutputs are the assistant output records that have not yet been finalized.
 	PendingAssistantOutputs []string
-	// HistoryTurns 保存当前回合历史文本摘要。
+	// HistoryTurns holds the text summaries of the current turn history.
 	HistoryTurns []string
-	// LatestExternalResults 保存最近一次外部桥结果。
+	// LatestExternalResults holds the most recent external bridge results.
 	LatestExternalResults []runtimecore.ExternalResultSummary
-	// CustomSystemPrompt 表示当前请求附带的自定义系统提示词。
+	// CustomSystemPrompt is the custom system prompt attached to the current request.
 	CustomSystemPrompt string
-	// CurrentUserMessageText 表示当前动作携带的用户文本。
+	// CurrentUserMessageText is the user text carried by the current action.
 	CurrentUserMessageText string
 }
 
-// CompiledPrompt 表示编译完成的一次模型输入。
+// CompiledPrompt represents a completed model input compilation.
 type CompiledPrompt struct {
-	// Mode 表示编译结果对应的运行模式。
+	// Mode is the running mode the compilation result corresponds to.
 	Mode agentv1.AgentMode
-	// Messages 表示按顺序排列的模型消息列表。
+	// Messages is the ordered list of model messages.
 	Messages []Message
-	// Tools 表示过滤后的原始工具 JSON 列表。
+	// Tools is the filtered list of raw tool JSON.
 	Tools []json.RawMessage
-	// RequestKnobs 表示模型调用的额外参数。
+	// RequestKnobs are the extra parameters for the model call.
 	RequestKnobs map[string]any
-	// CompileSummary 保存本轮编译摘要，便于调试与恢复。
+	// CompileSummary holds the compilation summary of this turn for debugging and recovery.
 	CompileSummary string
 }
 
-// PromptEngine 定义运行时依赖的 prompt 编译接口。
+// PromptEngine defines the prompt compilation interface the runtime depends on.
 type PromptEngine interface {
-	// Compile 根据输入编译一轮模型请求。
+	// Compile compiles one model request from the input.
 	Compile(input CompileInput) (CompiledPrompt, error)
 }
 
-// Engine 实现当前 MVP 阶段的 prompt 编译器。
+// Engine implements the prompt compiler for the current MVP stage.
 type Engine struct {
 }
 
-// NewEngine 创建一个 prompt 编译器实例。
+// NewEngine creates a prompt compiler instance.
 func NewEngine() *Engine {
 	return &Engine{}
 }
 
-// Compile 编译一轮模式化 prompt。
+// Compile compiles one templated prompt turn.
 func (engine *Engine) Compile(input CompileInput) (CompiledPrompt, error) {
 	assetMode, err := mapPromptMode(input.Mode)
 	if err != nil {
@@ -194,7 +194,7 @@ func (engine *Engine) Compile(input CompileInput) (CompiledPrompt, error) {
 	}, nil
 }
 
-// countCommittedTurns 统计当前会话状态中的已提交 turn 数。
+// countCommittedTurns counts the committed turns in the current conversation state.
 func countCommittedTurns(state *agentv1.ConversationStateStructure) int {
 	if state == nil {
 		return 0
@@ -202,7 +202,7 @@ func countCommittedTurns(state *agentv1.ConversationStateStructure) int {
 	return len(state.GetTurns())
 }
 
-// buildMessagesFromStructuredState 把 summary / plan / todos 编译成下一轮模型可消费的消息。
+// buildMessagesFromStructuredState compiles summary / plan / todos into messages consumable by the model in the next turn.
 func buildMessagesFromStructuredState(state *agentv1.ConversationStateStructure) []Message {
 	if state == nil {
 		return nil
@@ -234,7 +234,7 @@ func buildMessagesFromStructuredState(state *agentv1.ConversationStateStructure)
 	return messages
 }
 
-// buildMessagesFromRequestContext 把 request_context 中的用户环境信息编译成上游可消费消息。
+// buildMessagesFromRequestContext compiles the user environment information in request_context into upstream-consumable messages.
 func buildMessagesFromRequestContext(requestContext *agentv1.RequestContext) []Message {
 	if requestContext == nil {
 		return nil
@@ -250,7 +250,7 @@ func buildMessagesFromRequestContext(requestContext *agentv1.RequestContext) []M
 	}}
 }
 
-// BuildRequestContextReplayMessages 导出 request_context 的精简回放形状，供其他链路复用。
+// BuildRequestContextReplayMessages exports a compact replay shape of request_context for reuse by other pipelines.
 func BuildRequestContextReplayMessages(requestContext *agentv1.RequestContext) []Message {
 	return buildMessagesFromRequestContext(requestContext)
 }
@@ -301,7 +301,7 @@ func buildRequestContextRealtimeSections(requestContext *agentv1.RequestContext)
 	return sections
 }
 
-// buildRequestContextUserInfoSection 构造 <user_info> 片段。
+// buildRequestContextUserInfoSection constructs the <user_info> section.
 func buildRequestContextUserInfoSection(requestContext *agentv1.RequestContext) string {
 	if requestContext == nil || requestContext.GetEnv() == nil {
 		return ""
@@ -338,11 +338,11 @@ func buildRequestContextUserInfoSection(requestContext *agentv1.RequestContext) 
 	return "<user_info>\n" + strings.Join(lines, "\n\n") + "\n</user_info>"
 }
 
-// buildWorkspacePathsSection 构造工作区路径片段。
+// buildWorkspacePathsSection constructs the workspace paths section.
 //
-// 渲染规则：
-//   - 单路径：`Workspace Path: <path>`，与历史格式保持一致；
-//   - 多路径：`Workspace Paths:` 起行，后续每行以 `- <path>` 列出全部路径，顺序保留输入顺序。
+// Rendering rules:
+//   - single path: `Workspace Path: <path>`, keeping the legacy format;
+//   - multiple paths: start with `Workspace Paths:`, then list each path on its own line prefixed with `- <path>`, preserving input order.
 func buildWorkspacePathsSection(workspacePaths []string) string {
 	trimmedPaths := make([]string, 0, len(workspacePaths))
 	for _, path := range workspacePaths {
@@ -364,7 +364,7 @@ func buildWorkspacePathsSection(workspacePaths []string) string {
 	return strings.Join(items, "\n")
 }
 
-// buildRequestContextAgentTranscriptsSection 构造 <agent_transcripts> 片段。
+// buildRequestContextAgentTranscriptsSection constructs the <agent_transcripts> section.
 func buildRequestContextAgentTranscriptsSection(requestContext *agentv1.RequestContext) string {
 	if requestContext == nil || requestContext.GetEnv() == nil {
 		return ""
@@ -380,7 +380,7 @@ func buildRequestContextAgentTranscriptsSection(requestContext *agentv1.RequestC
 	}, "\n")
 }
 
-// buildRequestContextAgentSkillsSection 构造 <agent_skills> 片段。
+// buildRequestContextAgentSkillsSection constructs the <agent_skills> section.
 func buildRequestContextAgentSkillsSection(requestContext *agentv1.RequestContext) string {
 	if requestContext == nil {
 		return ""
@@ -423,7 +423,7 @@ func buildRequestContextAgentSkillsSection(requestContext *agentv1.RequestContex
 	return strings.Join(lines, "\n\n")
 }
 
-// buildRequestContextRulesSection 构造 <rules> 片段。
+// buildRequestContextRulesSection constructs the <rules> section.
 func buildRequestContextRulesSection(requestContext *agentv1.RequestContext) string {
 	if requestContext == nil || len(requestContext.GetRules()) == 0 {
 		return ""
@@ -448,7 +448,7 @@ func buildRequestContextRulesSection(requestContext *agentv1.RequestContext) str
 	return strings.Join(ruleLines, "\n")
 }
 
-// buildRequestContextMCPFileSystemSection 构造 <mcp_file_system> 片段。
+// buildRequestContextMCPFileSystemSection constructs the <mcp_file_system> section.
 func buildRequestContextMCPFileSystemSection(requestContext *agentv1.RequestContext) string {
 	if requestContext == nil || requestContext.GetMcpFileSystemOptions() == nil {
 		return ""
@@ -640,7 +640,7 @@ func buildEmbeddedMCPDescriptorSection(descriptor *agentv1.McpDescriptor, server
 	return strings.Join(lines, "\n")
 }
 
-// escapePromptXML 对 prompt 片段做最小 XML 转义。
+// escapePromptXML performs minimal XML escaping on prompt fragments.
 func escapePromptXML(value string) string {
 	replacer := strings.NewReplacer(
 		"&", "&amp;",
@@ -681,17 +681,17 @@ func firstNonEmpty(values ...string) string {
 	return ""
 }
 
-// formatRequestContextDate 返回与主项目对齐的日期格式。
+// formatRequestContextDate returns the date format aligned with the main project.
 func formatRequestContextDate() string {
 	return time.Now().Format("Monday Jan 2, 2006")
 }
 
-// buildMessagesFromPendingAssistantOutputs 把 `pending_tool_calls` 中的原始记录转换为安全的 assistant 文本消息。
+// buildMessagesFromPendingAssistantOutputs converts the raw records in `pending_tool_calls` into safe assistant text messages.
 func buildMessagesFromPendingAssistantOutputs(rawValues []string) []Message {
 	return BuildReplayMessagesFromPendingAssistantOutputs(rawValues)
 }
 
-// buildMessagesFromCommittedTurns 把已提交的 `ConversationStateStructure.turns` 映射为有序 prompt 消息。
+// buildMessagesFromCommittedTurns maps the committed `ConversationStateStructure.turns` into ordered prompt messages.
 func buildMessagesFromCommittedTurns(state *agentv1.ConversationStateStructure) []Message {
 	if state == nil {
 		return nil
@@ -742,7 +742,7 @@ func buildMessagesFromCommittedTurns(state *agentv1.ConversationStateStructure) 
 	return messages
 }
 
-// buildMessagesFromConversationStep 把单个 ConversationStep 映射为 prompt 消息。
+// buildMessagesFromConversationStep maps a single ConversationStep into prompt messages.
 func buildMessagesFromConversationStep(step *agentv1.ConversationStep) []Message {
 	return BuildLegacyMessagesFromConversationStep(step)
 }
@@ -758,7 +758,7 @@ func buildMessagesFromCanonicalReplay(state *agentv1.ConversationStateStructure)
 	return messages, true
 }
 
-// mapPromptMode 将协议 mode 映射为静态 prompt 资产 mode。
+// mapPromptMode maps the protocol mode to the static prompt asset mode.
 func mapPromptMode(mode agentv1.AgentMode) (promptassets.Mode, error) {
 	switch mode {
 	case agentv1.AgentMode_AGENT_MODE_AGENT:
@@ -776,7 +776,7 @@ func mapPromptMode(mode agentv1.AgentMode) (promptassets.Mode, error) {
 	}
 }
 
-// sanitizePromptAsset 去除资产文件中的文档性标题，只保留真实 prompt 文本。
+// sanitizePromptAsset removes the documentation-style title from the asset file, keeping only the real prompt text.
 func sanitizePromptAsset(text string, modelName string) string {
 	lines := strings.Split(text, "\n")
 	filtered := make([]string, 0, len(lines))
@@ -792,12 +792,12 @@ func sanitizePromptAsset(text string, modelName string) string {
 	return promptassets.RenderPromptTemplate(strings.TrimSpace(strings.Join(filtered, "\n")), modelName)
 }
 
-// decodeToolsFromBaseline 从原始工具 JSON 中按原始顺序解码工具列表与名称。
+// decodeToolsFromBaseline decodes the tool list and names from the raw tool JSON in their original order.
 //
-// 当前约束：
-// 1. `tools.json` 就是该 mode 的工具暴露基线；
-// 2. 必须保持原始顺序与原始工具描述结构，不得在 prompt 编译阶段做二次过滤；
-// 3. 未实现能力的显式错误语义必须由 runtime 负责，而不是由 prompt 编译器隐藏工具。
+// Current constraints:
+// 1. `tools.json` is the tool exposure baseline for the mode;
+// 2. the original order and original tool description structure must be preserved; no secondary filtering is allowed at prompt compilation time;
+// 3. explicit error semantics for unimplemented capabilities must be handled by the runtime, not by hiding tools in the prompt compiler.
 func decodeToolsFromBaseline(rawTools []byte) ([]json.RawMessage, []string, []string, error) {
 	var items []json.RawMessage
 	if err := json.Unmarshal(rawTools, &items); err != nil {
@@ -817,7 +817,7 @@ func decodeToolsFromBaseline(rawTools []byte) ([]json.RawMessage, []string, []st
 	return filtered, names, nil, nil
 }
 
-// extractToolName 从原始工具 JSON 中提取工具名称。
+// extractToolName extracts the tool name from the raw tool JSON.
 func extractToolName(raw json.RawMessage) (string, error) {
 	var wrapper struct {
 		Function struct {
@@ -834,7 +834,7 @@ func extractToolName(raw json.RawMessage) (string, error) {
 	return name, nil
 }
 
-// extractPendingAssistantText 从单条 pending assistant 原始记录中提取文本内容。
+// extractPendingAssistantText extracts the text content from a single raw pending assistant record.
 func extractPendingAssistantText(raw string) (string, bool) {
 	trimmed := strings.TrimSpace(raw)
 	if trimmed == "" {
@@ -988,7 +988,7 @@ func formatMessageText(text string) string {
 	return strings.TrimSpace(text)
 }
 
-// decodeSummaryForPrompt 解码会话 summary，供 prompt 编译使用。
+// decodeSummaryForPrompt decodes the conversation summary for prompt compilation.
 func decodeSummaryForPrompt(state *agentv1.ConversationStateStructure) (string, bool) {
 	if state == nil || len(state.GetSummary()) == 0 {
 		return "", false
@@ -1001,7 +1001,7 @@ func decodeSummaryForPrompt(state *agentv1.ConversationStateStructure) (string, 
 	return text, text != ""
 }
 
-// decodePlanForPrompt 解码会话 plan，供 prompt 编译使用。
+// decodePlanForPrompt decodes the conversation plan for prompt compilation.
 func decodePlanForPrompt(state *agentv1.ConversationStateStructure) (string, bool) {
 	if state == nil || len(state.GetPlan()) == 0 {
 		return "", false
@@ -1014,7 +1014,7 @@ func decodePlanForPrompt(state *agentv1.ConversationStateStructure) (string, boo
 	return text, text != ""
 }
 
-// decodeTodosForPrompt 解码会话 todos，供 prompt 编译使用。
+// decodeTodosForPrompt decodes the conversation todos for prompt compilation.
 func decodeTodosForPrompt(state *agentv1.ConversationStateStructure) (string, bool) {
 	if state == nil || len(state.GetTodos()) == 0 {
 		return "", false
@@ -1036,7 +1036,7 @@ func decodeTodosForPrompt(state *agentv1.ConversationStateStructure) (string, bo
 	return strings.Join(lines, "\n"), true
 }
 
-// todoStatusLabel 将 proto todo 状态转为 prompt 文本标签。
+// todoStatusLabel converts the proto todo status into a prompt text label.
 func todoStatusLabel(status agentv1.TodoStatus) string {
 	switch status {
 	case agentv1.TodoStatus_TODO_STATUS_PENDING:

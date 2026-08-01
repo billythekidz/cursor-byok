@@ -1,4 +1,4 @@
-// legacy_stream.go 提供兼容 Cursor legacy RunSSE 响应头的 HTTP 包装器。
+// legacy_stream.go provides an HTTP wrapper that is compatible with Cursor's legacy RunSSE response headers.
 package forwarder
 
 import (
@@ -13,7 +13,7 @@ import (
 
 const legacyRunSSEContentType = "text/event-stream"
 
-// NewLegacyRunSSEHandler 构造一个对外表现为 text/event-stream 的 Connect ServerStream 处理器。
+// NewLegacyRunSSEHandler builds a Connect ServerStream handler that presents itself as text/event-stream.
 func NewLegacyRunSSEHandler(
 	procedure string,
 	implementation func(context.Context, *connect.Request[aiserverv1.BidiRequestId], *connect.ServerStream[agentv1.AgentServerMessage]) error,
@@ -25,25 +25,25 @@ func NewLegacyRunSSEHandler(
 	})
 }
 
-// legacyRunSSEHeaderWriter 在真正写出 header 时覆盖 Content-Type。
+// legacyRunSSEHeaderWriter overrides Content-Type when the header is actually written.
 type legacyRunSSEHeaderWriter struct {
 	http.ResponseWriter
 	wroteHeader bool
 }
 
-// newLegacyRunSSEHeaderWriter 创建一个响应头包装器。
+// newLegacyRunSSEHeaderWriter creates a response-header wrapper.
 func newLegacyRunSSEHeaderWriter(writer http.ResponseWriter) *legacyRunSSEHeaderWriter {
 	return &legacyRunSSEHeaderWriter{ResponseWriter: writer}
 }
 
-// WriteHeader 在输出状态码前补齐 legacy 所需响应头。
+// WriteHeader fills in the legacy-required response headers before writing the status code.
 func (writer *legacyRunSSEHeaderWriter) WriteHeader(statusCode int) {
 	writer.applyLegacyHeaders()
 	writer.wroteHeader = true
 	writer.ResponseWriter.WriteHeader(statusCode)
 }
 
-// Write 在首次写 body 时懒加载 header。
+// Write lazily writes the header on the first body write.
 func (writer *legacyRunSSEHeaderWriter) Write(payload []byte) (int, error) {
 	if !writer.wroteHeader {
 		writer.WriteHeader(http.StatusOK)
@@ -51,19 +51,19 @@ func (writer *legacyRunSSEHeaderWriter) Write(payload []byte) (int, error) {
 	return writer.ResponseWriter.Write(payload)
 }
 
-// Flush 尝试把底层缓冲区立即刷新给客户端。
+// Flush attempts to flush the underlying buffer to the client immediately.
 func (writer *legacyRunSSEHeaderWriter) Flush() {
 	if flusher, ok := writer.ResponseWriter.(http.Flusher); ok {
 		flusher.Flush()
 	}
 }
 
-// Unwrap 返回底层 ResponseWriter。
+// Unwrap returns the underlying ResponseWriter.
 func (writer *legacyRunSSEHeaderWriter) Unwrap() http.ResponseWriter {
 	return writer.ResponseWriter
 }
 
-// applyLegacyHeaders 设置 Cursor legacy RunSSE 需要的响应头。
+// applyLegacyHeaders sets the response headers required by Cursor legacy RunSSE.
 func (writer *legacyRunSSEHeaderWriter) applyLegacyHeaders() {
 	header := writer.ResponseWriter.Header()
 	header.Set("Content-Type", legacyRunSSEContentType)

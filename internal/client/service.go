@@ -17,57 +17,57 @@ import (
 )
 
 const (
-	// publicAPITimeout 表示当前模块中的 publicAPITimeout 状态值。
+	// publicAPITimeout represents the publicAPITimeout state value in this module.
 	publicAPITimeout = 15 * time.Second
-	// backendReadyTimeout 表示等待嵌入式 backend 就绪的最长时间。
+	// backendReadyTimeout represents the maximum time to wait for the embedded backend to become ready.
 	backendReadyTimeout = 15 * time.Second
-	// backendHealthCheckInterval 表示轮询 backend 健康检查的间隔。
+	// backendHealthCheckInterval represents the interval for polling the backend health check.
 	backendHealthCheckInterval = 1 * time.Second
-	// backendHealthCheckAttemptTimeout 限制单次健康检查耗时，避免一次阻塞吃掉全部启动预算。
+	// backendHealthCheckAttemptTimeout limits the duration of a single health check attempt, preventing one blocking attempt from consuming the whole startup budget.
 	backendHealthCheckAttemptTimeout = 1 * time.Second
 )
 
-// ProxyService 定义了当前模块中的 ProxyService 类型。
+// ProxyService defines the ProxyService type in this module.
 type ProxyService struct {
-	// proxy 表示当前声明中的 proxy。
+	// proxy represents the proxy field in this declaration.
 	proxy *mitm.ProxyServer
-	// certManager 用于在代理监听地址变化时重建 MITM 服务。
+	// certManager is used to rebuild the MITM service when the proxy listen address changes.
 	certManager *certs.Manager
-	// backendHost 表示当前嵌入式 backend 服务。
+	// backendHost represents the current embedded backend service.
 	backendHost *backend.Host
 
-	// mu 表示当前声明中的 mu。
+	// mu represents the mu field in this declaration.
 	mu sync.RWMutex
-	// lastError 表示当前声明中的 lastError。
+	// lastError represents the lastError field in this declaration.
 	lastError string
-	// cursorSettingsApplied 表示当前是否已完成宿主代理设置注入。
+	// cursorSettingsApplied represents whether host proxy settings injection has been completed.
 	cursorSettingsApplied bool
 
-	// configMu 表示当前声明中的 configMu。
+	// configMu represents the configMu field in this declaration.
 	configMu sync.Mutex
-	// configPath 表示当前声明中的 configPath。
+	// configPath represents the configPath field in this declaration.
 	configPath string
-	// store 表示统一的配置存储。
+	// store represents the unified config storage.
 	store *serverconfig.Store
-	// caCertPEM 表示当前声明中的 caCertPEM。
+	// caCertPEM represents the caCertPEM field in this declaration.
 	caCertPEM []byte
 
-	// caFileMu 表示当前声明中的 caFileMu。
+	// caFileMu represents the caFileMu field in this declaration.
 	caFileMu sync.Mutex
-	// caFilePath 表示当前声明中的 caFilePath。
+	// caFilePath represents the caFilePath field in this declaration.
 	caFilePath string
 
-	// publicClient 表示当前声明中的 publicClient。
+	// publicClient represents the publicClient field in this declaration.
 	publicClient *http.Client
-	// logsRoot 表示当前声明中的 logsRoot。
+	// logsRoot represents the logsRoot field in this declaration.
 	logsRoot string
-	// modelTestMu 保护模型测速缓存。
+	// modelTestMu protects the model speed test cache.
 	modelTestMu sync.RWMutex
-	// modelTestResults 保存当前进程内的模型测速结果。
+	// modelTestResults stores the model speed test results within the current process.
 	modelTestResults map[string]ModelAdapterTestResult
 }
 
-// NewProxyService 用于处理与 NewProxyService 相关的逻辑。
+// NewProxyService handles logic related to NewProxyService.
 func NewProxyService(proxy *mitm.ProxyServer, certManager *certs.Manager, caCertPEM []byte) *ProxyService {
 	if err := appdata.EnsureAssistantHome(); err != nil {
 		logger.Errorf("ensure assistant home failed: %v", err)

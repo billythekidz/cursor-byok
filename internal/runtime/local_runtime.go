@@ -12,84 +12,88 @@ import (
 )
 
 var (
-	// ErrInvalidSystemSetting 表示当前模块中的 ErrInvalidSystemSetting 状态值。
+	// ErrInvalidSystemSetting represents the ErrInvalidSystemSetting state value in this module.
 	ErrInvalidSystemSetting = errors.New("invalid system setting")
-	// ErrChannelNotAvailable 表示当前没有可用模型渠道。
+	// ErrChannelNotAvailable means no model channel is currently available.
 	ErrChannelNotAvailable = errors.New("model channel not available")
-	// ErrChannelRateLimited 表示当前模型渠道被限流。
+	// ErrChannelRateLimited means the current model channel is rate limited.
 	ErrChannelRateLimited = errors.New("model channel rate limited")
 )
 
 const (
-	// configurableChannelTimeoutMS 表示当前声明中的 configurableChannelTimeoutMS。
+	// configurableChannelTimeoutMS represents the configurableChannelTimeoutMS field in this declaration.
 	configurableChannelTimeoutMS = int((2 * time.Hour) / time.Millisecond)
-	// configurableChannelContextWindowTokens 表示当前声明中的默认上下文窗口大小。
-	configurableChannelContextWindowTokens = 200_000
-	// configurableChannelMaxTokens 表示当前声明中的 configurableChannelMaxTokens。
+	// configurableChannelContextWindowTokens represents the default context window size in this declaration.
+	configurableChannelContextWindowTokens = 1_000_000
+	// configurableChannelMaxTokens represents the configurableChannelMaxTokens field in this declaration.
 	configurableChannelMaxTokens = 65_536
-	// configurableChannelThinkingBudgetTokens 表示当前声明中的 configurableChannelThinkingBudgetTokens。
+	// configurableChannelThinkingBudgetTokens represents the configurableChannelThinkingBudgetTokens field in this declaration.
 	configurableChannelThinkingBudgetTokens = 4_096
-	// configurableChannelAnthropicThinkingEffort 表示 Anthropic adaptive thinking 默认强度。
+	// configurableChannelAnthropicThinkingEffort is the default intensity for Anthropic adaptive thinking.
 	configurableChannelAnthropicThinkingEffort = "xhigh"
 )
 
-// ModelAdapterConfig 定义了当前模块中的 ModelAdapterConfig 类型。
+// ModelAdapterConfig defines the ModelAdapterConfig type in this module.
 type ModelAdapterConfig struct {
 	ID string `json:"id,omitempty"`
-	// DisplayName 表示当前声明中的 DisplayName。
+	// DisplayName represents the DisplayName field in this declaration.
 	DisplayName string `json:"displayName"`
-	// Type 表示当前声明中的 Type。
+	// Type represents the Type field in this declaration.
 	Type string `json:"type"`
-	// BaseURL 表示当前声明中的 BaseURL。
+	// BaseURL represents the BaseURL field in this declaration.
 	BaseURL string `json:"baseURL"`
-	// APIKey 表示当前声明中的 APIKey。
+	// APIKey represents the APIKey field in this declaration.
 	APIKey string `json:"apiKey"`
-	// TooltipData 表示当前声明中的 TooltipData。
+	// TooltipData represents the TooltipData field in this declaration.
 	TooltipData string `json:"tooltipData"`
-	// ModelID 表示当前声明中的 ModelID。
+	// ModelID represents the ModelID field in this declaration.
 	ModelID string `json:"modelID"`
-	// ReasoningEffort 表示当前声明中的 ReasoningEffort。
+	// ReasoningEffort represents the ReasoningEffort field in this declaration.
 	ReasoningEffort string `json:"reasoningEffort"`
-	// OpenAIEndpoint 表示 OpenAI 兼容适配器使用的 API 端点。
+	// OpenAIEndpoint is the API endpoint used by the OpenAI-compatible adapter.
 	OpenAIEndpoint string `json:"openAIEndpoint"`
-	// OpenAIExtraParamsEnabled 表示是否启用 OpenAI 额外请求参数。
+	// OpenAIExtraParamsEnabled indicates whether OpenAI extra request parameters are enabled.
 	OpenAIExtraParamsEnabled bool `json:"openAIExtraParamsEnabled"`
-	// OpenAIExtraParamsJSON 表示 OpenAI 额外请求参数 JSON 对象。
+	// OpenAIExtraParamsJSON is the JSON object of OpenAI extra request parameters.
 	OpenAIExtraParamsJSON string `json:"openAIExtraParamsJSON"`
-	// CustomHeadersEnabled 表示是否启用自定义请求头。
+	// CustomHeadersEnabled indicates whether custom request headers are enabled.
 	CustomHeadersEnabled bool `json:"customHeadersEnabled"`
-	// CustomHeadersJSON 表示自定义请求头 JSON 对象。
+	// CustomHeadersJSON is the JSON object of custom request headers.
 	CustomHeadersJSON string `json:"customHeadersJSON"`
-	// AnthropicExtraParamsEnabled 表示是否启用 Anthropic 额外请求参数。
+	// AnthropicExtraParamsEnabled indicates whether Anthropic extra request parameters are enabled.
 	AnthropicExtraParamsEnabled bool `json:"anthropicExtraParamsEnabled"`
-	// AnthropicExtraParamsJSON 表示 Anthropic 额外请求参数 JSON 对象。
+	// AnthropicExtraParamsJSON is the JSON object of Anthropic extra request parameters.
 	AnthropicExtraParamsJSON string `json:"anthropicExtraParamsJSON"`
-	// ContextWindowTokens 表示当前声明中的 ContextWindowTokens。
+	// ContextWindowTokens represents the ContextWindowTokens field in this declaration.
 	ContextWindowTokens int `json:"contextWindowTokens"`
-	// MaxCompletionTokens 表示当前声明中的 MaxCompletionTokens。
+	// MaxCompletionTokens represents the MaxCompletionTokens field in this declaration.
 	MaxCompletionTokens int `json:"maxCompletionTokens"`
-	// AnthropicMaxTokens 表示当前声明中的 AnthropicMaxTokens。
+	// AnthropicMaxTokens represents the AnthropicMaxTokens field in this declaration.
 	AnthropicMaxTokens int `json:"anthropicMaxTokens"`
-	// AnthropicThinkingEffort 表示 Anthropic adaptive thinking 的 output_config.effort。
+	// AnthropicThinkingEffort is the output_config.effort for Anthropic adaptive thinking.
 	AnthropicThinkingEffort string `json:"anthropicThinkingEffort,omitempty"`
-	// ThinkingBudgetTokens 表示当前声明中的 ThinkingBudgetTokens。
+	// ThinkingBudgetTokens represents the ThinkingBudgetTokens field in this declaration.
 	ThinkingBudgetTokens int `json:"thinkingBudgetTokens"`
+	// OpenAIEndpointGroupID is the ID of the OpenAI endpoint group the adapter belongs to; manually added adapters leave it empty.
+	OpenAIEndpointGroupID string `json:"openAIEndpointGroupID"`
+	// Active indicates whether the adapter is injected into Cursor.
+	Active bool `json:"active"`
 }
 
-// RuntimeConfigSnapshot 定义了当前模块中的 RuntimeConfigSnapshot 类型。
+// RuntimeConfigSnapshot defines the RuntimeConfigSnapshot type in this module.
 type RuntimeConfigSnapshot struct {
-	// ObservabilityLogEnabled 表示当前声明中的 ObservabilityLogEnabled。
+	// ObservabilityLogEnabled represents the ObservabilityLogEnabled field in this declaration.
 	ObservabilityLogEnabled bool
-	// ProviderStreamIdleTimeout 表示 provider 流式响应无有效内容时的空闲超时，单位秒。
+	// ProviderStreamIdleTimeout is the idle timeout in seconds when a provider streaming response has no valid content.
 	ProviderStreamIdleTimeout int
-	// ModelAdapters 表示当前声明中的 ModelAdapters。
+	// ModelAdapters represents the ModelAdapters field in this declaration.
 	ModelAdapters []ModelAdapterConfig
 }
 
-// RuntimeConfigProvider 定义了当前模块中的 RuntimeConfigProvider 类型。
+// RuntimeConfigProvider defines the RuntimeConfigProvider type in this module.
 type RuntimeConfigProvider func(context.Context) (RuntimeConfigSnapshot, error)
 
-// NormalizeModelAdapterConfigs 用于处理与 NormalizeModelAdapterConfigs 相关的逻辑。
+// NormalizeModelAdapterConfigs handles logic related to NormalizeModelAdapterConfigs.
 func NormalizeModelAdapterConfigs(input []ModelAdapterConfig) ([]ModelAdapterConfig, error) {
 	if len(input) == 0 {
 		return []ModelAdapterConfig{}, nil
@@ -103,18 +107,20 @@ func NormalizeModelAdapterConfigs(input []ModelAdapterConfig) ([]ModelAdapterCon
 			return nil, err
 		}
 		next := ModelAdapterConfig{
-			DisplayName:          strings.TrimSpace(item.DisplayName),
-			Type:                 normalizeModelAdapterType(item.Type),
-			BaseURL:              baseURL,
-			APIKey:               strings.TrimSpace(item.APIKey),
-			TooltipData:          strings.TrimSpace(item.TooltipData),
-			ModelID:              strings.TrimSpace(item.ModelID),
-			ReasoningEffort:      normalizeReasoningEffort(item.ReasoningEffort),
-			OpenAIEndpoint:       modelchannel.NormalizeOpenAIEndpoint(item.Type, item.OpenAIEndpoint),
-			ContextWindowTokens:  normalizeMaxCompletionTokens(item.ContextWindowTokens),
-			MaxCompletionTokens:  normalizeMaxCompletionTokens(item.MaxCompletionTokens),
-			AnthropicMaxTokens:   normalizeMaxCompletionTokens(item.AnthropicMaxTokens),
-			ThinkingBudgetTokens: normalizeMaxCompletionTokens(item.ThinkingBudgetTokens),
+			DisplayName:           strings.TrimSpace(item.DisplayName),
+			Type:                  normalizeModelAdapterType(item.Type),
+			BaseURL:               baseURL,
+			APIKey:                strings.TrimSpace(item.APIKey),
+			TooltipData:           strings.TrimSpace(item.TooltipData),
+			ModelID:               strings.TrimSpace(item.ModelID),
+			ReasoningEffort:       normalizeReasoningEffort(item.ReasoningEffort),
+			OpenAIEndpoint:        modelchannel.NormalizeOpenAIEndpoint(item.Type, item.OpenAIEndpoint),
+			ContextWindowTokens:   normalizeMaxCompletionTokens(item.ContextWindowTokens),
+			MaxCompletionTokens:   normalizeMaxCompletionTokens(item.MaxCompletionTokens),
+			AnthropicMaxTokens:    normalizeMaxCompletionTokens(item.AnthropicMaxTokens),
+			ThinkingBudgetTokens:  normalizeMaxCompletionTokens(item.ThinkingBudgetTokens),
+			OpenAIEndpointGroupID: strings.TrimSpace(item.OpenAIEndpointGroupID),
+			Active:                item.Active,
 		}
 		if next.Type == "openai" {
 			next.OpenAIExtraParamsEnabled = item.OpenAIExtraParamsEnabled
@@ -227,7 +233,7 @@ func normalizeMaxCompletionTokens(value int) int {
 	return value
 }
 
-// normalizeModelAdapterType 用于处理与 normalizeModelAdapterType 相关的逻辑。
+// normalizeModelAdapterType handles logic related to normalizeModelAdapterType.
 func normalizeModelAdapterType(value string) string {
 	switch strings.ToLower(strings.TrimSpace(value)) {
 	case "openai":
@@ -239,105 +245,105 @@ func normalizeModelAdapterType(value string) string {
 	}
 }
 
-// ResolvedChannel 表示当前选中的模型渠道。
+// ResolvedChannel represents the currently selected model channel.
 type ResolvedChannel struct {
-	// ID 表示当前声明中的 ID。
+	// ID represents the ID field in this declaration.
 	ID string
-	// Name 表示当前声明中的 Name。
+	// Name represents the Name field in this declaration.
 	Name string
-	// GroupName 表示当前声明中的 GroupName。
+	// GroupName represents the GroupName field in this declaration.
 	GroupName string
-	// Code 表示当前声明中的 Code。
+	// Code represents the Code field in this declaration.
 	Code string
-	// Provider 表示当前声明中的 Provider。
+	// Provider represents the Provider field in this declaration.
 	Provider string
-	// BaseURL 表示当前声明中的 BaseURL。
+	// BaseURL represents the BaseURL field in this declaration.
 	BaseURL string
-	// APIKey 表示当前声明中的 APIKey。
+	// APIKey represents the APIKey field in this declaration.
 	APIKey string
-	// Model 表示当前声明中的 Model。
+	// Model represents the Model field in this declaration.
 	Model string
-	// TimeoutMS 表示当前声明中的 TimeoutMS。
+	// TimeoutMS represents the TimeoutMS field in this declaration.
 	TimeoutMS int
-	// ContextWindowTokens 表示当前声明中的 ContextWindowTokens。
+	// ContextWindowTokens represents the ContextWindowTokens field in this declaration.
 	ContextWindowTokens int
-	// MaxTokens 表示当前声明中的 MaxTokens。
+	// MaxTokens represents the MaxTokens field in this declaration.
 	MaxTokens int
-	// ReasoningEffort 表示当前声明中的 ReasoningEffort。
+	// ReasoningEffort represents the ReasoningEffort field in this declaration.
 	ReasoningEffort string
-	// OpenAIEndpoint 表示 OpenAI 兼容适配器使用的 API 端点。
+	// OpenAIEndpoint is the API endpoint used by the OpenAI-compatible adapter.
 	OpenAIEndpoint string
-	// OpenAIExtraParamsEnabled 表示是否启用 OpenAI 额外请求参数。
+	// OpenAIExtraParamsEnabled indicates whether OpenAI extra request parameters are enabled.
 	OpenAIExtraParamsEnabled bool
-	// OpenAIExtraParamsJSON 表示 OpenAI 额外请求参数 JSON 对象。
+	// OpenAIExtraParamsJSON is the JSON object of OpenAI extra request parameters.
 	OpenAIExtraParamsJSON string
-	// CustomHeadersEnabled 表示是否启用自定义请求头。
+	// CustomHeadersEnabled indicates whether custom request headers are enabled.
 	CustomHeadersEnabled bool
-	// CustomHeadersJSON 表示自定义请求头 JSON 对象。
+	// CustomHeadersJSON is the JSON object of custom request headers.
 	CustomHeadersJSON string
-	// AnthropicExtraParamsEnabled 表示是否启用 Anthropic 额外请求参数。
+	// AnthropicExtraParamsEnabled indicates whether Anthropic extra request parameters are enabled.
 	AnthropicExtraParamsEnabled bool
-	// AnthropicExtraParamsJSON 表示 Anthropic 额外请求参数 JSON 对象。
+	// AnthropicExtraParamsJSON is the JSON object of Anthropic extra request parameters.
 	AnthropicExtraParamsJSON string
-	// AnthropicMaxTokens 表示当前声明中的 AnthropicMaxTokens。
+	// AnthropicMaxTokens represents the AnthropicMaxTokens field in this declaration.
 	AnthropicMaxTokens int
-	// AnthropicThinkingEffort 表示 Anthropic adaptive thinking 的 output_config.effort。
+	// AnthropicThinkingEffort is the output_config.effort for Anthropic adaptive thinking.
 	AnthropicThinkingEffort string
-	// ThinkingEnabled 表示当前声明中的 ThinkingEnabled。
+	// ThinkingEnabled represents the ThinkingEnabled field in this declaration.
 	ThinkingEnabled bool
-	// ThinkingBudgetTokens 表示当前声明中的 ThinkingBudgetTokens。
+	// ThinkingBudgetTokens represents the ThinkingBudgetTokens field in this declaration.
 	ThinkingBudgetTokens int
 }
 
-// ChannelUsageRecordCreatePayload 定义了一次渠道使用记录的最小载荷。
+// ChannelUsageRecordCreatePayload defines the minimal payload for one channel usage record.
 type ChannelUsageRecordCreatePayload struct {
-	// RequestID 表示当前声明中的 RequestID。
+	// RequestID represents the RequestID field in this declaration.
 	RequestID string
-	// ConversationID 表示当前声明中的 ConversationID。
+	// ConversationID represents the ConversationID field in this declaration.
 	ConversationID string
-	// RuntimeModelID 表示当前声明中的 RuntimeModelID。
+	// RuntimeModelID represents the RuntimeModelID field in this declaration.
 	RuntimeModelID string
 }
 
-// ChannelCallRecordCreatePayload 定义了一次渠道调用记录的最小载荷。
+// ChannelCallRecordCreatePayload defines the minimal payload for one channel call record.
 type ChannelCallRecordCreatePayload struct {
-	// RequestID 表示当前声明中的 RequestID。
+	// RequestID represents the RequestID field in this declaration.
 	RequestID string
-	// ConversationID 表示当前声明中的 ConversationID。
+	// ConversationID represents the ConversationID field in this declaration.
 	ConversationID string
-	// ChannelID 表示当前声明中的 ChannelID。
+	// ChannelID represents the ChannelID field in this declaration.
 	ChannelID string
-	// ChannelName 表示当前声明中的 ChannelName。
+	// ChannelName represents the ChannelName field in this declaration.
 	ChannelName string
-	// GroupName 表示当前声明中的 GroupName。
+	// GroupName represents the GroupName field in this declaration.
 	GroupName string
-	// Provider 表示当前声明中的 Provider。
+	// Provider represents the Provider field in this declaration.
 	Provider string
-	// RuntimeModelID 表示当前声明中的 RuntimeModelID。
+	// RuntimeModelID represents the RuntimeModelID field in this declaration.
 	RuntimeModelID string
-	// ProviderModelID 表示当前声明中的 ProviderModelID。
+	// ProviderModelID represents the ProviderModelID field in this declaration.
 	ProviderModelID string
-	// StatusCode 表示当前声明中的 StatusCode。
+	// StatusCode represents the StatusCode field in this declaration.
 	StatusCode int
-	// Success 表示当前声明中的 Success。
+	// Success represents the Success field in this declaration.
 	Success bool
-	// DurationMS 表示当前声明中的 DurationMS。
+	// DurationMS represents the DurationMS field in this declaration.
 	DurationMS int64
-	// ErrorCode 表示当前声明中的 ErrorCode。
+	// ErrorCode represents the ErrorCode field in this declaration.
 	ErrorCode string
-	// ErrorMessage 表示当前声明中的 ErrorMessage。
+	// ErrorMessage represents the ErrorMessage field in this declaration.
 	ErrorMessage string
 }
 
-// FixedChannelService 定义了当前模块中的 FixedChannelService 类型。
+// FixedChannelService defines the FixedChannelService type in this module.
 type FixedChannelService struct {
-	// channel 表示当前声明中的 channel。
+	// channel represents the channel field in this declaration.
 	channel ResolvedChannel
-	// configProvider 表示当前声明中的 configProvider。
+	// configProvider represents the configProvider field in this declaration.
 	configProvider RuntimeConfigProvider
 }
 
-// NewFixedChannelService 用于处理与 NewFixedChannelService 相关的逻辑。
+// NewFixedChannelService handles logic related to NewFixedChannelService.
 func NewFixedChannelService(channel ResolvedChannel, logsRoot string) *FixedChannelService {
 	_ = logsRoot
 	return &FixedChannelService{
@@ -345,7 +351,7 @@ func NewFixedChannelService(channel ResolvedChannel, logsRoot string) *FixedChan
 	}
 }
 
-// NewConfigurableChannelService 用于处理与 NewConfigurableChannelService 相关的逻辑。
+// NewConfigurableChannelService handles logic related to NewConfigurableChannelService.
 func NewConfigurableChannelService(provider RuntimeConfigProvider, logsRoot string) *FixedChannelService {
 	_ = logsRoot
 	return &FixedChannelService{
@@ -353,12 +359,12 @@ func NewConfigurableChannelService(provider RuntimeConfigProvider, logsRoot stri
 	}
 }
 
-// SelectChannelForRequestBody 用于处理与 SelectChannelForRequestBody 相关的逻辑。
+// SelectChannelForRequestBody handles logic related to SelectChannelForRequestBody.
 func (s *FixedChannelService) SelectChannelForRequestBody(_ context.Context, _ []byte) (*ResolvedChannel, error) {
 	return s.SelectChannelForModel(context.Background(), "")
 }
 
-// SelectChannelForModel 用于处理与 SelectChannelForModel 相关的逻辑。
+// SelectChannelForModel handles logic related to SelectChannelForModel.
 func (s *FixedChannelService) SelectChannelForModel(ctx context.Context, modelID string) (*ResolvedChannel, error) {
 	if s == nil {
 		return nil, ErrChannelNotAvailable
@@ -434,37 +440,37 @@ func (s *FixedChannelService) SelectChannelForModel(ctx context.Context, modelID
 	return &resolved, nil
 }
 
-// RecordRunRequestUsage 用于处理与 RecordRunRequestUsage 相关的逻辑。
+// RecordRunRequestUsage handles logic related to RecordRunRequestUsage.
 func (s *FixedChannelService) RecordRunRequestUsage(_ context.Context, payload ChannelUsageRecordCreatePayload) error {
 	_ = s
 	_ = payload
 	return nil
 }
 
-// RecordChannelCall 用于处理与 RecordChannelCall 相关的逻辑。
+// RecordChannelCall handles logic related to RecordChannelCall.
 func (s *FixedChannelService) RecordChannelCall(_ context.Context, payload ChannelCallRecordCreatePayload) error {
 	_ = s
 	_ = payload
 	return nil
 }
 
-// LocalSystemSettingService 定义了当前模块中的 LocalSystemSettingService 类型。
+// LocalSystemSettingService defines the LocalSystemSettingService type in this module.
 type LocalSystemSettingService struct {
-	// provider 表示当前声明中的 provider。
+	// provider represents the provider field in this declaration.
 	provider RuntimeConfigProvider
 }
 
-// NewLocalSystemSettingService 用于处理与 NewLocalSystemSettingService 相关的逻辑。
+// NewLocalSystemSettingService handles logic related to NewLocalSystemSettingService.
 func NewLocalSystemSettingService(provider RuntimeConfigProvider) *LocalSystemSettingService {
 	return &LocalSystemSettingService{provider: provider}
 }
 
-// ResolveFrontendBaseURL 用于处理与 ResolveFrontendBaseURL 相关的逻辑。
+// ResolveFrontendBaseURL handles logic related to ResolveFrontendBaseURL.
 func (s *LocalSystemSettingService) ResolveFrontendBaseURL(context.Context) (string, error) {
 	return "http://127.0.0.1", nil
 }
 
-// IsObservabilityLogEnabled 用于处理与 IsObservabilityLogEnabled 相关的逻辑。
+// IsObservabilityLogEnabled handles logic related to IsObservabilityLogEnabled.
 func (s *LocalSystemSettingService) IsObservabilityLogEnabled(ctx context.Context) bool {
 	cfg, err := s.load(ctx)
 	if err != nil {
@@ -473,22 +479,22 @@ func (s *LocalSystemSettingService) IsObservabilityLogEnabled(ctx context.Contex
 	return cfg.ObservabilityLogEnabled
 }
 
-// IsAgentRuntimeModelEnabled 用于处理与 IsAgentRuntimeModelEnabled 相关的逻辑。
+// IsAgentRuntimeModelEnabled handles logic related to IsAgentRuntimeModelEnabled.
 func (s *LocalSystemSettingService) IsAgentRuntimeModelEnabled(context.Context) bool {
 	return true
 }
 
-// ResolveCursorServerBridge 用于处理与 ResolveCursorServerBridge 相关的逻辑。
+// ResolveCursorServerBridge handles logic related to ResolveCursorServerBridge.
 func (s *LocalSystemSettingService) ResolveCursorServerBridge(context.Context) (string, bool) {
 	return "", false
 }
 
-// LoadRuntimeConfigSnapshot 用于处理与 LoadRuntimeConfigSnapshot 相关的逻辑。
+// LoadRuntimeConfigSnapshot handles logic related to LoadRuntimeConfigSnapshot.
 func (s *LocalSystemSettingService) LoadRuntimeConfigSnapshot(ctx context.Context) (RuntimeConfigSnapshot, error) {
 	return s.load(ctx)
 }
 
-// ResolveModelAdapters 用于处理与 ResolveModelAdapters 相关的逻辑。
+// ResolveModelAdapters handles logic related to ResolveModelAdapters.
 func (s *LocalSystemSettingService) ResolveModelAdapters(ctx context.Context) ([]ModelAdapterConfig, error) {
 	cfg, err := s.load(ctx)
 	if err != nil {
@@ -497,7 +503,7 @@ func (s *LocalSystemSettingService) ResolveModelAdapters(ctx context.Context) ([
 	return NormalizeModelAdapterConfigs(cfg.ModelAdapters)
 }
 
-// load 用于处理与 load 相关的逻辑。
+// load handles logic related to load.
 func (s *LocalSystemSettingService) load(ctx context.Context) (RuntimeConfigSnapshot, error) {
 	if s == nil || s.provider == nil {
 		return RuntimeConfigSnapshot{}, nil

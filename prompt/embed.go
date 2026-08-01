@@ -6,30 +6,30 @@ import (
 	"strings"
 )
 
-// Mode 表示 prompt 资产对应的运行模式。
+// Mode represents the runtime mode that a prompt asset corresponds to.
 type Mode string
 
 const (
-	// ModeAsk 表示 Ask 模式的静态资产。
+	// ModeAsk represents the static assets for Ask mode.
 	ModeAsk Mode = "ask"
-	// ModePlan 表示 Plan 模式的静态资产。
+	// ModePlan represents the static assets for Plan mode.
 	ModePlan Mode = "plan"
-	// ModeAgent 表示 Agent 模式的静态资产。
+	// ModeAgent represents the static assets for Agent mode.
 	ModeAgent Mode = "agent"
-	// ModeDebug 表示 Debug 模式的静态资产。
+	// ModeDebug represents the static assets for Debug mode.
 	ModeDebug Mode = "debug"
-	// ModeMultitask 表示 Multitask 模式的静态资产。
+	// ModeMultitask represents the static assets for Multitask mode.
 	ModeMultitask Mode = "multitask"
-	// ModeSubagent 表示子代理只读会话的静态资产。
+	// ModeSubagent represents the static assets for subagent read-only sessions.
 	ModeSubagent Mode = "subagent"
 )
 
-// assetFS 保存按模式组织的静态 prompt 与 tools 资产。
+// assetFS holds static prompt and tools assets organized by mode.
 //
 //go:embed common_prefix.md ask/prompt.md ask/tools.json plan/prompt.md plan/system_reminder.txt plan/tools.json agent/prompt.md agent/tools.json debug/prompt.md debug/tools.json debug/system_reminder_initial.txt debug/system_reminder_continuing.txt multitask/prompt.md multitask/tools.json subagent/prompt.md subagent/tools.json compaction/prompt.md commit/prompt.md
 var assetFS embed.FS
 
-// normalizeMode 校验并归一化传入的模式值。
+// normalizeMode validates and normalizes the incoming mode value.
 func normalizeMode(mode Mode) (Mode, error) {
 	switch mode {
 	case ModeAsk, ModePlan, ModeAgent, ModeDebug, ModeMultitask, ModeSubagent:
@@ -39,7 +39,7 @@ func normalizeMode(mode Mode) (Mode, error) {
 	}
 }
 
-// PromptPath 返回指定模式的静态提示词资产路径。
+// PromptPath returns the static prompt asset path for the given mode.
 func PromptPath(mode Mode) (string, error) {
 	normalized, err := normalizeMode(mode)
 	if err != nil {
@@ -48,7 +48,7 @@ func PromptPath(mode Mode) (string, error) {
 	return fmt.Sprintf("%s/prompt.md", normalized), nil
 }
 
-// ToolsPath 返回指定模式的静态工具资产路径。
+// ToolsPath returns the static tools asset path for the given mode.
 func ToolsPath(mode Mode) (string, error) {
 	normalized, err := normalizeMode(mode)
 	if err != nil {
@@ -57,7 +57,7 @@ func ToolsPath(mode Mode) (string, error) {
 	return fmt.Sprintf("%s/tools.json", normalized), nil
 }
 
-// ReadPrompt 读取指定模式的静态提示词文本。
+// ReadPrompt reads the static prompt text for the given mode.
 func ReadPrompt(mode Mode) (string, error) {
 	normalized, err := normalizeMode(mode)
 	if err != nil {
@@ -82,7 +82,7 @@ func ReadPrompt(mode Mode) (string, error) {
 	return string(prefix) + "\n\n" + string(data), nil
 }
 
-// MustReadPrompt 读取指定模式的静态提示词文本，失败时直接 panic。
+// MustReadPrompt reads the static prompt text for the given mode and panics on failure.
 func MustReadPrompt(mode Mode) string {
 	text, err := ReadPrompt(mode)
 	if err != nil {
@@ -91,7 +91,7 @@ func MustReadPrompt(mode Mode) string {
 	return text
 }
 
-// ReadTools 读取指定模式的原始工具 JSON。
+// ReadTools reads the raw tools JSON for the given mode.
 func ReadTools(mode Mode) ([]byte, error) {
 	path, err := ToolsPath(mode)
 	if err != nil {
@@ -104,7 +104,7 @@ func ReadTools(mode Mode) ([]byte, error) {
 	return data, nil
 }
 
-// MustReadTools 读取指定模式的原始工具 JSON，失败时直接 panic。
+// MustReadTools reads the raw tools JSON for the given mode and panics on failure.
 func MustReadTools(mode Mode) []byte {
 	data, err := ReadTools(mode)
 	if err != nil {
@@ -113,7 +113,7 @@ func MustReadTools(mode Mode) []byte {
 	return data
 }
 
-// ReadDebugSystemReminder 读取 Debug 模式每轮追加的提醒资产。
+// ReadDebugSystemReminder reads the reminder asset appended each round in Debug mode.
 func ReadDebugSystemReminder(initial bool) (string, error) {
 	path := "debug/system_reminder_continuing.txt"
 	if initial {
@@ -126,7 +126,7 @@ func ReadDebugSystemReminder(initial bool) (string, error) {
 	return strings.TrimSpace(string(data)), nil
 }
 
-// MustReadDebugSystemReminder 读取 Debug 模式提醒资产，失败时直接 panic。
+// MustReadDebugSystemReminder reads the Debug mode reminder asset and panics on failure.
 func MustReadDebugSystemReminder(initial bool) string {
 	text, err := ReadDebugSystemReminder(initial)
 	if err != nil {
@@ -135,7 +135,7 @@ func MustReadDebugSystemReminder(initial bool) string {
 	return text
 }
 
-// ReadPlanSystemReminder 读取 Plan 模式每轮追加的动态提醒资产。
+// ReadPlanSystemReminder reads the dynamic reminder asset appended each round in Plan mode.
 func ReadPlanSystemReminder() (string, error) {
 	const path = "plan/system_reminder.txt"
 	data, err := assetFS.ReadFile(path)
@@ -145,7 +145,7 @@ func ReadPlanSystemReminder() (string, error) {
 	return strings.TrimSpace(string(data)), nil
 }
 
-// MustReadPlanSystemReminder 读取 Plan 模式动态提醒资产，失败时直接 panic。
+// MustReadPlanSystemReminder reads the Plan mode dynamic reminder asset and panics on failure.
 func MustReadPlanSystemReminder() string {
 	text, err := ReadPlanSystemReminder()
 	if err != nil {
@@ -154,7 +154,7 @@ func MustReadPlanSystemReminder() string {
 	return text
 }
 
-// ReadCompactionPrompt 读取共享的压缩提示词资产。
+// ReadCompactionPrompt reads the shared compaction prompt asset.
 func ReadCompactionPrompt() (string, error) {
 	const path = "compaction/prompt.md"
 	data, err := assetFS.ReadFile(path)
@@ -164,7 +164,7 @@ func ReadCompactionPrompt() (string, error) {
 	return strings.TrimSpace(string(data)), nil
 }
 
-// MustReadCompactionPrompt 读取共享的压缩提示词资产，失败时直接 panic。
+// MustReadCompactionPrompt reads the shared compaction prompt asset and panics on failure.
 func MustReadCompactionPrompt() string {
 	text, err := ReadCompactionPrompt()
 	if err != nil {
@@ -173,7 +173,7 @@ func MustReadCompactionPrompt() string {
 	return text
 }
 
-// ReadCommitPrompt 读取提交信息生成专用提示词资产。
+// ReadCommitPrompt reads the prompt asset dedicated to commit message generation.
 func ReadCommitPrompt() (string, error) {
 	const path = "commit/prompt.md"
 	data, err := assetFS.ReadFile(path)
@@ -183,7 +183,7 @@ func ReadCommitPrompt() (string, error) {
 	return strings.TrimSpace(string(data)), nil
 }
 
-// MustReadCommitPrompt 读取提交信息生成专用提示词资产，失败时直接 panic。
+// MustReadCommitPrompt reads the commit message generation prompt asset and panics on failure.
 func MustReadCommitPrompt() string {
 	text, err := ReadCommitPrompt()
 	if err != nil {

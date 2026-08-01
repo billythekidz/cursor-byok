@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// recordLLMRequestArtifact 记录一次模型调用的原始请求工件。
+// recordLLMRequestArtifact records the raw request artifact of a model call.
 func recordLLMRequestArtifact(req StreamRequest, provider string, model string, method string, url string, body any) {
 	if req.Observer == nil {
 		return
@@ -36,7 +36,7 @@ func recordLLMRequestArtifact(req StreamRequest, provider string, model string, 
 	}
 }
 
-// buildLLMSummaryPayload 生成 LLM 调用摘要工件内容。
+// buildLLMSummaryPayload generates the LLM call summary artifact content.
 func buildLLMSummaryPayload(
 	req StreamRequest,
 	provider string,
@@ -76,7 +76,7 @@ func buildLLMSummaryPayload(
 	}
 }
 
-// appendLLMResponseArtifact 追加模型调用的原始响应文本。
+// appendLLMResponseArtifact appends the raw response text of a model call.
 func appendLLMResponseArtifact(req StreamRequest, chunk string) (string, error) {
 	if req.Observer == nil {
 		return "", nil
@@ -88,7 +88,7 @@ func appendLLMResponseArtifact(req StreamRequest, chunk string) (string, error) 
 	return path, err
 }
 
-// recordLLMSummaryArtifact 记录模型调用摘要。
+// recordLLMSummaryArtifact records the model call summary.
 func recordLLMSummaryArtifact(req StreamRequest, payload map[string]any) {
 	if req.Observer == nil {
 		return
@@ -99,7 +99,7 @@ func recordLLMSummaryArtifact(req StreamRequest, payload map[string]any) {
 	}
 }
 
-// summarizeTools 生成工具列表摘要。
+// summarizeTools generates a tool list summary.
 func summarizeTools(items []json.RawMessage) []string {
 	result := make([]string, 0, len(items))
 	for _, item := range items {
@@ -118,7 +118,7 @@ func summarizeTools(items []json.RawMessage) []string {
 	return result
 }
 
-// summarizeMessages 生成消息列表摘要。
+// summarizeMessages generates a message list summary.
 func summarizeMessages(items []Message) []map[string]any {
 	result := make([]map[string]any, 0, len(items))
 	for _, item := range items {
@@ -154,7 +154,7 @@ func truncateArtifactText(text string, maxRunes int) string {
 	return string(runes[:maxRunes]) + "..."
 }
 
-// normalizeModelArtifactTime 把时间格式化为 RFC3339Nano。
+// normalizeModelArtifactTime formats a time as RFC3339Nano.
 func normalizeModelArtifactTime(value time.Time) string {
 	if value.IsZero() {
 		return ""
@@ -162,7 +162,7 @@ func normalizeModelArtifactTime(value time.Time) string {
 	return value.UTC().Format(time.RFC3339Nano)
 }
 
-// computeTTFTMS 计算首事件耗时。
+// computeTTFTMS computes the time to first event.
 func computeTTFTMS(startedAt time.Time, firstEventAt time.Time) int64 {
 	if startedAt.IsZero() || firstEventAt.IsZero() {
 		return 0
@@ -174,7 +174,7 @@ func computeTTFTMS(startedAt time.Time, firstEventAt time.Time) int64 {
 	return value
 }
 
-// computeDurationMS 计算调用总耗时。
+// computeDurationMS computes the total call duration.
 func computeDurationMS(startedAt time.Time, finishedAt time.Time) int64 {
 	if startedAt.IsZero() || finishedAt.IsZero() {
 		return 0
@@ -186,7 +186,7 @@ func computeDurationMS(startedAt time.Time, finishedAt time.Time) int64 {
 	return value
 }
 
-// summarizeModelArtifactError 返回可安全落盘的错误文本。
+// summarizeModelArtifactError returns error text that is safe to persist.
 func summarizeModelArtifactError(err error) string {
 	if err == nil {
 		return ""
@@ -194,7 +194,7 @@ func summarizeModelArtifactError(err error) string {
 	return strings.TrimSpace(err.Error())
 }
 
-// firstNonEmptyString 返回第一个非空字符串。
+// firstNonEmptyString returns the first non-empty string.
 func firstNonEmptyString(values ...string) string {
 	for _, value := range values {
 		if strings.TrimSpace(value) != "" {

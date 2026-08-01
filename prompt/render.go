@@ -4,7 +4,7 @@ import "strings"
 
 const fakeModelIDPlaceholder = "{{FAKE_MODEL_ID}}"
 
-// RenderPromptTemplate 将 prompt 资产中的占位符替换为当前请求的真实模型名称。
+// RenderPromptTemplate replaces the placeholder in the prompt asset with the real model name of the current request.
 func RenderPromptTemplate(text string, modelName string) string {
 	replacement := strings.TrimSpace(modelName)
 	if replacement == "" {

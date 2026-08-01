@@ -17,7 +17,7 @@ func bailIf(err error) {
 }
 
 func findPrettier() (string, error) {
-	// 尝试常见的 prettier 命令名
+	// Try common prettier command names
 	names := []string{"prettier", "prettier.cmd", "npx"}
 	for _, name := range names {
 		if path, err := exec.LookPath(name); err == nil {
@@ -28,14 +28,14 @@ func findPrettier() (string, error) {
 }
 
 func main() {
-	// 命令行参数
+	// Command-line arguments
 	inputPath := flag.String("input", "", "Path to JS file (e.g., extensionHostProcess.js)")
 	outputDir := flag.String("output", "", "Output directory for proto files (default: ./cursor_proto)")
 	skipFormat := flag.Bool("skip-format", false, "Skip prettier formatting")
 	strict := flag.Bool("strict", true, "Fail when extraction validation detects unresolved/placeholder output")
 	flag.Parse()
 
-	// 如果没有 -input 参数，尝试从位置参数获取
+	// If the -input flag is missing, try to take it from the positional argument
 	if *inputPath == "" && flag.NArg() > 0 {
 		*inputPath = flag.Arg(0)
 	}
@@ -49,7 +49,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// 验证输入文件
+	// Validate the input file
 	info, err := os.Stat(*inputPath)
 	bailIf(err)
 
@@ -57,14 +57,14 @@ func main() {
 		bailIf(fmt.Errorf("expected %s to be file, is dir", *inputPath))
 	}
 
-	// 设置输出目录
+	// Set the output directory
 	if *outputDir == "" {
 		wd, err := os.Getwd()
 		bailIf(err)
 		*outputDir = filepath.Join(wd, "cursor_proto")
 	}
 
-	// 复制到临时文件（不修改原文件）
+	// Copy to a temp file (without modifying the original)
 	fmt.Println("Copying source file to temp directory...")
 	originalFile, err := os.Open(*inputPath)
 	bailIf(err)
@@ -81,7 +81,7 @@ func main() {
 
 	fmt.Printf("Temp file: %s\n", tempFileName)
 
-	// 格式化临时文件
+	// Format the temp file
 	if !*skipFormat {
 		prettierBin, err := findPrettier()
 		if err != nil {
@@ -107,12 +107,12 @@ func main() {
 		fmt.Println("Skipping formatting (--skip-format)")
 	}
 
-	// 运行提取器
+	// Run the extractor
 	fmt.Println("Extracting Proto definitions...")
 	SetStrictMode(*strict)
 	ExtractProtos(tempFileName, *outputDir)
 
-	// 清理临时文件
+	// Clean up the temp file
 	os.Remove(tempFileName)
 
 	fmt.Printf("\nOutput directory: %s\n", *outputDir)

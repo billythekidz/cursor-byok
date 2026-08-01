@@ -1,6 +1,6 @@
 # Contributing Guide
 
-> 中文版本：[CONTRIBUTING.md](./CONTRIBUTING.md)
+> Chinese version: [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 Thank you for considering contributing to cursor-byok!
 

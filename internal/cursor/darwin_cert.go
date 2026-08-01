@@ -81,7 +81,7 @@ func installCACertToDarwinKeychain(certPEM []byte, certPath string) error {
 	return nil
 }
 
-// EnsureCACertInstalled 确保 CA 证书已安装到 macOS 登录钥匙串。
+// EnsureCACertInstalled ensures the CA certificate is installed into the macOS login keychain.
 func EnsureCACertInstalled(certPEM []byte, certPath string) error {
 	installed, err := isCACertInstalled(certPEM)
 	if err != nil {
@@ -96,7 +96,7 @@ func EnsureCACertInstalled(certPEM []byte, certPath string) error {
 	return installCACertToDarwinKeychain(certPEM, certPath)
 }
 
-// RemoveCACertFromDarwinKeychain 删除本应用登录钥匙串中的 CA。
+// RemoveCACertFromDarwinKeychain removes this app's CA from the login keychain.
 func RemoveCACertFromDarwinKeychain(certPEM []byte) error {
 	fingerprint, err := getCertSHA1Fingerprint(certPEM)
 	if err != nil {

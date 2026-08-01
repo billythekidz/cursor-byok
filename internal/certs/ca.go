@@ -25,20 +25,20 @@ import (
 	"cursor/internal/logger"
 )
 
-// Manager 定义了当前模块中的 Manager 类型。
+// Manager defines the Manager type in this module.
 type Manager struct {
-	// caCert 表示当前声明中的 caCert。
+	// caCert represents the caCert field in this declaration.
 	caCert *x509.Certificate
-	// caKey 表示当前声明中的 caKey。
+	// caKey represents the caKey field in this declaration.
 	caKey crypto.PrivateKey
 
-	// mu 表示当前声明中的 mu。
+	// mu represents the mu field in this declaration.
 	mu sync.Mutex
-	// cache 表示当前声明中的 cache。
+	// cache represents the cache field in this declaration.
 	cache map[string]*tls.Certificate
 }
 
-// NewManager 用于处理与 NewManager 相关的逻辑。
+// NewManager handles logic related to NewManager.
 func NewManager(caCertPath, caKeyPath string) (*Manager, error) {
 	certPEM, keyPEM, err := loadCAPEMFromFiles(caCertPath, caKeyPath)
 	if err != nil {
@@ -47,9 +47,9 @@ func NewManager(caCertPath, caKeyPath string) (*Manager, error) {
 	return NewManagerFromPEM(certPEM, keyPEM)
 }
 
-// EnsureLocalCA 检查本地 appdata 中是否存在唯一的 CA 证书和私钥。
-// 如果不存在，则动态生成一套全系统唯一的 2048-bit RSA Self-Signed Root CA 证书与私钥，
-// 并保存到本地 user appdata 目录中。这样每个安装实例都有自己独一无二的私钥，彻底消除公共私钥泄漏带来的 MITM 风险。
+// EnsureLocalCA checks whether a unique CA certificate and private key already exist in the local appdata.
+// If not, it dynamically generates a system-wide unique 2048-bit RSA self-signed Root CA certificate and private key,
+// and saves them into the local user appdata directory. This way every installation instance has its own unique private key, completely eliminating the MITM risk caused by a leaked shared private key.
 func EnsureLocalCA() (*Manager, []byte, error) {
 	certPath := appdata.CACertFilePath()
 	keyPath := appdata.CAKeyFilePath()
@@ -88,7 +88,7 @@ func EnsureLocalCA() (*Manager, []byte, error) {
 	return mgr, certPEM, nil
 }
 
-// GenerateUniqueCA 动态生成 2048-bit RSA Self-Signed Root CA 证书与私钥 PEM。
+// GenerateUniqueCA dynamically generates a 2048-bit RSA self-signed Root CA certificate and private key PEM.
 func GenerateUniqueCA() ([]byte, []byte, error) {
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -129,13 +129,13 @@ func GenerateUniqueCA() ([]byte, []byte, error) {
 	return certPEM, keyPEM, nil
 }
 
-// NewEmbeddedManager 保留旧 API 名称，但只使用本地生成/持久化的 CA。
+// NewEmbeddedManager keeps the old API name but only uses the locally generated/persisted CA.
 func NewEmbeddedManager() (*Manager, error) {
 	mgr, _, err := EnsureLocalCA()
 	return mgr, err
 }
 
-// EmbeddedCACertPEM 保留旧 API 名称，但返回本地唯一 CA 的公钥证书。
+// EmbeddedCACertPEM keeps the old API name but returns the public certificate of the local unique CA.
 func EmbeddedCACertPEM() []byte {
 	if _, certPEM, err := EnsureLocalCA(); err == nil && len(certPEM) > 0 {
 		return certPEM
@@ -143,7 +143,7 @@ func EmbeddedCACertPEM() []byte {
 	return nil
 }
 
-// NewManagerFromPEM 用于处理与 NewManagerFromPEM 相关的逻辑。
+// NewManagerFromPEM handles logic related to NewManagerFromPEM.
 func NewManagerFromPEM(caCertPEM, caKeyPEM []byte) (*Manager, error) {
 	caCert, caKey, err := loadCAFromPEM(caCertPEM, caKeyPEM)
 	if err != nil {
@@ -151,9 +151,7 @@ func NewManagerFromPEM(caCertPEM, caKeyPEM []byte) (*Manager, error) {
 	}
 	return &Manager{caCert: caCert, caKey: caKey, cache: make(map[string]*tls.Certificate)}, nil
 }
-
-
-// CATLSCertificate 用于处理与 CATLSCertificate 相关的逻辑。
+// CATLSCertificate handles logic related to CATLSCertificate.
 func (m *Manager) CATLSCertificate() (*tls.Certificate, error) {
 	if m == nil || m.caCert == nil || m.caKey == nil {
 		return nil, errors.New("CA is not initialized")
@@ -165,7 +163,7 @@ func (m *Manager) CATLSCertificate() (*tls.Certificate, error) {
 	}, nil
 }
 
-// CertificateForServerName 用于处理与 CertificateForServerName 相关的逻辑。
+// CertificateForServerName handles logic related to CertificateForServerName.
 func (m *Manager) CertificateForServerName(serverName string) (*tls.Certificate, error) {
 	host := normalizeHost(serverName)
 	if host == "" {
@@ -240,7 +238,7 @@ func (m *Manager) CertificateForServerName(serverName string) (*tls.Certificate,
 	return &pair, nil
 }
 
-// marshalPrivateKeyPEM 用于处理与 marshalPrivateKeyPEM 相关的逻辑。
+// marshalPrivateKeyPEM handles logic related to marshalPrivateKeyPEM.
 func marshalPrivateKeyPEM(key any) ([]byte, error) {
 	switch k := key.(type) {
 	case *rsa.PrivateKey:
@@ -262,7 +260,7 @@ func marshalPrivateKeyPEM(key any) ([]byte, error) {
 	}
 }
 
-// loadCAPEMFromFiles 用于处理与 loadCAPEMFromFiles 相关的逻辑。
+// loadCAPEMFromFiles handles logic related to loadCAPEMFromFiles.
 func loadCAPEMFromFiles(certPath, keyPath string) ([]byte, []byte, error) {
 	certPEM, err := os.ReadFile(certPath)
 	if err != nil {
@@ -275,7 +273,7 @@ func loadCAPEMFromFiles(certPath, keyPath string) ([]byte, []byte, error) {
 	return certPEM, keyPEM, nil
 }
 
-// loadCAFromPEM 用于处理与 loadCAFromPEM 相关的逻辑。
+// loadCAFromPEM handles logic related to loadCAFromPEM.
 func loadCAFromPEM(certPEM, keyPEM []byte) (*x509.Certificate, crypto.PrivateKey, error) {
 	certBlock, _ := pem.Decode(certPEM)
 	if certBlock == nil {
@@ -357,7 +355,7 @@ func writePrivateCAFile(path string, data []byte, mode os.FileMode) error {
 	return err
 }
 
-// normalizeHost 用于处理与 normalizeHost 相关的逻辑。
+// normalizeHost handles logic related to normalizeHost.
 func normalizeHost(serverName string) string {
 	serverName = strings.TrimSpace(serverName)
 	if strings.Contains(serverName, ":") {
@@ -369,4 +367,4 @@ func normalizeHost(serverName string) string {
 	return serverName
 }
 
-// cloneBytes 用于处理与 cloneBytes 相关的逻辑。
+// cloneBytes handles logic related to cloneBytes.

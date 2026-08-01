@@ -162,6 +162,8 @@ func (manager *Manager) LegacyRuntimeSnapshot(_ context.Context) (legacyruntime.
 			AnthropicMaxTokens:       item.AnthropicMaxTokens,
 			AnthropicThinkingEffort:  item.AnthropicThinkingEffort,
 			ThinkingBudgetTokens:     item.ThinkingBudgetTokens,
+			OpenAIEndpointGroupID:    item.OpenAIEndpointGroupID,
+			Active:                   item.Active,
 		})
 	}
 	return legacyruntime.RuntimeConfigSnapshot{

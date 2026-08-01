@@ -9,7 +9,7 @@ import (
 	"github.com/denisbrodbeck/machineid"
 )
 
-// GetDeviceID 用于处理与 GetDeviceID 相关的逻辑。
+// GetDeviceID handles logic related to GetDeviceID.
 func GetDeviceID() (string, error) {
 	deviceID, err := machineid.ProtectedID("cursor")
 	if err != nil || strings.TrimSpace(deviceID) == "" {
@@ -29,12 +29,12 @@ func GetDeviceID() (string, error) {
 	return deviceID, nil
 }
 
-// defaultDeviceMeta 用于处理与 defaultDeviceMeta 相关的逻辑。
+// defaultDeviceMeta handles logic related to defaultDeviceMeta.
 func defaultDeviceMeta() string {
 	return fmt.Sprintf("%s / %s", displayOSName(runtime.GOOS), runtime.GOARCH)
 }
 
-// displayOSName 用于处理与 displayOSName 相关的逻辑。
+// displayOSName handles logic related to displayOSName.
 func displayOSName(goos string) string {
 	switch strings.ToLower(strings.TrimSpace(goos)) {
 	case "darwin":

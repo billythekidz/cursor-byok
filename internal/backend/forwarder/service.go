@@ -1,4 +1,4 @@
-// service.go 实现 forwarder 的主链路：Bidi 上行归一化、history 写入、provider 驱动和 RunSSE 下行。
+// service.go implements the forwarder's main pipeline: Bidi upstream normalization, history writes, provider driving, and RunSSE downstream.
 package forwarder
 
 import (
@@ -268,7 +268,7 @@ type agentModelMemory interface {
 	SaveLastAgentModelHash(context.Context, string) error
 }
 
-// NewService 使用默认依赖创建 forwarder 服务。
+// NewService creates the forwarder service with default dependencies.
 func NewService(historyRoot string, resolver modeladapter.ChannelResolver) *Service {
 	projector := NewHistoryProjector()
 	store := NewConversationFileStore(historyRoot)
@@ -305,7 +305,7 @@ func NewService(historyRoot string, resolver modeladapter.ChannelResolver) *Serv
 	return service
 }
 
-// newServiceWithDependencies 主要用于测试场景，允许注入替身依赖。
+// newServiceWithDependencies is mainly used in test scenarios, allowing stub dependencies to be injected.
 func newServiceWithDependencies(store *ConversationFileStore, projector *HistoryProjector, compiler PromptCompiler, provider ProviderGateway, broker *StreamBroker) *Service {
 	historyRoot := ""
 	if store != nil {
@@ -330,7 +330,7 @@ func newServiceWithDependencies(store *ConversationFileStore, projector *History
 	}
 }
 
-// BidiAppend 处理 legacy Bidi 上行，把用户输入和外部结果归一化后写入 history。
+// BidiAppend handles legacy Bidi upstream messages, normalizing user input and external results before writing them to history.
 func (service *Service) BidiAppend(ctx context.Context, req *connect.Request[aiserverv1.BidiAppendRequest]) (*connect.Response[aiserverv1.BidiAppendResponse], error) {
 	if service == nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("forwarder service is nil"))
@@ -413,7 +413,7 @@ func shouldAcknowledgeInterruptedInboundIntent(intent InboundIntent, err error) 
 	}
 }
 
-// RunSSE 订阅指定 request 的活动流，优先回放 backlog，在 backlog 清空期间按 5 秒周期发送心跳。
+// RunSSE subscribes to the active stream of the given request, replays the backlog first, and sends heartbeats every 5 seconds while the backlog is drained.
 func (service *Service) RunSSE(ctx context.Context, req *connect.Request[aiserverv1.BidiRequestId], stream *connect.ServerStream[agentv1.AgentServerMessage]) error {
 	if service == nil {
 		return connect.NewError(connect.CodeInternal, fmt.Errorf("forwarder service is nil"))
@@ -436,8 +436,8 @@ func (service *Service) RunSSE(ctx context.Context, req *connect.Request[aiserve
 			"remaining_subscribers": remaining,
 		})
 		if remaining == 0 {
-			// RunSSE 连接短暂抖动时，给活跃 provider 一段重连宽限期，
-			// 避免把本来还能正常收口的请求直接打成 context canceled。
+			// When the RunSSE connection briefly flaps, give the active provider a reconnect grace period
+			// so that a request that could still settle normally is not marked context canceled outright.
 			if !service.scheduleOrphanCancelActor(requestID, "[canceled] RunSSE client disconnected") {
 				service.broker.RemoveIfIdle(requestID)
 			}
@@ -537,7 +537,7 @@ func (service *Service) RunSSE(ctx context.Context, req *connect.Request[aiserve
 	}
 }
 
-// decodeInboundIntent 把 legacy AgentClientMessage 映射为 forwarder 内部 intent。
+// decodeInboundIntent maps a legacy AgentClientMessage into a forwarder-internal intent.
 func (service *Service) decodeInboundIntent(requestID string, message *agentv1.AgentClientMessage, clientKind string) (InboundIntent, error) {
 	intent := InboundIntent{
 		RequestID:     strings.TrimSpace(requestID),
@@ -677,7 +677,7 @@ func (service *Service) decodeInboundIntent(requestID string, message *agentv1.A
 	return intent, nil
 }
 
-// handleRunIntent 处理 run/prewarm 类 intent，负责建会话、写 turn 和拉起 provider。
+// handleRunIntent handles run/prewarm intents: creating the session, writing the turn, and starting the provider.
 func (service *Service) handleRunIntent(intent InboundIntent) error {
 	intent.UserMessage = normalizeUserMessageForStorage(intent.UserMessage)
 	if !intent.Prewarm {
@@ -820,7 +820,7 @@ func (service *Service) snapshotVisibleTurns(conversation *ConversationFile) ([]
 	return cloneByteSlices(state.GetTurns()), nil
 }
 
-// handleCancelIntent 处理取消请求，并向客户端发送执行桥 abort。
+// handleCancelIntent handles cancellation requests and sends an execution-bridge abort to the client.
 func (service *Service) handleCancelIntent(intent InboundIntent) error {
 	stream, ok := service.broker.Get(intent.RequestID)
 	if !ok || stream == nil {
@@ -865,7 +865,7 @@ func (service *Service) handleCancelIntent(intent InboundIntent) error {
 	return service.broker.Cancel(intent.RequestID, firstNonEmpty(intent.CancelReason, "[canceled] User aborted request"))
 }
 
-// handleExecResult 处理客户端返回的执行桥结果，并在终态时把 tool_result 写回 history。
+// handleExecResult handles execution-bridge results returned by the client and writes tool_result back to history at terminal state.
 func (service *Service) handleExecResult(intent InboundIntent) error {
 	stream, ok := service.broker.Get(intent.RequestID)
 	if !ok || stream == nil {
@@ -948,7 +948,7 @@ func (service *Service) handleExecResult(intent InboundIntent) error {
 	return service.reconcileStream(stream)
 }
 
-// handleExecControl 处理执行桥控制面结果，例如 stream_close 或 throw。
+// handleExecControl handles execution-bridge control-plane results such as stream_close or throw.
 func (service *Service) handleExecControl(intent InboundIntent) error {
 	stream, ok := service.broker.Get(intent.RequestID)
 	if !ok || stream == nil {
@@ -1174,7 +1174,7 @@ func (service *Service) observeShellStreamClose(stream *ActiveStream, pending ru
 	service.scheduleShellTransportCloseRecovery(stream.RequestID, current)
 }
 
-// handleMetadataIntent 处理当前不驱动 provider 的轻量元数据上行。
+// handleMetadataIntent handles lightweight metadata upstream messages that do not drive the provider.
 func (service *Service) handleMetadataIntent(intent InboundIntent) error {
 	stream, ok := service.broker.Get(intent.RequestID)
 	if !ok || stream == nil {
@@ -1267,7 +1267,7 @@ func (service *Service) cancelScheduledProviderResume(stream *ActiveStream) {
 	clearStreamTimer(stream, providerTimerKey(streamTimerProviderResume, ""))
 }
 
-// driveProvider 由 actor 触发一次 provider pass，并把真实流包装成 provider_event 回投 mailbox。
+// driveProvider triggers one provider pass from the actor and wraps the real stream into a provider_event posted back to the mailbox.
 func (service *Service) driveProvider(stream *ActiveStream) error {
 	if stream == nil {
 		return nil
@@ -1622,7 +1622,7 @@ func (service *Service) runProviderStream(stream *ActiveStream, token uint64, ct
 	})
 }
 
-// handleToolInvocation 把模型产生的工具意图转成 exec/interaction 请求并下发给客户端。
+// handleToolInvocation converts model-produced tool intents into exec/interaction requests and dispatches them to the client.
 func (service *Service) handleToolInvocation(stream *ActiveStream, invocation runtimecore.ToolInvocation) error {
 	if err := providerLoopInterruptErr(nil, stream, invocation.ModelCallID); err != nil {
 		return err
@@ -1858,8 +1858,8 @@ func (service *Service) recordExecDispatchMetadata(stream *ActiveStream, pending
 	}
 }
 
-// shouldBufferExecDispatch 把只需要完整参数的快工具改成“先发 exec 请求，再发 started，再发 checkpoint”，
-// 避免客户端在参数仍未稳定前过早起计时，同时保留显式的工具开始信号。
+// shouldBufferExecDispatch turns fast tools that only need complete arguments into "send exec first, then started, then checkpoint",
+// so the client does not start its timer before the arguments are stable, while still keeping an explicit tool-start signal.
 func shouldBufferExecDispatch(toolName string) bool {
 	switch strings.TrimSpace(toolName) {
 	case "Read", "Grep", "Glob":
@@ -1869,11 +1869,11 @@ func shouldBufferExecDispatch(toolName string) bool {
 	}
 }
 
-// appendToolResult 把已完成的工具结果追加到 history，供后续 prompt replay 使用。
+// appendToolResult appends completed tool results to history for later prompt replay.
 //
-// reasoning 在已提交 history 中应挂在 assistant_text / tool_call 上。
-// tool_result 保存一份 reasoning_content 兜底，replay 只会在缺失 tool_call entry
-// 且 reasoning 可回放时用它重建 assistant tool_use，不会把 thinking 复制到工具消息上。
+// reasoning should hang on assistant_text / tool_call entries in the committed history.
+// tool_result keeps a reasoning_content fallback; replay only uses it to rebuild the assistant tool_use when the tool_call entry is missing
+// and reasoning is replayable, without copying thinking onto tool messages.
 func (service *Service) appendToolResult(stream *ActiveStream, toolCallID string, toolName string, argsJSON []byte, resultText string, reasoningContent string, toolCall *agentv1.ToolCall) error {
 	if stream == nil {
 		return nil
@@ -1982,7 +1982,7 @@ func (service *Service) applyExecControlProgress(stream *ActiveStream, pending r
 	return current
 }
 
-// closeStreamWithProviderError 在真实 LLM/provider 出错时通过 RunSSE 传回错误，并正常结束流。
+// closeStreamWithProviderError passes the error back through RunSSE when the real LLM/provider fails, and ends the stream normally.
 func (service *Service) closeStreamWithProviderError(
 	stream *ActiveStream,
 	conversationID string,
@@ -2144,7 +2144,7 @@ func (service *Service) failStreamIfNonTerminal(stream *ActiveStream, terminalCo
 	return service.failStream(stream, terminalCode, cause)
 }
 
-// publishCheckpoint 按当前内存会话镜像投影出 checkpoint，并广播给所有 RunSSE 订阅者。
+// publishCheckpoint projects a checkpoint from the current in-memory session mirror and broadcasts it to all RunSSE subscribers.
 func (service *Service) publishCheckpoint(requestID string, _ string) error {
 	stream, ok := service.broker.Get(requestID)
 	if !ok || stream == nil {
@@ -2234,7 +2234,7 @@ func activeStreamRequestID(stream *ActiveStream) string {
 	return stream.RequestID
 }
 
-// flushAssistantText 把本轮累计的 assistant 文本一次性写回 history。
+// flushAssistantText writes the assistant text accumulated this turn back to history in one go.
 func (service *Service) flushAssistantText(stream *ActiveStream, conversationID string, turnSeq int64, requestID string, text string, reasoningContent string, reasoningSignature string, reasoningSignatureSource string, reasoningItemID string, reasoningStatus string, reasoningSummary json.RawMessage, allowReasoningOnly bool) error {
 	if strings.TrimSpace(text) == "" && (!allowReasoningOnly || !hasReplayableReasoningPayload(reasoningContent, reasoningSignature, reasoningSignatureSource)) {
 		return nil
@@ -2245,7 +2245,7 @@ func (service *Service) flushAssistantText(stream *ActiveStream, conversationID 
 	return err
 }
 
-// failStream 在 provider 或投影失败时把错误写入 history 并收口活动流。
+// failStream writes the error to history and settles the active stream when the provider or projection fails.
 func (service *Service) failStream(stream *ActiveStream, terminalCode string, cause error) error {
 	if stream == nil {
 		return nil
@@ -2316,7 +2316,7 @@ func (service *Service) failActiveStream(stream *ActiveStream, conversationID st
 	return firstErr
 }
 
-// buildRunEntries 构造一次 run intent 需要写入 history 的首批 entry。
+// buildRunEntries builds the initial batch of entries a run intent needs to write to history.
 func buildRunEntries(intent InboundIntent, effectiveMode agentv1.AgentMode, turnSeq int64) ([]HistoryEntry, error) {
 	entries := make([]HistoryEntry, 0, 4)
 	if intent.RequestContext != nil {
@@ -2410,7 +2410,7 @@ func newModeChangePromptContextEntry(turnSeq int64, requestID string, mode agent
 	))
 }
 
-// newAssistantTextEntry 构造 assistant 文本 entry。
+// newAssistantTextEntry builds an assistant text entry.
 func newAssistantTextEntry(turnSeq int64, requestID string, text string, reasoningContent string, reasoningSignature string) HistoryEntry {
 	return newAssistantTextEntryWithProviderMetadata(turnSeq, requestID, text, reasoningContent, reasoningSignature, "", "", "", nil)
 }
@@ -2434,7 +2434,7 @@ func newAssistantTextEntryWithProviderMetadata(turnSeq int64, requestID string, 
 	}
 }
 
-// newToolCallEntry 构造 tool_call entry。
+// newToolCallEntry builds a tool_call entry.
 func newToolCallEntry(turnSeq int64, requestID string, toolCallID string, toolName string, reasoningContent string, reasoningSignature string, toolCall json.RawMessage) HistoryEntry {
 	return newToolCallEntryWithProviderMetadata(turnSeq, requestID, toolCallID, toolName, reasoningContent, reasoningSignature, "", "", "", nil, "", "", "", toolCall)
 }
@@ -2464,7 +2464,7 @@ func newToolCallEntryWithProviderMetadata(turnSeq int64, requestID string, toolC
 	}
 }
 
-// newToolResultEntry 构造 tool_result entry。
+// newToolResultEntry builds a tool_result entry.
 func newToolResultEntry(turnSeq int64, requestID string, toolCallID string, toolName string, arguments string, resultText string, reasoningContent string, toolCall json.RawMessage) HistoryEntry {
 	payload, _ := json.Marshal(toolResultEntryPayload{
 		ToolCallID:       strings.TrimSpace(toolCallID),
@@ -2484,7 +2484,7 @@ func newToolResultEntry(turnSeq int64, requestID string, toolCallID string, tool
 	}
 }
 
-// newMetadataEntry 构造 metadata entry。
+// newMetadataEntry builds a metadata entry.
 func newMetadataEntry(turnSeq int64, requestID string, eventType string, values map[string]any) HistoryEntry {
 	payload, _ := json.Marshal(metadataPayload{
 		Type:  strings.TrimSpace(eventType),
@@ -2499,7 +2499,7 @@ func newMetadataEntry(turnSeq int64, requestID string, eventType string, values 
 	}
 }
 
-// extractUserMessage 从 legacy run_request 中提取用户消息。
+// extractUserMessage extracts the user message from a legacy run_request.
 func extractUserMessage(message *agentv1.AgentClientMessage) *agentv1.UserMessage {
 	if message == nil || message.GetRunRequest() == nil || message.GetRunRequest().GetAction() == nil {
 		return nil
@@ -2514,7 +2514,7 @@ func extractUserMessage(message *agentv1.AgentClientMessage) *agentv1.UserMessag
 	}
 }
 
-// extractRequestContext 从 legacy 请求中提取 request_context。
+// extractRequestContext extracts request_context from a legacy request.
 func extractRequestContext(message *agentv1.AgentClientMessage) *agentv1.RequestContext {
 	if message == nil || message.GetRunRequest() == nil || message.GetRunRequest().GetAction() == nil {
 		return nil
@@ -2703,7 +2703,7 @@ func conversationActionStartsRun(action *agentv1.ConversationAction) bool {
 	}
 }
 
-// extractRunMode 推导本轮应使用的 mode。
+// extractRunMode derives the mode to use for this turn.
 func extractRunMode(message *agentv1.AgentClientMessage) (agentv1.AgentMode, ModeSource, bool, error) {
 	if userMessage := extractUserMessage(message); userMessage != nil && userMessage.GetMode() != agentv1.AgentMode_AGENT_MODE_UNSPECIFIED {
 		return resolveExplicitMode(userMessage.GetMode(), ModeSourceUserMessage)
@@ -2750,7 +2750,7 @@ func extractConversationActionMode(action *agentv1.ConversationAction) (agentv1.
 	return agentv1.AgentMode_AGENT_MODE_AGENT, ModeSourceUnknown, false, nil
 }
 
-// extractRequestedModelID 提取本轮显式请求的模型 ID。
+// extractRequestedModelID extracts the model ID explicitly requested for this turn.
 func extractRequestedModelID(message *agentv1.AgentClientMessage) string {
 	if message == nil {
 		return ""
@@ -2919,7 +2919,7 @@ func (service *Service) syncConversationContextWindowTokens(stream *ActiveStream
 	})
 }
 
-// userMessageText 返回用户消息中的纯文本。
+// userMessageText returns the plain text of the user message.
 func userMessageText(message *agentv1.UserMessage) string {
 	if message == nil {
 		return ""
@@ -2948,7 +2948,7 @@ func currentStreamMode(stream *ActiveStream) agentv1.AgentMode {
 	return stream.Mode
 }
 
-// selectPendingExec 按 exec_id 或 message_id 在当前流里查找挂起执行桥。
+// selectPendingExec finds a pending execution bridge in the current stream by exec_id or message_id.
 func selectPendingExec(execID string, messageID uint32, stream *ActiveStream) (runtimecore.PendingExec, bool) {
 	stream.mu.Lock()
 	defer stream.mu.Unlock()
@@ -2976,7 +2976,7 @@ func selectPendingInteraction(message *agentv1.InteractionResponse, stream *Acti
 	return item, ok
 }
 
-// selectPendingExecByControl 根据控制消息的桥消息 ID 查找挂起执行桥。
+// selectPendingExecByControl finds a pending execution bridge by the bridge message ID in the control message.
 func selectPendingExecByControl(message *agentv1.ExecClientControlMessage, stream *ActiveStream) (runtimecore.PendingExec, bool) {
 	messageID, ok := execControlMessageID(message)
 	if !ok {
@@ -3193,7 +3193,7 @@ func pendingAssistantToolShape(pending runtimecore.PendingExec) (string, []byte,
 	}
 }
 
-// markExecCompleted 保留一个短时 tombstone，避免迟到的 transport-level control 被误判为协议错误。
+// markExecCompleted keeps a short-lived tombstone so a late transport-level control is not misjudged as a protocol error.
 func markExecCompleted(stream *ActiveStream, pending runtimecore.PendingExec) {
 	if stream == nil {
 		return
@@ -3381,7 +3381,7 @@ func readMapAny(value any) map[string]any {
 	}
 }
 
-// inferToolName 从完整 ToolCall proto 中反推出 canonical 工具名。
+// inferToolName derives the canonical tool name back from the full ToolCall proto.
 func inferToolName(toolCall *agentv1.ToolCall) string {
 	if toolCall == nil || toolCall.GetTool() == nil {
 		return ""
@@ -3434,7 +3434,7 @@ func inferToolName(toolCall *agentv1.ToolCall) string {
 	}
 }
 
-// deriveToolNameFromPendingExec 根据执行桥种类反推出 canonical 工具名。
+// deriveToolNameFromPendingExec derives the canonical tool name from the execution-bridge kind.
 func deriveToolNameFromPendingExec(pending runtimecore.PendingExec) string {
 	switch strings.TrimSpace(pending.ExecKind) {
 	case "read":
@@ -3543,7 +3543,7 @@ func editResultLooksLikeStructuredEdit(result *agentv1.EditResult) bool {
 	return success.BeforeFullFileContent != nil || success.DiffString != nil
 }
 
-// buildTerminalStreamError 把 broker 终态事件转换成 Connect endstream 错误。
+// buildTerminalStreamError converts a broker terminal event into a Connect endstream error.
 func buildTerminalStreamError(event StreamEvent) error {
 	if !event.End {
 		return nil
@@ -3566,7 +3566,7 @@ func buildTerminalStreamError(event StreamEvent) error {
 	}
 }
 
-// buildRunSSEProviderError 构造 provider 专用的 RunSSE 错误包。
+// buildRunSSEProviderError builds the provider-specific RunSSE error wrapper.
 func buildRunSSEProviderError(cause error) error {
 	return buildRunSSEStructuredErrorWithDetail(
 		connect.CodeUnavailable,
@@ -3578,12 +3578,12 @@ func buildRunSSEProviderError(cause error) error {
 	)
 }
 
-// buildRunSSECustomError 构造带有 CustomErrorDetails 的 RunSSE 结构化错误。
+// buildRunSSECustomError builds a RunSSE structured error carrying CustomErrorDetails.
 func buildRunSSECustomError(code connect.Code, title string, cause error) error {
 	return buildRunSSEStructuredErrorWithDetail(code, title, "", cause, aiserverv1.ErrorDetails_ERROR_CUSTOM_MESSAGE, false)
 }
 
-// buildRunSSEStructuredError 统一构造带有 ErrorDetails 的 Connect endstream 错误。
+// buildRunSSEStructuredError uniformly builds a Connect endstream error carrying ErrorDetails.
 func buildRunSSEStructuredErrorWithDetail(code connect.Code, title string, detailText string, cause error, errorKind aiserverv1.ErrorDetails_Error, expected bool) error {
 	if cause == nil {
 		cause = fmt.Errorf("unknown RunSSE error")

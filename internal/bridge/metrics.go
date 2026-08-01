@@ -5,7 +5,7 @@ import (
 	"cursor/internal/historymetrics"
 )
 
-// HomeMetricsSummary 定义首页展示的历史统计摘要。
+// HomeMetricsSummary defines the historical statistics summary shown on the home page.
 type HomeMetricsSummary struct {
 	ProviderCallsTotal int      `json:"providerCallsTotal"`
 	TurnsTotal         int      `json:"turnsTotal"`
@@ -18,15 +18,15 @@ type HomeMetricsSummary struct {
 	CacheHitRate       *float64 `json:"cacheHitRate"`
 }
 
-// MetricsService 定义首页统计相关的 Wails service。
+// MetricsService defines the Wails service for home page statistics.
 type MetricsService struct{}
 
-// NewMetricsService 创建首页统计 service。
+// NewMetricsService creates the home page statistics service.
 func NewMetricsService() *MetricsService {
 	return &MetricsService{}
 }
 
-// GetHomeMetricsSummary 返回首页展示的全量历史统计摘要。
+// GetHomeMetricsSummary returns the full historical statistics summary shown on the home page.
 func (service *MetricsService) GetHomeMetricsSummary() (HomeMetricsSummary, error) {
 	if err := appdata.EnsureAssistantHome(); err != nil {
 		return HomeMetricsSummary{}, err
