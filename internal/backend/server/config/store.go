@@ -77,12 +77,12 @@ func (store *Store) Load(_ context.Context) (Config, error) {
 			}
 			return defaultConfig, nil
 		}
-		return DefaultConfig(), fmt.Errorf("读取用户配置失败: %w", err)
+		return DefaultConfig(), fmt.Errorf("failed to read user config: %w", err)
 	}
 
 	var current Config
 	if err := yaml.Unmarshal(data, &current); err != nil {
-		return DefaultConfig(), fmt.Errorf("解析用户配置失败: %w", err)
+		return DefaultConfig(), fmt.Errorf("failed to parse user config: %w", err)
 	}
 	normalized, err := NormalizeConfig(current)
 	if err != nil {
@@ -98,7 +98,7 @@ func (store *Store) Load(_ context.Context) (Config, error) {
 
 func (store *Store) Save(_ context.Context, cfg Config) (Config, error) {
 	if store == nil || strings.TrimSpace(store.path) == "" {
-		return Config{}, errors.New("配置存储未初始化")
+		return Config{}, errors.New("config store not initialized")
 	}
 
 	normalized, err := NormalizeConfig(cfg)
@@ -117,23 +117,23 @@ func (store *Store) Save(_ context.Context, cfg Config) (Config, error) {
 
 func (store *Store) saveLocked(normalized Config) error {
 	if err := os.MkdirAll(filepath.Dir(store.path), 0o755); err != nil {
-		return fmt.Errorf("创建用户配置目录失败: %w", err)
+		return fmt.Errorf("failed to create user config directory: %w", err)
 	}
 
 	data, err := yaml.Marshal(normalized)
 	if err != nil {
-		return fmt.Errorf("序列化用户配置失败: %w", err)
+		return fmt.Errorf("failed to serialize user config: %w", err)
 	}
 
 	tempPath := store.path + ".tmp"
 	if err := os.WriteFile(tempPath, data, 0o600); err != nil {
-		return fmt.Errorf("写入临时配置失败: %w", err)
+		return fmt.Errorf("failed to write temporary config: %w", err)
 	}
 	if err := os.Chmod(tempPath, 0o600); err != nil {
-		return fmt.Errorf("设置配置文件权限失败: %w", err)
+		return fmt.Errorf("failed to set config file permissions: %w", err)
 	}
 	if err := os.Rename(tempPath, store.path); err != nil {
-		return fmt.Errorf("保存用户配置失败: %w", err)
+		return fmt.Errorf("failed to save user config: %w", err)
 	}
 	return nil
 }

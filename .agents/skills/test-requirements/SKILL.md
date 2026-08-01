@@ -1,4 +1,4 @@
 ---
 name: test-requirements
-description: 本仓库代码禁止写任何测试
+description: Writing any tests for code in this repository is strictly forbidden.
 ---

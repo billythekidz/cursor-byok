@@ -40,12 +40,12 @@ func InjectCursorUserInfo(email, token string) error {
 		return err
 	}
 	if err := os.MkdirAll(filepath.Dir(stateDBPath), 0o755); err != nil {
-		return fmt.Errorf("创建 Cursor 状态目录失败: %w", err)
+		return fmt.Errorf("failed to create Cursor state directory: %w", err)
 	}
 
 	values := buildCursorAuthStateValues(email, token)
 	if err := syncCursorAuthStateDB(stateDBPath, values); err != nil {
-		return fmt.Errorf("同步 Cursor 状态库失败 path=%s: %w", stateDBPath, err)
+		return fmt.Errorf("failed to sync Cursor state DB path=%s: %w", stateDBPath, err)
 	}
 
 	logger.Infof(
@@ -142,7 +142,7 @@ func disableCursorStatsigGates(ctx context.Context, tx *sql.Tx) error {
 
 	var payload map[string]any
 	if err := json.Unmarshal(raw, &payload); err != nil {
-		return fmt.Errorf("解析 Cursor Statsig bootstrap 失败: %w", err)
+		return fmt.Errorf("failed to parse Cursor Statsig bootstrap: %w", err)
 	}
 
 	featureGates, _ := payload["feature_gates"].(map[string]any)
@@ -161,7 +161,7 @@ func disableCursorStatsigGates(ctx context.Context, tx *sql.Tx) error {
 
 	updated, err := json.Marshal(payload)
 	if err != nil {
-		return fmt.Errorf("编码 Cursor Statsig bootstrap 失败: %w", err)
+		return fmt.Errorf("failed to encode Cursor Statsig bootstrap: %w", err)
 	}
 	if _, err := tx.ExecContext(ctx, "UPDATE ItemTable SET value = ? WHERE key = ?", updated, cursorStateStatsigBootstrapKey); err != nil {
 		return err
@@ -197,7 +197,7 @@ func cursorStateDJB2Hash(value string) string {
 func resolveCursorStateDBPath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return "", fmt.Errorf("获取用户目录失败: %w", err)
+		return "", fmt.Errorf("failed to get user home directory: %w", err)
 	}
 
 	switch runtime.GOOS {
@@ -216,6 +216,6 @@ func resolveCursorStateDBPath() (string, error) {
 		}
 		return filepath.Join(configDir, filepath.FromSlash(cursorStateDBRelativePath)), nil
 	default:
-		return "", fmt.Errorf("不支持的系统: %s", runtime.GOOS)
+		return "", fmt.Errorf("unsupported operating system: %s", runtime.GOOS)
 	}
 }

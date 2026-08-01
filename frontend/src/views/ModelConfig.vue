@@ -92,12 +92,12 @@ function activeAdapterOf(group) {
 
 const batchButtonText = computed(() => {
   if (batchStopping.value) {
-    return "停止中...";
+    return "Stopping...";
   }
   if (!batchTesting.value) {
-    return "测试全部";
+    return "Test All";
   }
-  return `停止测试 ${batchCompleted.value}/${batchTotal.value}`;
+  return `Stop Testing ${batchCompleted.value}/${batchTotal.value}`;
 });
 
 watch(
@@ -115,7 +115,7 @@ watch(
 async function showActionError(title, error) {
   await showModal({
     title,
-    content: String(error || "服务错误").trim() || "服务错误",
+    content: String(error || "Service error").trim() || "Service error",
   });
 }
 
@@ -157,31 +157,31 @@ async function openEditor(index = -1) {
   try {
     await openModelEditorWindow(index, adapter);
   } catch (error) {
-    await showActionError("打开失败", toUserError(error));
+    await showActionError("Open failed", toUserError(error));
   }
 }
 
 async function handleDeleteModelAdapter(index) {
   const target = appState.modelAdapters[index];
   if (!target) {
-    await showActionError("删除失败", "模型配置不存在，无法删除");
+    await showActionError("Delete failed", "Model configuration does not exist");
     return;
   }
   const result = await deleteModelAdapterAt(index);
   if (!result.ok) {
-    await showActionError("删除失败", result.error);
+    await showActionError("Delete failed", result.error);
   }
 }
 
 async function handleDuplicateModelAdapter(index) {
   const target = appState.modelAdapters[index];
   if (!target) {
-    await showActionError("复制失败", "模型配置不存在，无法复制");
+    await showActionError("Duplicate failed", "Model configuration does not exist");
     return;
   }
   const result = await duplicateModelAdapterAt(index);
   if (!result.ok) {
-    await showActionError("复制失败", result.error);
+    await showActionError("Duplicate failed", result.error);
   }
 }
 
@@ -211,7 +211,7 @@ async function handleSaveContextWindow(adapter, rawValue) {
   const text = String(rawValue || "").trim();
   const contextWindowTokens = text ? Number(text) : 0;
   if (text && (!Number.isSafeInteger(contextWindowTokens) || contextWindowTokens <= 0)) {
-    contextWindowErrors[key] = "上下文窗口必须为正整数";
+    contextWindowErrors[key] = "Context window must be a positive integer";
     return;
   }
 
@@ -224,7 +224,7 @@ async function handleSaveContextWindow(adapter, rawValue) {
       contextWindowTokens,
     });
     if (!result.ok) {
-      contextWindowErrors[key] = result.error || "保存失败";
+      contextWindowErrors[key] = result.error || "Save failed";
     }
   } catch (error) {
     contextWindowErrors[key] = toUserError(error);
@@ -315,7 +315,7 @@ async function handleScanOpenAI() {
   const baseURL = scanBaseURL.value.trim();
   const apiKey = scanAPIKey.value.trim();
   if (!baseURL || !apiKey) {
-    await showActionError("扫描失败", "请先填写接口地址与访问密钥");
+    await showActionError("Scan failed", "Please fill in endpoint URL and API Key first");
     return;
   }
   scanning.value = true;
@@ -323,7 +323,7 @@ async function handleScanOpenAI() {
   try {
     const models = await scanOpenAIModels(baseURL, apiKey);
     if (!Array.isArray(models) || models.length === 0) {
-      scanError.value = "未扫描到任何模型";
+      scanError.value = "No models found";
       return;
     }
     const groupID = buildOpenAIEndpointGroupKey(baseURL, apiKey);
@@ -347,7 +347,7 @@ async function handleScanOpenAI() {
         apiKey,
         modelID,
         displayName: modelID,
-        tooltipData: "备注",
+        tooltipData: "Notes",
         reasoningEffort: "medium",
         openAIEndpoint: OPENAI_ENDPOINT_RESPONSES,
         openAIEndpointGroupID: groupID,
@@ -365,8 +365,8 @@ async function handleScanOpenAI() {
     scanBaseURL.value = "";
     scanAPIKey.value = "";
     await showModal({
-      title: "扫描完成",
-      content: newAdapters.length > 0 ? `新增 ${newAdapters.length} 个模型` : "没有新增模型，列表已是最新",
+      title: "Scan Completed",
+      content: newAdapters.length > 0 ? `Added ${newAdapters.length} models` : "No new models added, list is up to date",
     });
   } catch (error) {
     scanError.value = toUserError(error);
@@ -395,7 +395,7 @@ async function handleToggleActive(adapter) {
   }
   const result = await saveModelAdapters(current);
   if (!result.ok) {
-    await showActionError("保存失败", result.error);
+    await showActionError("Save failed", result.error);
     return;
   }
   await reloadUserConfig({ modelAdaptersOnly: true });
@@ -437,21 +437,21 @@ onBeforeUnmount(() => {
           >
             {{ batchButtonText }}
           </Button>
-          <Button variant="primary" :disabled="appState.configSaving || batchTesting" @click="openEditor()">新增模型</Button>
+          <Button variant="primary" :disabled="appState.configSaving || batchTesting" @click="openEditor()">Add Model</Button>
         </div>
       </div>
     </div>
 
     <div class="min-h-0 flex-1 overflow-y-auto pr-1">
       <div v-if="activeType === 'openai'" class="mb-3 rounded-[8px] border border-[#343434] bg-[#232323] p-3">
-        <div class="mb-2 text-sm font-medium text-white">扫描 OpenAI 兼容接口</div>
+        <div class="mb-2 text-sm font-medium text-white">Scan OpenAI Compatible Endpoint</div>
         <div class="grid grid-cols-2 gap-2">
           <Input v-model="scanBaseURL" placeholder="https://api.openai.com/v1" />
           <Input
             v-model="scanAPIKey"
             type="password"
             allow-visibility-toggle
-            placeholder="访问密钥"
+            placeholder="API Key"
           />
         </div>
         <div class="mt-2 flex items-center gap-3">
@@ -460,7 +460,7 @@ onBeforeUnmount(() => {
             :disabled="scanning || appState.configSaving"
             @click="handleScanOpenAI"
           >
-            {{ scanning ? "扫描中..." : "扫描模型" }}
+            {{ scanning ? "Scanning..." : "Scan Models" }}
           </Button>
           <span v-if="scanError" class="min-w-0 truncate text-xs text-[#e06c75]">{{ scanError }}</span>
         </div>
@@ -471,7 +471,7 @@ onBeforeUnmount(() => {
           v-if="filteredAdapters.length === 0"
           class="flex h-full min-h-[220px] items-center justify-center rounded-[8px] border border-dashed border-[#3a3a3a] bg-[#232323] px-4 text-sm text-[#a3a3a3]"
         >
-          当前还没有配置任何 {{ typeLabel(activeType) }} 模型。
+          No {{ typeLabel(activeType) }} models configured yet.
         </div>
 
         <div v-else class="grid gap-3 pb-1 [grid-template-columns:repeat(auto-fill,minmax(250px,1fr))]">
@@ -515,8 +515,8 @@ onBeforeUnmount(() => {
 
                 <ModelAdapterTestCard
                   compact
-                  title="测试"
-                  empty-text="未测试"
+                  title="Test"
+                  empty-text="Not tested"
                   :result="getAdapterTestResult(adapter)"
                 />
               </div>
@@ -527,12 +527,12 @@ onBeforeUnmount(() => {
                   :disabled="appState.configSaving || batchTesting || isAdapterTesting(adapter)"
                   @click="handleTestModelAdapter(adapter)"
                 >
-                  {{ isAdapterTesting(adapter) ? "测试中..." : "测试" }}
+                  {{ isAdapterTesting(adapter) ? "Testing..." : "Test" }}
                 </Button>
-                <Button variant="default" :disabled="appState.configSaving" @click="openEditor(appState.modelAdapters.indexOf(adapter))">编辑</Button>
-                <Button variant="default" :disabled="appState.configSaving" @click="handleDuplicateModelAdapter(appState.modelAdapters.indexOf(adapter))">复制</Button>
+                <Button variant="default" :disabled="appState.configSaving" @click="openEditor(appState.modelAdapters.indexOf(adapter))">Edit</Button>
+                <Button variant="default" :disabled="appState.configSaving" @click="handleDuplicateModelAdapter(appState.modelAdapters.indexOf(adapter))">Duplicate</Button>
                 <Button variant="text" :disabled="appState.configSaving"
-                  @click="handleDeleteModelAdapter(appState.modelAdapters.indexOf(adapter))">删除</Button>
+                  @click="handleDeleteModelAdapter(appState.modelAdapters.indexOf(adapter))">Delete</Button>
               </div>
             </div>
           </Card>
@@ -544,7 +544,7 @@ onBeforeUnmount(() => {
           v-if="openaiGroups.length === 0"
           class="flex h-full min-h-[220px] items-center justify-center rounded-[8px] border border-dashed border-[#3a3a3a] bg-[#232323] px-4 text-sm text-[#a3a3a3]"
         >
-          当前还没有配置任何 OpenAI 模型，可以先用上方扫描功能批量导入。
+          No OpenAI models configured yet. You can use the scan feature above to import models in batch.
         </div>
 
         <div v-else>
@@ -565,9 +565,9 @@ onBeforeUnmount(() => {
                   >
                     <div class="min-w-0 flex-1">
                       <div class="truncate text-base font-medium text-white">{{ formatHost(group.adapters[0]?.baseURL) }}</div>
-                      <div class="mt-1 truncate text-sm text-[#8f8f8f]">{{ group.adapters.length }} 个模型</div>
+                      <div class="mt-1 truncate text-sm text-[#8f8f8f]">{{ group.adapters.length }} models</div>
                       <div class="mt-0.5 truncate text-xs text-[#737373]">
-                        {{ activeAdapterOf(group) ? `激活：${activeAdapterOf(group).modelID}` : "未激活" }}
+                        {{ activeAdapterOf(group) ? `Active: ${activeAdapterOf(group).modelID}` : "Inactive" }}
                       </div>
                     </div>
                     <span
@@ -610,7 +610,7 @@ onBeforeUnmount(() => {
                 <div class="center-row flex-wrap justify-end gap-2 border-t border-[#343434] pt-3">
                   <template v-if="group.groupID">
                     <Button variant="default" :disabled="appState.configSaving" @click="expandedGroupID = group.groupID">
-                      {{ expandedGroupID === group.groupID ? "收起" : "展开" }}
+                      {{ expandedGroupID === group.groupID ? "Collapse" : "Expand" }}
                     </Button>
                   </template>
                   <template v-else>
@@ -619,12 +619,12 @@ onBeforeUnmount(() => {
                       :disabled="appState.configSaving || batchTesting || isAdapterTesting(group.adapters[0])"
                       @click="handleTestModelAdapter(group.adapters[0])"
                     >
-                      {{ isAdapterTesting(group.adapters[0]) ? "测试中..." : "测试" }}
+                      {{ isAdapterTesting(group.adapters[0]) ? "Testing..." : "Test" }}
                     </Button>
-                    <Button variant="default" :disabled="appState.configSaving" @click="openEditor(appState.modelAdapters.indexOf(group.adapters[0]))">编辑</Button>
-                    <Button variant="default" :disabled="appState.configSaving" @click="handleDuplicateModelAdapter(appState.modelAdapters.indexOf(group.adapters[0]))">复制</Button>
+                    <Button variant="default" :disabled="appState.configSaving" @click="openEditor(appState.modelAdapters.indexOf(group.adapters[0]))">Edit</Button>
+                    <Button variant="default" :disabled="appState.configSaving" @click="handleDuplicateModelAdapter(appState.modelAdapters.indexOf(group.adapters[0]))">Duplicate</Button>
                     <Button variant="text" :disabled="appState.configSaving"
-                      @click="handleDeleteModelAdapter(appState.modelAdapters.indexOf(group.adapters[0]))">删除</Button>
+                      @click="handleDeleteModelAdapter(appState.modelAdapters.indexOf(group.adapters[0]))">Delete</Button>
                   </template>
                 </div>
               </div>
@@ -638,13 +638,13 @@ onBeforeUnmount(() => {
             <div class="mb-3 flex items-center justify-between gap-3">
               <div class="min-w-0 flex-1">
                 <div class="truncate text-sm font-medium text-white">{{ formatHost(expandedGroup.adapters[0]?.baseURL) }}</div>
-                <div class="mt-0.5 truncate text-xs text-[#737373]">{{ expandedGroup.adapters.length }} 个模型</div>
+                <div class="mt-0.5 truncate text-xs text-[#737373]">{{ expandedGroup.adapters.length }} models</div>
               </div>
-              <Button variant="text" :disabled="appState.configSaving" @click="expandedGroupID = ''">收起</Button>
+              <Button variant="text" :disabled="appState.configSaving" @click="expandedGroupID = ''">Collapse</Button>
             </div>
 
             <div class="mb-4">
-              <div class="mb-2 text-[11px] uppercase tracking-[0.08em] text-[#666]">当前激活模型</div>
+              <div class="mb-2 text-[11px] uppercase tracking-[0.08em] text-[#666]">Currently Active Model</div>
               <Card v-if="expandedGroupActiveAdapter">
                 <div class="flex items-center justify-between gap-3">
                   <div class="min-w-0 flex-1">
@@ -653,7 +653,7 @@ onBeforeUnmount(() => {
                   </div>
                   <span class="center-row shrink-0 gap-1 rounded-[999px] border border-[#1ca35a] bg-[#123322] px-[7px] py-[4px] text-[11px] font-medium text-[#10AD5D]">
                     <span class="icon-[mdi--check-circle] text-[13px]"></span>
-                    <span>已激活</span>
+                    <span>Active</span>
                   </span>
                 </div>
               </Card>
@@ -661,7 +661,7 @@ onBeforeUnmount(() => {
                 v-else
                 class="flex h-[68px] items-center justify-center rounded-[8px] border border-dashed border-[#3a3a3a] bg-[#1f1f1f] px-4 text-center text-xs text-[#737373]"
               >
-                该组还没有激活模型，请在下方向中选择一个模型设为激活
+                No active model in this group yet. Select one below to activate.
               </div>
             </div>
 
@@ -683,14 +683,14 @@ onBeforeUnmount(() => {
                         : 'border-[#3f3f3f] bg-[#1f1f1f] text-[#8f8f8f]'"
                     >
                       <span :class="adapter.active ? 'icon-[mdi--check-circle] text-[13px]' : 'icon-[mdi--circle-outline] text-[13px]'"></span>
-                      <span>{{ adapter.active ? "已激活" : "未激活" }}</span>
+                      <span>{{ adapter.active ? "Active" : "Inactive" }}</span>
                     </span>
                     <Button
                       variant="default"
                       :disabled="appState.configSaving || batchTesting"
                       @click="handleToggleActive(adapter)"
                     >
-                      {{ adapter.active ? "取消激活" : "设为激活" }}
+                      {{ adapter.active ? "Deactivate" : "Activate" }}
                     </Button>
                   </div>
                   <ModelContextWindowControl
@@ -706,11 +706,11 @@ onBeforeUnmount(() => {
                       :disabled="appState.configSaving || batchTesting || isAdapterTesting(adapter)"
                       @click="handleTestModelAdapter(adapter)"
                     >
-                      {{ isAdapterTesting(adapter) ? "测试中..." : "测试" }}
+                      {{ isAdapterTesting(adapter) ? "Testing..." : "Test" }}
                     </Button>
-                    <Button variant="default" :disabled="appState.configSaving" @click="openEditor(appState.modelAdapters.indexOf(adapter))">编辑</Button>
+                    <Button variant="default" :disabled="appState.configSaving" @click="openEditor(appState.modelAdapters.indexOf(adapter))">Edit</Button>
                     <Button variant="text" :disabled="appState.configSaving"
-                      @click="handleDeleteModelAdapter(appState.modelAdapters.indexOf(adapter))">删除</Button>
+                      @click="handleDeleteModelAdapter(appState.modelAdapters.indexOf(adapter))">Delete</Button>
                   </div>
                 </div>
               </Card>

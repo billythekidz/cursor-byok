@@ -58,7 +58,7 @@ function formatMetricValue(value) {
 function formatRateLabel(value) {
   const rate = Number(value);
   if (!Number.isFinite(rate)) {
-    return "暂无数据";
+    return "No data available";
   }
   return `${(Math.max(0, Math.min(1, rate)) * 100).toFixed(2)}%`;
 }
@@ -113,7 +113,7 @@ const selectedCacheHitRate = computed(() =>
 );
 
 const selectedCacheRateModeLabel = computed(() =>
-  includeCacheWriteInHitRate.value ? "计入缓存创建" : "默认口径",
+  includeCacheWriteInHitRate.value ? "Include cache creation" : "Default formula",
 );
 
 const validTurnsRate = computed(() => {
@@ -146,52 +146,52 @@ const estimatedTokenCost = computed(() => {
 
 const cacheTooltipContent = computed(() => {
   const formula = includeCacheWriteInHitRate.value
-    ? "缓存读取 /（缓存读取 + 缓存创建 + 非缓存输入）"
-    : "缓存读取 /（缓存读取 + 非缓存输入）";
+    ? "Cache Read / (Cache Read + Cache Write + Input Tokens)"
+    : "Cache Read / (Cache Read + Input Tokens)";
   return [
-    `当前：${formatRateLabel(selectedCacheHitRate.value)}`,
-    `公式：${formula}`,
-    `默认 ${formatRateLabel(defaultCacheHitRate.value)} / 计入创建 ${formatRateLabel(cacheReuseRate.value)}`,
+    `Current: ${formatRateLabel(selectedCacheHitRate.value)}`,
+    `Formula: ${formula}`,
+    `Default ${formatRateLabel(defaultCacheHitRate.value)} / Include Creation ${formatRateLabel(cacheReuseRate.value)}`,
   ].join("\n");
 });
 
 const turnsTooltipContent = computed(() =>
   [
-    "按历史记录里扫描到的回合 summary 汇总。",
+    "Aggregated by turns scanned in history.",
     "",
-    `总轮次：${formatMetricValue(props.metrics?.turnsTotal)}`,
-    `有效轮次：${formatMetricValue(props.metrics?.validTurnsTotal)}`,
-    `异常轮次：${formatMetricValue(props.metrics?.invalidTurnsTotal)}`,
-    `有效占比：${formatRateLabel(validTurnsRate.value)}`,
+    `Total Turns: ${formatMetricValue(props.metrics?.turnsTotal)}`,
+    `Valid Turns: ${formatMetricValue(props.metrics?.validTurnsTotal)}`,
+    `Invalid Turns: ${formatMetricValue(props.metrics?.invalidTurnsTotal)}`,
+    `Valid Ratio: ${formatRateLabel(validTurnsRate.value)}`,
   ].join("\n"),
 );
 
 const tokensTooltipContent = computed(() =>
   [
-    "总请求 Token 包含 Prompt 和模型输出。",
+    "Total Request Tokens include Prompt and Model Output.",
     "",
-    `总请求：${formatMetricValue(props.metrics?.requestTokensTotal)}`,
-    `Prompt：${formatMetricValue(props.metrics?.promptTokensTotal)}`,
-    `输出推算：${formatMetricValue(completionTokensTotal.value)}`,
-    `非缓存输入：${formatMetricValue(inputTokensTotal.value)}`,
-    `缓存读取：${formatMetricValue(cacheReadTokensTotal.value)}`,
-    `缓存写入：${formatMetricValue(cacheWriteTokensTotal.value)}`,
+    `Total Requests: ${formatMetricValue(props.metrics?.requestTokensTotal)}`,
+    `Prompt: ${formatMetricValue(props.metrics?.promptTokensTotal)}`,
+    `Output Tokens: ${formatMetricValue(completionTokensTotal.value)}`,
+    `Input Tokens: ${formatMetricValue(inputTokensTotal.value)}`,
+    `Cache Read: ${formatMetricValue(cacheReadTokensTotal.value)}`,
+    `Cache Write: ${formatMetricValue(cacheWriteTokensTotal.value)}`,
     "",
-    "缓存读写已计入 Prompt 侧统计。",
+    "Cache read/write is included in prompt side statistics.",
   ].join("\n"),
 );
 
 const costTooltipContent = computed(() =>
   [
-    "按 Claude Opus 4.7 价格估算。",
-    `缓存统计策略：${selectedCacheRateModeLabel.value}（${formatRateLabel(selectedCacheHitRate.value)}）`,
+    "Estimated based on Claude Opus 4.7 pricing.",
+    `Cache Policy: ${selectedCacheRateModeLabel.value} (${formatRateLabel(selectedCacheHitRate.value)})`,
     "",
-    `普通输入：${formatMetricValue(inputTokensTotal.value)} × $${TOKEN_PRICE_PER_MILLION.input}/1M = ${formatUSD(estimatedTokenCost.value.input)}`,
-    `模型输出：${formatMetricValue(completionTokensTotal.value)} × $${TOKEN_PRICE_PER_MILLION.output}/1M = ${formatUSD(estimatedTokenCost.value.output)}`,
-    `缓存读取：${formatMetricValue(cacheReadTokensTotal.value)} × $${TOKEN_PRICE_PER_MILLION.cacheRead}/1M = ${formatUSD(estimatedTokenCost.value.cacheRead)}`,
-    `缓存写入：${formatMetricValue(cacheWriteTokensTotal.value)} × $${TOKEN_PRICE_PER_MILLION.cacheWrite}/1M = ${formatUSD(estimatedTokenCost.value.cacheWrite)}`,
+    `Input: ${formatMetricValue(inputTokensTotal.value)} × $${TOKEN_PRICE_PER_MILLION.input}/1M = ${formatUSD(estimatedTokenCost.value.input)}`,
+    `Output: ${formatMetricValue(completionTokensTotal.value)} × $${TOKEN_PRICE_PER_MILLION.output}/1M = ${formatUSD(estimatedTokenCost.value.output)}`,
+    `Cache Read: ${formatMetricValue(cacheReadTokensTotal.value)} × $${TOKEN_PRICE_PER_MILLION.cacheRead}/1M = ${formatUSD(estimatedTokenCost.value.cacheRead)}`,
+    `Cache Write: ${formatMetricValue(cacheWriteTokensTotal.value)} × $${TOKEN_PRICE_PER_MILLION.cacheWrite}/1M = ${formatUSD(estimatedTokenCost.value.cacheWrite)}`,
     "",
-    `合计：${formatUSD(estimatedTokenCost.value.total)}`,
+    `Total: ${formatUSD(estimatedTokenCost.value.total)}`,
   ].join("\n"),
 );
 
@@ -215,10 +215,10 @@ async function toggleIncludeCacheWriteInHitRate(value) {
   try {
     const result = await saveIncludeCacheWriteInHitRate(nextValue);
     if (!result?.ok) {
-      homeMetricsConfigError.value = result?.error || "保存失败";
+      homeMetricsConfigError.value = result?.error || "Save failed";
     }
   } catch (error) {
-    homeMetricsConfigError.value = error?.message || "保存失败";
+    homeMetricsConfigError.value = error?.message || "Save failed";
   } finally {
     homeMetricsConfigSaving.value = false;
   }
@@ -237,7 +237,7 @@ const hasHomeAd = computed(() => normalizedHomeAds.value.length > 0);
     <div class="flex flex-col gap-4">
       <div class="flex items-center justify-between gap-4 h-[42px]">
         <div v-if="!hasHomeAd" class="flex flex-col gap-1 w-[200px] shrink-0">
-          <h2 class="text-[14px] font-medium text-white/80">会话统计</h2>
+          <h2 class="text-[14px] font-medium text-white/80">Session Metrics</h2>
         </div>
         <div v-else class="grid min-w-0  grid-cols-3 gap-2 shrink-0">
           <div
@@ -277,7 +277,7 @@ const hasHomeAd = computed(() => normalizedHomeAds.value.length > 0);
             type="button"
             class="center-row justify-center h-[24px] w-[24px] rounded-[6px] border border-[#3b3b3b] bg-[#242424] text-[#9d9d9d] transition-colors duration-150 hover:border-[#4c4c4c] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
             :disabled="loading"
-            :title="loading ? '刷新中' : '刷新统计'"
+            :title="loading ? 'Refreshing...' : 'Refresh Metrics'"
             @click="emit('refresh')"
           >
             <span
@@ -293,16 +293,16 @@ const hasHomeAd = computed(() => normalizedHomeAds.value.length > 0);
       >
         <div class="min-w-0 px-4 py-4 flex flex-col justify-between">
           <div class="center-row justify-start gap-1 text-xs text-[#7f7f7f]">
-            <span>缓存命中率</span>
+            <span>Cache Hit Rate</span>
             <Tooltip>
               <div class="w-[280px] space-y-3">
                 <div class="border-b border-[#343434] pb-3">
                   <Switch
                     compact
-                    label="计入缓存创建"
-                    description="开启后把缓存创建纳入分母"
-                    enabled-text="当前按复用率口径显示"
-                    disabled-text="当前按默认命中率口径显示"
+                    label="Include Cache Creation"
+                    description="When enabled, includes cache creation in the denominator"
+                    enabled-text="Displaying reuse rate metric"
+                    disabled-text="Displaying default hit rate metric"
                     :enabled="includeCacheWriteInHitRate"
                     :busy="homeMetricsConfigSaving"
                     :disabled="homeMetricsConfigSaving"
@@ -323,23 +323,23 @@ const hasHomeAd = computed(() => normalizedHomeAds.value.length > 0);
           class="min-w-0 border-l border-[#343434] px-4 py-4 flex flex-col justify-between"
         >
           <div class="center-row justify-start gap-1 text-xs text-[#7f7f7f]">
-            <span>对话轮次</span>
+            <span>Conversation Turns</span>
             <Tooltip :content="turnsTooltipContent" />
           </div>
           <div>
             <div
-              class="text-[30px] leading-none text-white"
+              class="text-[30px] leading-none text-[#fff]"
               style="font-family: var(--font-num)"
               :title="formatInteger(metrics.turnsTotal)"
             >
               {{ formatCompactInteger(metrics.turnsTotal) }}
             </div>
             <div class="mt-3 text-xs leading-5 text-[#8c8c8c]">
-              有效
+              Valid
               <span :title="formatInteger(metrics.validTurnsTotal)">
                 {{ formatCompactInteger(metrics.validTurnsTotal) }}
               </span>
-              / 异常
+              / Invalid
               <span :title="formatInteger(metrics.invalidTurnsTotal)">
                 {{ formatCompactInteger(metrics.invalidTurnsTotal) }}
               </span>
@@ -351,7 +351,7 @@ const hasHomeAd = computed(() => normalizedHomeAds.value.length > 0);
           class="min-w-0 border-l border-[#343434] px-4 py-4 flex flex-col justify-between"
         >
           <div class="center-row justify-start gap-1 text-xs text-[#7f7f7f]">
-            <span>Token 消耗</span>
+            <span>Token Consumption</span>
             <Tooltip :content="tokensTooltipContent" />
           </div>
           <div>
@@ -375,7 +375,7 @@ const hasHomeAd = computed(() => normalizedHomeAds.value.length > 0);
           class="min-w-0 border-l border-[#343434] px-4 py-4 flex flex-col justify-between"
         >
           <div class="center-row justify-start gap-1 text-xs text-[#7f7f7f]">
-            <span>价值估算</span>
+            <span>Cost Estimation</span>
             <Tooltip :content="costTooltipContent" />
           </div>
           <div>
@@ -387,7 +387,7 @@ const hasHomeAd = computed(() => normalizedHomeAds.value.length > 0);
               {{ formatUSD(estimatedTokenCost.total) }}
             </div>
             <div class="mt-3 text-xs leading-5 text-[#8c8c8c]">
-              缓存读写
+              Cache Read/Write
               <span :title="formatUSD(estimatedTokenCost.cacheRead + estimatedTokenCost.cacheWrite)">
                 {{ formatUSD(estimatedTokenCost.cacheRead + estimatedTokenCost.cacheWrite) }}
               </span>

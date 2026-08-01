@@ -1,13 +1,13 @@
 [Desktop Entry]
 Version=1.0
-Name=Cursor助手
-Comment=Cursor助手
+Name=Cursor Helper
+Comment=Cursor Helper
 # The Exec line includes %u to pass the URL to the application
-Exec=/usr/local/bin/Cursor助手 %u
+Exec=/usr/local/bin/Cursor Helper %u
 Terminal=false
 Type=Application
-Icon=Cursor助手
+Icon=Cursor Helper
 Categories=Utility;
-StartupWMClass=Cursor助手
+StartupWMClass=Cursor Helper
 
  

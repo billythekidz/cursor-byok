@@ -54,9 +54,9 @@ function formatDefaultValue(value) {
   <div class="rounded-[8px] border border-[#315842] bg-[#17251d] px-3 py-2.5">
     <div class="flex items-center justify-between gap-3">
       <div class="min-w-0">
-        <div class="text-[11px] font-medium uppercase tracking-[0.08em] text-[#9ee6b5]">上下文窗口</div>
+        <div class="text-[11px] font-medium uppercase tracking-[0.08em] text-[#9ee6b5]">Context Window</div>
         <div class="mt-1 text-[11px] leading-relaxed text-[#769982]">
-          默认值 {{ formatDefaultValue(defaultValue) }}，留空使用默认值
+          Default {{ formatDefaultValue(defaultValue) }}, leave blank to use default
         </div>
       </div>
       <div class="center-row shrink-0 gap-2">
@@ -67,7 +67,7 @@ function formatDefaultValue(value) {
           :placeholder="formatDefaultValue(defaultValue)"
           :disabled="disabled || saving"
           class="w-[126px]"
-          aria-label="上下文窗口 Token 数"
+          aria-label="Context Window Token Count"
           @update:model-value="handleInput"
           @keydown.enter="handleSave"
         />
@@ -76,7 +76,7 @@ function formatDefaultValue(value) {
           :disabled="disabled || saving"
           @click="handleSave"
         >
-          {{ saving ? "保存中..." : "保存" }}
+          {{ saving ? "Saving..." : "Save" }}
         </Button>
       </div>
     </div>

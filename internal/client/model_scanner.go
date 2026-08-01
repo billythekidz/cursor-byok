@@ -55,7 +55,7 @@ func (s *ProxyService) ScanOpenAIModels(baseURL string, apiKey string) ([]OpenAI
 		return nil, err
 	}
 	if strings.TrimSpace(apiKey) == "" {
-		return nil, fmt.Errorf("模型适配器 apiKey 不能为空")
+		return nil, fmt.Errorf("model adapter apiKey cannot be empty")
 	}
 
 	targetURL := openAIModelsURL(normalizedBaseURL)

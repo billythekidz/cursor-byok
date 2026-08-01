@@ -19,34 +19,34 @@ const modelTypeOptions = [
 ];
 
 const reasoningEffortOptions = [
-  { label: "低", value: "low", icon: "icon-[mdi--head-outline]" },
-  { label: "中", value: "medium", icon: "icon-[mdi--head-lightbulb-outline]" },
-  { label: "高", value: "high", icon: "icon-[mdi--brain]" },
-  { label: "极高", value: "xhigh", icon: "icon-[mdi--head-cog-outline]" },
-  { label: "最高", value: "max", icon: "icon-[mdi--brain]" },
+  { label: "Low", value: "low", icon: "icon-[mdi--head-outline]" },
+  { label: "Medium", value: "medium", icon: "icon-[mdi--head-lightbulb-outline]" },
+  { label: "High", value: "high", icon: "icon-[mdi--brain]" },
+  { label: "Extra High", value: "xhigh", icon: "icon-[mdi--head-cog-outline]" },
+  { label: "Max", value: "max", icon: "icon-[mdi--brain]" },
 ];
 
 const anthropicThinkingEffortOptions = [
-  { label: "低", value: "low", icon: "icon-[mdi--head-outline]" },
-  { label: "中", value: "medium", icon: "icon-[mdi--head-lightbulb-outline]" },
-  { label: "高", value: "high", icon: "icon-[mdi--brain]" },
-  { label: "极高", value: "xhigh", icon: "icon-[mdi--head-cog-outline]" },
-  { label: "最大", value: "max", icon: "icon-[mdi--brain]" },
+  { label: "Low", value: "low", icon: "icon-[mdi--head-outline]" },
+  { label: "Medium", value: "medium", icon: "icon-[mdi--head-lightbulb-outline]" },
+  { label: "High", value: "high", icon: "icon-[mdi--brain]" },
+  { label: "Extra High", value: "xhigh", icon: "icon-[mdi--head-cog-outline]" },
+  { label: "Max", value: "max", icon: "icon-[mdi--brain]" },
 ];
 
 const openAIEndpointOptions = [
   { label: "/v1/responses", value: OPENAI_ENDPOINT_RESPONSES, icon: "icon-[mdi--api]" },
   { label: "/v1/chat/completions", value: OPENAI_ENDPOINT_CHAT_COMPLETIONS, icon: "icon-[mdi--message-text-outline]" },
-  { label: "自定义路径", value: OPENAI_ENDPOINT_CUSTOM, icon: "icon-[mdi--pencil-outline]" },
+  { label: "Custom path", value: OPENAI_ENDPOINT_CUSTOM, icon: "icon-[mdi--pencil-outline]" },
 ];
 
 const fieldTips = {
-  openAIExtraParams: "开启后会把 JSON 对象覆盖到 OpenAI 请求体。同名字段以这里为准。OpenAI service_tier 支持 auto、default、flex、scale、priority；priority 可用于高优先级/Fast 类场景。",
+  openAIExtraParams: "When enabled, overrides the OpenAI request body with this JSON object.",
 };
 
 const props = defineProps({
   visible: { type: Boolean, default: false },
-  title: { type: String, default: "模型配置" },
+  title: { type: String, default: "Model Configuration" },
   adapter: {
     type: Object,
     default: () => createEmptyModelAdapter(),
@@ -148,7 +148,7 @@ function handleSave() {
 
               <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <label class="flex flex-col gap-1">
-                  <span class="text-sm text-[#d4d4d4]">显示名称</span>
+                  <span class="text-sm text-[#d4d4d4]">Display Name</span>
                   <input
                     v-model="draft.displayName"
                     type="text"
@@ -166,7 +166,7 @@ function handleSave() {
                 </label>
 
                 <label class="flex flex-col gap-1">
-                  <span class="text-sm text-[#d4d4d4]">类型</span>
+                  <span class="text-sm text-[#d4d4d4]">Type</span>
                   <Select
                     v-model="draft.type"
                     :options="modelTypeOptions"
@@ -198,7 +198,7 @@ function handleSave() {
                   v-model="contextWindowTokensInput"
                   type="text"
                   inputmode="numeric"
-                  placeholder="留空时默认 1000000"
+                  placeholder="Default 1000000 when empty"
                   class="h-9 rounded-[6px] border border-[#3f3f3f] bg-[#232323] px-3 text-sm text-[#e5e5e5] outline-none focus:border-[#10AD5D]"
                 />
               </label>
@@ -218,7 +218,7 @@ function handleSave() {
                     v-model="maxCompletionTokensInput"
                     type="text"
                     inputmode="numeric"
-                    placeholder="留空时默认 65536"
+                    placeholder="Default 65536 when empty"
                     class="h-9 rounded-[6px] border border-[#3f3f3f] bg-[#232323] px-3 text-sm text-[#e5e5e5] outline-none focus:border-[#10AD5D]"
                   />
                 </label>
@@ -236,7 +236,7 @@ function handleSave() {
                 <div class="flex items-center justify-between gap-3">
                   <span class="flex items-center gap-1.5 text-sm text-[#d4d4d4]">
                     <Tooltip :content="fieldTips.openAIExtraParams" />
-                    <span>额外参数 JSON</span>
+                    <span>Extra Params JSON</span>
                   </span>
                   <label class="flex items-center gap-2 text-xs text-[#d4d4d4]">
                     <input
@@ -244,7 +244,7 @@ function handleSave() {
                       type="checkbox"
                       class="size-4 accent-[#10AD5D]"
                     />
-                    <span>启用</span>
+                    <span>Enable</span>
                   </label>
                 </div>
                 <textarea
@@ -263,7 +263,7 @@ function handleSave() {
                     v-model="anthropicMaxTokensInput"
                     type="text"
                     inputmode="numeric"
-                    placeholder="留空时默认 65536"
+                    placeholder="Default 65536 when empty"
                     class="h-9 rounded-[6px] border border-[#3f3f3f] bg-[#232323] px-3 text-sm text-[#e5e5e5] outline-none focus:border-[#10AD5D]"
                   />
                 </label>
@@ -294,8 +294,8 @@ function handleSave() {
               </div>
 
               <div class="mt-5 flex justify-end gap-2">
-                <Button variant="default" @click="handleCancel">取消</Button>
-                <Button variant="primary" @click="handleSave">保存</Button>
+                <Button variant="default" @click="handleCancel">Cancel</Button>
+                <Button variant="primary" @click="handleSave">Save</Button>
               </div>
             </div>
           </div>

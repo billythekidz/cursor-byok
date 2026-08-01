@@ -9,17 +9,17 @@ const router = createRouter({
     {
       path: "/",
       component: Home,
-      meta: { showIcon: true, title: "Cursor助手｜永久免费｜自定义API", directlyClose: false },
+      meta: { showIcon: true, title: "Cursor Helper | Free & BYOK", directlyClose: false },
     },
     {
       path: "/model-config",
       component: ModelConfig,
-      meta: { showIcon: false, title: "模型配置", directlyClose: true },
+      meta: { showIcon: false, title: "Model Configuration", directlyClose: true },
     },
     {
       path: "/model-editor",
       component: ModelEditor,
-      meta: { showIcon: false, title: "模型编辑", directlyClose: true },
+      meta: { showIcon: false, title: "Model Editor", directlyClose: true },
     },
   ],
 });

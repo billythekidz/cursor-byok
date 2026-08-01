@@ -128,7 +128,7 @@ func (s *ProxyService) ensureProxy(cfg serverconfig.Config) error {
 			return s.proxy.UpdateBaseURL(baseURL)
 		}
 		if snapshot.Running {
-			return fmt.Errorf("代理正在运行，不能从 %s 切换到 %s，请先停止服务", snapshot.ListenAddr, listenAddr)
+			return fmt.Errorf("proxy is running, cannot switch from %s to %s, please stop service first", snapshot.ListenAddr, listenAddr)
 		}
 	}
 
@@ -158,7 +158,7 @@ func (s *ProxyService) waitForBackend(ctx context.Context) error {
 		select {
 		case <-ctx.Done():
 			if lastErr != nil {
-				return fmt.Errorf("等待内置后端就绪失败: %w", lastErr)
+				return fmt.Errorf("failed waiting for embedded backend readiness: %w", lastErr)
 			}
 			return ctx.Err()
 		case <-ticker.C:

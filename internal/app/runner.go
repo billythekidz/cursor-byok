@@ -34,7 +34,7 @@ import (
 
 const (
 	// appName holds the appName state value for this module.
-	appName = "Cursor助手"
+	appName = "Cursor Helper"
 	// adRefreshInterval holds the background ad fetch interval.
 	adRefreshInterval = 3 * time.Minute
 )
@@ -148,7 +148,7 @@ func Run(resources EmbeddedResources) error {
 		SingleInstance: &application.SingleInstanceOptions{
 			UniqueID: "com.cursor-assistant.single-instance",
 			OnSecondInstanceLaunch: func(data application.SecondInstanceData) {
-				logger.Infof("检测到实例请求，已忽略")
+				logger.Infof("second instance requested, ignoring")
 				// Do not activate the window, to avoid disturbing the user's work.
 			},
 		},
@@ -285,7 +285,7 @@ func Run(resources EmbeddedResources) error {
 			} else if locale == "ru-RU" {
 				statusItem.SetLabel("Статус: запущено")
 			} else {
-				statusItem.SetLabel("状态：运行中")
+				statusItem.SetLabel("Status: Running")
 			}
 		} else {
 			if locale == "en-US" {
@@ -295,7 +295,7 @@ func Run(resources EmbeddedResources) error {
 			} else if locale == "ru-RU" {
 				statusItem.SetLabel("Статус: не запущено")
 			} else {
-				statusItem.SetLabel("状态：未启动")
+				statusItem.SetLabel("Status: Not Started")
 			}
 		}
 
@@ -321,12 +321,12 @@ func Run(resources EmbeddedResources) error {
 			hideItem.SetLabel("Скрыть окно")
 			quitItem.SetLabel("Выход")
 		} else {
-			startItem.SetLabel("启动服务")
-			stopItem.SetLabel("停止服务")
-			updateItem.SetLabel("检查更新")
-			showItem.SetLabel("显示窗口")
-			hideItem.SetLabel("隐藏窗口")
-			quitItem.SetLabel("退出")
+			startItem.SetLabel("Start Service")
+			stopItem.SetLabel("Stop Service")
+			updateItem.SetLabel("Check for Updates")
+			showItem.SetLabel("Show Window")
+			hideItem.SetLabel("Hide Window")
+			quitItem.SetLabel("Exit")
 		}
 	}
 
@@ -354,26 +354,26 @@ func Run(resources EmbeddedResources) error {
 		refreshTray()
 	})
 	app.Event.OnApplicationEvent(events.Common.ApplicationStarted, func(event *application.ApplicationEvent) {
-		logger.Infof("应用版本：v%s", buildinfo.CurrentVersion())
+		logger.Infof("Application version: v%s", buildinfo.CurrentVersion())
 		updateManager.Start()
 		startAdRefreshLoop(adRefreshCtx)
 		go func() {
 			logger.Infof("application started, begin auto start service in background")
 			if _, err := proxyService.StartProxy(); err != nil {
-				logger.Errorf("自动启动服务失败: %v", err)
+				logger.Errorf("failed to auto-start service: %v", err)
 			} else {
 				state := proxyService.GetState()
 				if refreshAdAssetBaseURL() {
 					refreshAdRuntime()
 				}
-				logger.Infof("代理已自动启动: %s", state.ProxyListenAddr)
+				logger.Infof("proxy auto-started: %s", state.ProxyListenAddr)
 			}
 		}()
 	})
 
 	startItem.OnClick(func(ctx *application.Context) {
 		if _, err := proxyService.StartProxy(); err != nil {
-			logger.Errorf("启动服务失败: %v", err)
+			logger.Errorf("failed to start service: %v", err)
 		} else if refreshAdAssetBaseURL() {
 			refreshAdRuntime()
 		}
@@ -381,7 +381,7 @@ func Run(resources EmbeddedResources) error {
 	})
 	stopItem.OnClick(func(ctx *application.Context) {
 		if _, err := proxyService.StopProxy(); err != nil {
-			logger.Errorf("停止服务失败: %v", err)
+			logger.Errorf("failed to stop service: %v", err)
 		}
 		refreshTray()
 	})

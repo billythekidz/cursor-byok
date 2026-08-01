@@ -5,7 +5,7 @@ includes:
 
 tasks:
   build:
-    summary: 构建 macOS 程序
+    summary: Build macOS binary
     internal: true
     cmds:
       - task: build:native
@@ -26,7 +26,7 @@ tasks:
             ref: .SCAN
 
   build:native:
-    summary: 使用本机构建 macOS 程序
+    summary: Build macOS binary natively
     internal: true
     deps:
       - task: common:go:mod:tidy
@@ -55,7 +55,7 @@ tasks:
       MACOSX_DEPLOYMENT_TARGET: "10.15"
 
   build:universal:
-    summary: 构建 macOS 通用包（amd64 + arm64）
+    summary: Build macOS universal package (amd64 + arm64)
     internal: true
     deps:
       - task: build
@@ -73,7 +73,7 @@ tasks:
       - rm -f "{{.BIN_DIR}}/{{.APP_NAME}}-amd64" "{{.BIN_DIR}}/{{.APP_NAME}}-arm64"
 
   package:
-    summary: 打包 macOS .app（可通过 APP_BUNDLE 指定输出包名）
+    summary: Package macOS .app (output bundle name can be specified via APP_BUNDLE)
     internal: true
     cmds:
       - task: build
@@ -102,7 +102,7 @@ tasks:
             ref: .BINARY_NAME
 
   package:dmg:
-    summary: 打包 macOS DMG（可通过 APP_BUNDLE/DMG_NAME 指定输出文件名）
+    summary: Package macOS DMG (output filename can be specified via APP_BUNDLE/DMG_NAME)
     internal: true
     cmds:
       - task: package
@@ -141,7 +141,7 @@ tasks:
             ref: .APP_BUNDLE
 
   package:archive:
-    summary: 打包 macOS updater 归档（.tar.gz）
+    summary: Package macOS updater archive (.tar.gz)
     internal: true
     cmds:
       - task: package
@@ -178,14 +178,14 @@ tasks:
             ref: .APP_BUNDLE
 
   package:universal:
-    summary: 打包 macOS 通用 .app
+    summary: Package macOS universal .app
     internal: true
     cmds:
       - task: build:universal
       - task: create:app:bundle
 
   create:app:bundle:
-    summary: 生成 .app 包
+    summary: Generate .app bundle
     internal: true
     vars:
       APP_BUNDLE: '{{.APP_BUNDLE | default (printf "%s.app" .APP_NAME)}}'
@@ -205,7 +205,7 @@ tasks:
             ref: .APP_BUNDLE
 
   codesign:adhoc:
-    summary: 使用临时签名（开发测试）
+    summary: Use ad-hoc signing (development testing)
     internal: true
     vars:
       APP_BUNDLE: '{{.APP_BUNDLE | default (printf "%s.app" .APP_NAME)}}'
@@ -213,7 +213,7 @@ tasks:
       - codesign --force --deep --sign - "{{.BIN_DIR}}/{{.APP_BUNDLE}}"
 
   create:dmg:
-    summary: 生成 macOS DMG 包（优先使用 create-dmg，不存在时回退 hdiutil）
+    summary: Generate macOS DMG package (prefers create-dmg, falls back to hdiutil)
     internal: true
     vars:
       APP_BUNDLE: '{{.APP_BUNDLE | default (printf "%s.app" .APP_NAME)}}'
@@ -224,9 +224,9 @@ tasks:
       - mkdir -p "{{.STAGING_DIR}}"
       - cp -R "{{.BIN_DIR}}/{{.APP_BUNDLE}}" "{{.STAGING_DIR}}/{{.APP_NAME}}.app"
       - |
-        if [ -f "build/dmg-extras/提示损坏？点我.command" ]; then
-          cp "build/dmg-extras/提示损坏？点我.command" "{{.STAGING_DIR}}/提示损坏？点我.command"
-          chmod +x "{{.STAGING_DIR}}/提示损坏？点我.command"
+        if [ -f "build/dmg-extras/FixDamagedApp.command" ]; then
+          cp "build/dmg-extras/FixDamagedApp.command" "{{.STAGING_DIR}}/FixDamagedApp.command"
+          chmod +x "{{.STAGING_DIR}}/FixDamagedApp.command"
         fi
       - |
         if command -v create-dmg >/dev/null 2>&1; then
@@ -238,7 +238,7 @@ tasks:
       - rm -rf "{{.STAGING_DIR}}"
 
   create:archive:
-    summary: 生成 macOS updater tar.gz 归档
+    summary: Generate macOS updater tar.gz archive
     internal: true
     vars:
       APP_BUNDLE: '{{.APP_BUNDLE | default (printf "%s.app" .APP_NAME)}}'
@@ -248,7 +248,7 @@ tasks:
       - env LC_ALL=C tar -C "{{.BIN_DIR}}" -czf "{{.ARCHIVE_PATH}}" "{{.APP_BUNDLE}}"
 
   cleanup:package:artifacts:
-    summary: 清理打包中间产物
+    summary: Clean up packaging intermediate artifacts
     internal: true
     vars:
       APP_BUNDLE: '{{.APP_BUNDLE | default (printf "%s.app" .APP_NAME)}}'
@@ -259,7 +259,10 @@ tasks:
       - rm -rf "{{.BIN_DIR}}/{{.APP_BUNDLE}}"
 
   run:
-    summary: 运行本地开发包
+    summary: Run local dev package
+    vars:
+      BINARY_NAME: '{{.BINARY_NAME | default .APP_NAME}}'
+      EXECUTABLE_NAME: '{{.EXECUTABLE_NAME | default .APP_NAME}}'
     vars:
       BINARY_NAME: '{{.BINARY_NAME | default .APP_NAME}}'
       EXECUTABLE_NAME: '{{.EXECUTABLE_NAME | default .APP_NAME}}'

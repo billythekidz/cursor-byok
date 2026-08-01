@@ -142,7 +142,7 @@ onBeforeUnmount(() => {
             @click="handleCopy"
           >
             <span :class="copied ? 'icon-[mdi--check]' : 'icon-[mdi--content-copy]'" class="text-[13px]"></span>
-            <span>{{ copied ? "已复制" : "拷贝" }}</span>
+            <span>{{ copied ? "Copied" : "Copy" }}</span>
           </button>
         </div>
         <div class="min-h-0 overflow-auto break-words">

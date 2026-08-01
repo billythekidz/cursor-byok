@@ -41,7 +41,7 @@ func Init() {
 		})}
 		fileHandler, path, fileErr := buildFileHandler()
 		if fileErr != nil {
-			_, _ = fmt.Fprintf(os.Stderr, "[logger] 初始化日志文件失败: %v\n", fileErr)
+			_, _ = fmt.Fprintf(os.Stderr, "[logger] failed to initialize log file: %v\n", fileErr)
 		} else if fileHandler != nil {
 			handlers = append(handlers, fileHandler)
 			logFilePath = path
@@ -53,7 +53,7 @@ func Init() {
 		slog.SetDefault(slog.New(handler))
 		stdlog.SetFlags(0)
 		if logFilePath != "" {
-			slog.Info("应用日志已写入文件", "path", logFilePath, "pid", os.Getpid())
+			slog.Info("application log written to file", "path", logFilePath, "pid", os.Getpid())
 		}
 	})
 }

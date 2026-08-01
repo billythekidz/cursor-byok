@@ -73,7 +73,7 @@ function getSegmentBorderRadius(dataIndex) {
 }
 
 const chartData = computed(() => ({
-  labels: ["命中", "未命中"],
+  labels: ["Hit", "Miss"],
   datasets: [
     {
       data: [percentage.value, Math.max(0, 100 - percentage.value)],
@@ -112,7 +112,7 @@ const chartOptions = {
     <div
       class="relative h-[82px] w-[132px] shrink-0"
       role="img"
-      :aria-label="`缓存命中率 ${label}`"
+      :aria-label="`Cache hit rate ${label}`"
     >
       <Doughnut class="h-full w-full" :data="chartData" :options="chartOptions" />
       <div class="pointer-events-none absolute inset-x-0 bottom-[10px] flex justify-center">

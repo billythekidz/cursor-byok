@@ -48,7 +48,7 @@ require_value() {
   local name="$1"
   local value="$2"
   if [[ -z "$value" ]]; then
-    echo "缺少 $name。运行 --help 查看用法。" >&2
+    echo "Missing $name. Run --help for usage." >&2
     exit 2
   fi
 }
@@ -83,7 +83,7 @@ require_value "REQUEST_ID" "$REQUEST_ID"
 require_value "MODEL_CALL_ID" "$MODEL_CALL_ID"
 
 if [[ ! -f "$REQUEST_LOG" ]]; then
-  echo "REQUEST_LOG 不存在: $REQUEST_LOG" >&2
+  echo "REQUEST_LOG does not exist: $REQUEST_LOG" >&2
   exit 2
 fi
 
@@ -95,8 +95,8 @@ if [[ -z "$API_KEY" ]]; then
   API_KEY="$(read_channel_config apiKey || true)"
 fi
 
-require_value "BASE_URL/GLM_BASE_URL/ANTHROPIC_BASE_URL 或 config[$CHANNEL_NAME].baseURL" "$BASE_URL"
-require_value "API_KEY/ANTHROPIC_API_KEY/GLM_API_KEY 或 config[$CHANNEL_NAME].apiKey" "$API_KEY"
+require_value "BASE_URL/GLM_BASE_URL/ANTHROPIC_BASE_URL or config[$CHANNEL_NAME].baseURL" "$BASE_URL"
+require_value "API_KEY/ANTHROPIC_API_KEY/GLM_API_KEY or config[$CHANNEL_NAME].apiKey" "$API_KEY"
 
 mkdir -p "$OUT_DIR"
 : > "$HEADER_FILE"
@@ -139,7 +139,7 @@ with log_path.open(encoding="utf-8") as f:
         break
 
 if body is None:
-    raise SystemExit(f"未找到 llm_request: request_id={request_id} model_call_id={model_call_id}")
+    raise SystemExit(f"llm_request not found: request_id={request_id} model_call_id={model_call_id}")
 
 body_path.write_text(json.dumps(body, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -188,7 +188,7 @@ for line in Path(sys.argv[1]).read_text(encoding="utf-8", errors="replace").spli
     print(line)
 PY
 else
-  echo "响应文件不存在。"
+  echo "Response file does not exist."
 fi
 
 exit "$code"

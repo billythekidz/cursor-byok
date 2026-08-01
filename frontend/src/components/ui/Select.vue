@@ -8,7 +8,7 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
-  placeholder: { type: String, default: "请选择" },
+  placeholder: { type: String, default: "Select option" },
   disabled: { type: Boolean, default: false },
   border: { type: Boolean, default: true },
   ariaLabel: { type: String, default: "" },

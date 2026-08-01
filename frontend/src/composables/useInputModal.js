@@ -2,7 +2,7 @@ import { reactive } from "vue";
 
 export const inputModalState = reactive({
   visible: false,
-  title: "提示",
+  title: "Notice",
   content: "",
   placeholder: "",
   value: "",
@@ -17,7 +17,7 @@ export const inputModalState = reactive({
 export function showInputModal(options = {}) {
   return new Promise((resolve) => {
     inputModalState.visible = true;
-    inputModalState.title = options.title ?? "提示";
+    inputModalState.title = options.title ?? "Notice";
     inputModalState.content = options.content ?? "";
     inputModalState.placeholder = options.placeholder ?? "";
     inputModalState.value = String(options.defaultValue ?? "");

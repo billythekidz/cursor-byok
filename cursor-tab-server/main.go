@@ -70,17 +70,17 @@ type serverApp struct {
 func main() {
 	cfg, err := loadConfig(defaultConfigPath)
 	if err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "加载配置失败: %v\n", err)
+		_, _ = fmt.Fprintf(os.Stderr, "failed to load config: %v\n", err)
 		os.Exit(1)
 	}
-	log.Printf("cursor-tab-server 启动 listen_addr=%s config_path=%s", defaultListenAddr, defaultConfigPath)
+	log.Printf("cursor-tab-server started listen_addr=%s config_path=%s", defaultListenAddr, defaultConfigPath)
 	server := &http.Server{
 		Addr:              defaultListenAddr,
 		Handler:           newServerApp(cfg, newHTTPClient(), defaultUpstreamTargets),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		_, _ = fmt.Fprintf(os.Stderr, "监听失败: %v\n", err)
+		_, _ = fmt.Fprintf(os.Stderr, "failed to listen: %v\n", err)
 		os.Exit(1)
 	}
 }
@@ -105,7 +105,7 @@ func (app *serverApp) ServeHTTP(writer http.ResponseWriter, request *http.Reques
 
 func (app *serverApp) handleProxy(writer http.ResponseWriter, request *http.Request) error {
 	if app == nil {
-		return fmt.Errorf("服务实例为空")
+		return fmt.Errorf("service instance is nil")
 	}
 	rawTarget, ok := app.upstreamTargets[strings.TrimSpace(request.URL.Path)]
 	if !ok {
@@ -114,7 +114,7 @@ func (app *serverApp) handleProxy(writer http.ResponseWriter, request *http.Requ
 	}
 	targetURL, err := url.Parse(rawTarget)
 	if err != nil {
-		return fmt.Errorf("解析上游地址失败: %w", err)
+		return fmt.Errorf("failed to parse upstream address: %w", err)
 	}
 	targetURL.RawQuery = request.URL.RawQuery
 
@@ -122,13 +122,13 @@ func (app *serverApp) handleProxy(writer http.ResponseWriter, request *http.Requ
 	if shouldRequestCarryBody(request.Method) {
 		requestBody, err = io.ReadAll(request.Body)
 		if err != nil {
-			return fmt.Errorf("读取请求体失败: %w", err)
+			return fmt.Errorf("failed to read request body: %w", err)
 		}
 	}
 
 	upstreamRequest, err := http.NewRequestWithContext(request.Context(), request.Method, targetURL.String(), bytes.NewReader(requestBody))
 	if err != nil {
-		return fmt.Errorf("构建上游请求失败: %w", err)
+		return fmt.Errorf("failed to build upstream request: %w", err)
 	}
 	copyRequestHeaders(upstreamRequest.Header, request.Header)
 	authorization := formatBearerAuthorization(app.config.Token)
@@ -143,11 +143,11 @@ func (app *serverApp) handleProxy(writer http.ResponseWriter, request *http.Requ
 
 	response, err := app.client.Do(upstreamRequest)
 	if err != nil {
-		log.Printf("上游转发失败 method=%s path=%s target=%s err=%v", request.Method, request.URL.Path, targetURL.String(), err)
-		return fmt.Errorf("上游请求失败: %w", err)
+		log.Printf("upstream forwarding failed method=%s path=%s target=%s err=%v", request.Method, request.URL.Path, targetURL.String(), err)
+		return fmt.Errorf("upstream request failed: %w", err)
 	}
 	defer response.Body.Close()
-	log.Printf("上游响应 method=%s path=%s target_host=%s status=%d", request.Method, request.URL.Path, targetURL.Host, response.StatusCode)
+	log.Printf("upstream response method=%s path=%s target_host=%s status=%d", request.Method, request.URL.Path, targetURL.Host, response.StatusCode)
 
 	copyResponseHeaders(writer.Header(), response.Header)
 	writer.WriteHeader(response.StatusCode)
@@ -170,11 +170,11 @@ func loadConfig(path string) (appConfig, error) {
 func parseTokenYAML(contents []byte) (string, error) {
 	var cfg appConfig
 	if err := yaml.Unmarshal(contents, &cfg); err != nil {
-		return "", fmt.Errorf("解析配置失败: %w", err)
+		return "", fmt.Errorf("failed to parse config: %w", err)
 	}
 	token := strings.TrimSpace(cfg.Token)
 	if token == "" {
-		return "", fmt.Errorf("token 不能为空")
+		return "", fmt.Errorf("token cannot be empty")
 	}
 	return token, nil
 }

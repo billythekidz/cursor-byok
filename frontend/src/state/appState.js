@@ -21,7 +21,7 @@ import {
 } from "@/services/clientApi";
 
 const APP_STATE_STORAGE_KEY = "cursor-client:runtime-state:v2";
-const GENERIC_SERVICE_ERROR = "服务错误";
+const GENERIC_SERVICE_ERROR = "Service error";
 const SUPPORTED_MODEL_ADAPTER_TYPES = new Set(["openai", "anthropic"]);
 const SUPPORTED_REASONING_EFFORTS = new Set(["low", "medium", "high", "xhigh", "max"]);
 const SUPPORTED_ANTHROPIC_THINKING_EFFORTS = new Set(["low", "medium", "high", "xhigh", "max"]);
@@ -49,8 +49,8 @@ const SUPPORTED_MODEL_ADAPTER_TEST_STATUSES = new Set(["idle", "running", "succe
 const HOME_METRICS_MIN_LOADING_MS = 600;
 
 export const ROUTE_MODE_OPTIONS = [
-  { label: "本地服务模式", value: "local" },
-  { label: "直连 Cursor 模式", value: "upstream" },
+  { label: "Local Service Mode", value: "local" },
+  { label: "Direct Cursor Mode", value: "upstream" },
 ];
 
 function asString(value) {
@@ -118,7 +118,7 @@ function asNumber(value, fallback = 0) {
 function formatReleaseDate(value) {
   const text = asString(value);
   if (!text) {
-    return "未知";
+    return "Unknown";
   }
   const parsed = dayjs(text);
   if (!parsed.isValid()) {
@@ -217,16 +217,16 @@ export function formatModelAdapterTestSummary(source) {
   const result = source && typeof source === "object" ? source : {};
   const status = normalizeModelAdapterTestStatus(result.status);
   if (status === "running") {
-    return "测试中...";
+    return "Testing...";
   }
   if (status === "error") {
-    return asString(result.error) || "模型测试失败";
+    return asString(result.error) || "Model test failed";
   }
   if (status !== "success") {
     return "";
   }
   const roundedTPS = Math.max(0, Math.round(asNumber(result.tokensPerSecond)));
-  return `${roundedTPS} t/s | 首字 ${formatDuration(result.firstTextTokenMS)}`;
+  return `${roundedTPS} t/s | First Token ${formatDuration(result.firstTextTokenMS)}`;
 }
 
 function normalizeModelAdapterTestResult(source) {
@@ -250,7 +250,7 @@ function normalizeModelAdapterTestResult(source) {
     normalized.summaryText = formatModelAdapterTestSummary(normalized);
   }
   if (status === "error" && !normalized.summaryText) {
-    normalized.summaryText = normalized.error || "模型测试失败";
+    normalized.summaryText = normalized.error || "Model test failed";
   }
   return normalized;
 }
@@ -271,7 +271,7 @@ export function createEmptyModelAdapter() {
     type: "openai",
     baseURL: "",
     apiKey: "",
-    tooltipData: "备注",
+    tooltipData: "Notes",
     modelID: "",
     reasoningEffort: "medium",
     openAIEndpoint: OPENAI_ENDPOINT_RESPONSES,
@@ -309,42 +309,42 @@ function isValidOpenAIEndpoint(value) {
 function validateJSONObject(value, label) {
   const text = asString(value);
   if (!text) {
-    return `${label}不能为空`;
+    return `${label} cannot be empty`;
   }
   try {
     const parsed = JSON.parse(text);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      return `${label}必须是 JSON 对象`;
+      return `${label} must be a JSON object`;
     }
   } catch (_error) {
-    return `${label}必须是合法 JSON 对象`;
+    return `${label} must be a valid JSON object`;
   }
   return "";
 }
 
 function validateHeadersJSON(value) {
-  const objectError = validateJSONObject(value, "自定义请求头 JSON");
+  const objectError = validateJSONObject(value, "Custom Headers JSON");
   if (objectError) {
     return objectError;
   }
   const parsed = JSON.parse(asString(value));
   for (const [key, item] of Object.entries(parsed)) {
     if (!asString(key)) {
-      return "自定义请求头名称不能为空";
+      return "Custom header name cannot be empty";
     }
     if (typeof item !== "string") {
-      return `自定义请求头 ${key} 的值必须是字符串`;
+      return `Custom header ${key} value must be a string`;
     }
   }
   return "";
 }
 
 function validateOpenAIExtraParamsJSON(value) {
-  return validateJSONObject(value, "额外参数 JSON");
+  return validateJSONObject(value, "Extra Params JSON");
 }
 
 function validateAnthropicExtraParamsJSON(value) {
-  return validateJSONObject(value, "Anthropic 额外参数 JSON");
+  return validateJSONObject(value, "Anthropic Extra Params JSON");
 }
 
 export function normalizeModelAdapter(source) {
@@ -422,67 +422,67 @@ export function validateModelAdapters(source) {
   const adapters = normalizeModelAdapters(source);
   const seenIdentityKeys = new Set();
   for (const [index, adapter] of adapters.entries()) {
-    const prefix = `模型 ${index + 1}`;
+    const prefix = `Model ${index + 1}`;
     if (!adapter.displayName) {
-      return `${prefix} 的显示名称不能为空`;
+      return `${prefix} display name cannot be empty`;
     }
     if (!SUPPORTED_MODEL_ADAPTER_TYPES.has(adapter.type)) {
-      return `${prefix} 的类型仅支持 OpenAI 或 Anthropic`;
+      return `${prefix} type only supports OpenAI or Anthropic`;
     }
     if (!adapter.baseURL) {
-      return `${prefix} 的接口地址不能为空`;
+      return `${prefix} endpoint URL cannot be empty`;
     }
     if (!adapter.apiKey) {
-      return `${prefix} 的访问密钥不能为空`;
+      return `${prefix} API key cannot be empty`;
     }
     if (!adapter.tooltipData) {
-      return `${prefix} 的悬停提示不能为空`;
+      return `${prefix} tooltip cannot be empty`;
     }
     if (!adapter.modelID) {
-      return `${prefix} 的模型标识不能为空`;
+      return `${prefix} model ID cannot be empty`;
     }
     if (adapter.type === "openai" && !SUPPORTED_REASONING_EFFORTS.has(adapter.reasoningEffort)) {
-      return `${prefix} 的推理强度仅支持 low、medium、high、xhigh、max`;
+      return `${prefix} reasoning effort only supports low, medium, high, xhigh, max`;
     }
     if (adapter.type === "openai" && !isValidOpenAIEndpoint(adapter.openAIEndpoint)) {
-      return `${prefix} 的 OpenAI 端点仅支持 /v1/responses、/v1/chat/completions 或以 / 开头的自定义路径`;
+      return `${prefix} OpenAI endpoint only supports /v1/responses, /v1/chat/completions, or custom path starting with /`;
     }
     if (adapter.type === "openai" && adapter.openAIExtraParamsEnabled) {
       const extraParamsError = validateOpenAIExtraParamsJSON(adapter.openAIExtraParamsJSON);
       if (extraParamsError) {
-        return `${prefix} 的 ${extraParamsError}`;
+        return `${prefix} ${extraParamsError}`;
       }
     }
     if (adapter.customHeadersEnabled) {
       const customHeadersError = validateHeadersJSON(adapter.customHeadersJSON);
       if (customHeadersError) {
-        return `${prefix} 的 ${customHeadersError}`;
+        return `${prefix} ${customHeadersError}`;
       }
     }
     if (adapter.type === "anthropic" && adapter.anthropicExtraParamsEnabled) {
       const extraParamsError = validateAnthropicExtraParamsJSON(adapter.anthropicExtraParamsJSON);
       if (extraParamsError) {
-        return `${prefix} 的 ${extraParamsError}`;
+        return `${prefix} ${extraParamsError}`;
       }
     }
     if (adapter.type === "anthropic" && !SUPPORTED_ANTHROPIC_THINKING_EFFORTS.has(adapter.anthropicThinkingEffort)) {
-      return `${prefix} 的 Anthropic 思考强度仅支持 low、medium、high、xhigh、max`;
+      return `${prefix} Anthropic thinking effort only supports low, medium, high, xhigh, max`;
     }
     if (adapter.contextWindowTokens && (!Number.isInteger(adapter.contextWindowTokens) || adapter.contextWindowTokens <= 0)) {
-      return `${prefix} 的上下文窗口必须为正整数`;
+      return `${prefix} context window tokens must be a positive integer`;
     }
     if (adapter.maxCompletionTokens && (!Number.isInteger(adapter.maxCompletionTokens) || adapter.maxCompletionTokens <= 0)) {
-      return `${prefix} 的最大输出 Token 必须为正整数`;
+      return `${prefix} max completion tokens must be a positive integer`;
     }
     if (adapter.anthropicMaxTokens && (!Number.isInteger(adapter.anthropicMaxTokens) || adapter.anthropicMaxTokens <= 0)) {
-      return `${prefix} 的最大输出 Token 必须为正整数`;
+      return `${prefix} max completion tokens must be a positive integer`;
     }
     if (adapter.thinkingBudgetTokens && (!Number.isInteger(adapter.thinkingBudgetTokens) || adapter.thinkingBudgetTokens <= 0)) {
-      return `${prefix} 的思考预算 Token 必须为正整数`;
+      return `${prefix} thinking budget tokens must be a positive integer`;
     }
     const dedupeKey = buildModelAdapterIdentityKey(adapter);
     if (seenIdentityKeys.has(dedupeKey)) {
-      return `模型渠道重复，请检查 url、modelID、apiKey、displayName、endpoint 组合`;
+      return `Duplicate model channel, please check url, modelID, apiKey, displayName, endpoint combination`;
     }
     seenIdentityKeys.add(dedupeKey);
   }
@@ -491,7 +491,7 @@ export function validateModelAdapters(source) {
 
 function validateConfigPayload(payload) {
   if (!SUPPORTED_ROUTE_MODES.has(normalizeRouteMode(payload?.routing?.mode, ""))) {
-    return "运行模式仅支持 local 或 upstream";
+    return "Routing mode only supports local or upstream";
   }
   return "";
 }
@@ -989,30 +989,30 @@ watchSyncEffect((onCleanup) => {
 export const appViewState = reactive({
   serviceStatusText: computed(() => {
     if (appState.proxyRunning && appState.backendRunning) {
-      return "服务运行中";
+      return "Service Running";
     }
     if (appState.backendRunning) {
-      return "后端已启动，代理未启动";
+      return "Backend Started, Proxy Stopped";
     }
-    return "服务未启动";
+    return "Service Stopped";
   }),
   serviceStatusClass: computed(() =>
     appState.serviceRunning ? "text-[#22c55e]" : "text-[#f59e0b]",
   ),
   serviceButtonText: computed(() => {
     if (appState.serviceBusy) {
-      return appState.serviceRunning ? "关闭中..." : "启动中...";
+      return appState.serviceRunning ? "Stopping..." : "Starting...";
     }
-    return appState.serviceRunning ? "关闭服务" : "启动服务";
+    return appState.serviceRunning ? "Stop Service" : "Start Service";
   }),
 });
 
 function localizeUpdateMessage(msg) {
   if (!msg) return "";
-  if (/当前已是最新版本/.test(msg)) {
+  if (/(?:already using the latest version|当前已是最新版本)/i.test(msg)) {
     const match = msg.match(/v?([0-9]+\.[0-9]+\.[0-9]+)/);
     const version = match ? match[1] : appState.appVersion || "...";
-    return `当前已是最新版本（v${version}）。`;
+    return `Already using the latest version (v${version}).`;
   }
   return msg;
 }
@@ -1023,10 +1023,10 @@ function localizeReadyContent() {
   const notes = appState.updateReleaseNotes || "";
 
   return [
-    `版本：v${version}`,
-    `发布时间：${date}`,
+    `Version: v${version}`,
+    `Release Date: ${date}`,
     "",
-    notes || "无更新说明",
+    notes || "No release notes",
   ].join("\n");
 }
 
@@ -1041,11 +1041,11 @@ export const updateViewState = reactive({
   promptTitle: computed(() => {
     switch (appState.updatePromptKind) {
       case "ready":
-        return "发现新版本";
+        return "New Version Found";
       case "error":
-        return "更新失败";
+        return "Update Failed";
       default:
-        return "检查更新";
+        return "Check for Updates";
     }
   }),
   promptContent: computed(() => {
@@ -1055,20 +1055,20 @@ export const updateViewState = reactive({
       case "error":
         return appState.updateError || localizeUpdateMessage(appState.updateMessage) || GENERIC_SERVICE_ERROR;
       default:
-        return localizeUpdateMessage(appState.updateMessage) || localizeUpdateMessage(`当前已是最新版本（v${appState.appVersion || "..."}）。`);
+        return localizeUpdateMessage(appState.updateMessage) || localizeUpdateMessage(`Already using the latest version (v${appState.appVersion || "..."}).`);
     }
   }),
   promptConfirmText: computed(() => {
     if (appState.updatePromptKind === "ready") {
-      return "立即重启更新";
+      return "Restart and Update Now";
     }
-    return "确定";
+    return "OK";
   }),
   promptCancelText: computed(() => {
     if (appState.updatePromptKind === "ready") {
-      return "稍后";
+      return "Later";
     }
-    return "取消";
+    return "Cancel";
   }),
   promptShowCancel: computed(() => appState.updatePromptKind === "ready"),
 });
@@ -1239,7 +1239,7 @@ export async function deleteModelAdapterAt(index) {
   if (index < 0 || index >= nextAdapters.length) {
     return {
       ok: false,
-      error: "模型配置不存在，无法删除",
+      error: "Model configuration does not exist, cannot delete",
     };
   }
 
@@ -1258,9 +1258,9 @@ function splitDisplayNameSeed(value) {
   const text = asString(value);
   const match = text.match(/^(.*?)(?:\s*[-+](\d+))?$/);
   if (!match) {
-    return { base: text || "模型", number: 0 };
+    return { base: text || "Model", number: 0 };
   }
-  const base = asString(match[1]) || "模型";
+  const base = asString(match[1]) || "Model";
   const number = match[2] ? Number(match[2]) : 0;
   return { base, number: Number.isFinite(number) ? number : 0 };
 }
@@ -1287,7 +1287,7 @@ export async function duplicateModelAdapterAt(index) {
   if (index < 0 || index >= nextAdapters.length) {
     return {
       ok: false,
-      error: "模型配置不存在，无法复制",
+      error: "Model configuration does not exist, cannot copy",
     };
   }
 
@@ -1295,7 +1295,7 @@ export async function duplicateModelAdapterAt(index) {
   const duplicate = {
     ...source,
     id: "",
-    displayName: buildNextDisplayName(nextAdapters, source.displayName || source.modelID || "模型"),
+    displayName: buildNextDisplayName(nextAdapters, source.displayName || source.modelID || "Model"),
   };
 
   nextAdapters.splice(index + 1, 0, duplicate);
@@ -1342,7 +1342,7 @@ export async function syncHomeMetrics() {
 
 export async function startService() {
   if (appState.serviceBusy) {
-    return { ok: false, error: "服务状态更新中，请稍后再试" };
+    return { ok: false, error: "Service status updating, please try again later" };
   }
   appState.serviceBusy = true;
   try {
@@ -1363,7 +1363,7 @@ export async function startService() {
 
 export async function stopService() {
   if (appState.serviceBusy) {
-    return { ok: false, error: "服务状态更新中，请稍后再试" };
+    return { ok: false, error: "Service status updating, please try again later" };
   }
   appState.serviceBusy = true;
   try {

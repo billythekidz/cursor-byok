@@ -6,7 +6,7 @@ import "fmt"
 
 // EnsureCACertInstalled is the stub implementation for non-Windows/macOS platforms.
 func EnsureCACertInstalled(_ []byte, certPath string) error {
-	return fmt.Errorf("ensureCACertInstalled: 当前平台暂不支持，certPath=%s", certPath)
+	return fmt.Errorf("ensureCACertInstalled: platform currently not supported, certPath=%s", certPath)
 }
 
 func RemoveCACertFromWindowsStore(_ []byte) error { return nil }

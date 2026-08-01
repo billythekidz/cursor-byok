@@ -10,7 +10,7 @@ vars:
 
 tasks:
   build:
-    summary: 构建 Linux 程序
+    summary: Build Linux binary
     internal: true
     vars:
       TARGET_ARCH: '{{.ARCH | default ARCH}}'
@@ -19,7 +19,7 @@ tasks:
         sh: '(command -v gcc >/dev/null 2>&1 || command -v clang >/dev/null 2>&1) && echo "true" || echo "false"'
     preconditions:
       - sh: '[ "{{.TARGET_ARCH}}" = "amd64" ]'
-        msg: "当前仅支持 linux/amd64 构建。"
+        msg: "Currently only linux/amd64 build is supported."
     cmds:
       - task: '{{if and (eq OS "linux") (eq .HAS_CC "true") (eq .TARGET_ARCH ARCH)}}build:native{{else}}build:docker{{end}}'
         vars:
@@ -39,7 +39,7 @@ tasks:
             ref: .SCAN
 
   build:native:
-    summary: 使用本机构建 Linux 程序
+    summary: Build Linux binary natively
     internal: true
     deps:
       - task: common:go:mod:tidy
@@ -53,13 +53,13 @@ tasks:
             ref: .SCAN
     preconditions:
       - sh: '[ "{{OS}}" = "linux" ]'
-        msg: "Linux 原生构建仅支持在 Linux 主机上执行。"
+        msg: "Linux native build is only supported on Linux host."
       - sh: pkg-config --version >/dev/null 2>&1
-        msg: "未检测到 pkg-config，请先安装。"
+        msg: "pkg-config not detected, please install first."
       - sh: 'command -v gcc >/dev/null 2>&1 || command -v clang >/dev/null 2>&1'
-        msg: "未检测到 gcc 或 clang，请先安装 C 编译器。"
+        msg: "gcc or clang not detected, please install C compiler first."
       - sh: pkg-config --exists gtk+-3.0 webkit2gtk-4.1 gdk-3.0 gio-unix-2.0
-        msg: "缺少 Linux GUI 构建依赖，请安装 gtk+-3.0、webkit2gtk-4.1、gdk-3.0 和 gio-unix-2.0 开发包。"
+        msg: "Missing Linux GUI build dependencies, please install gtk+-3.0, webkit2gtk-4.1, gdk-3.0, and gio-unix-2.0 dev packages."
     cmds:
       - go build {{.BUILD_FLAGS}} -o "{{.OUTPUT}}"
     vars:
@@ -73,7 +73,7 @@ tasks:
       GOARCH: '{{.ARCH | default ARCH}}'
 
   build:docker:
-    summary: 使用 Docker 构建 Linux 程序
+    summary: Build Linux binary using Docker
     internal: true
     dir: '{{.PROJECT_ROOT}}'
     deps:
@@ -87,11 +87,11 @@ tasks:
             ref: .SCAN
     preconditions:
       - sh: '[ "{{OS}}" = "darwin" ] || [ "{{OS}}" = "linux" ]'
-        msg: "Docker Linux 构建当前仅支持在 macOS 或 Linux 主机上执行。"
+        msg: "Docker Linux build is currently only supported on macOS or Linux host."
       - sh: docker info >/dev/null 2>&1
-        msg: "未检测到可用的 Docker daemon，请先启动 Docker。"
+        msg: "No available Docker daemon detected, please start Docker first."
       - sh: docker image inspect {{.CROSS_IMAGE}} >/dev/null 2>&1
-        msg: "未找到 Docker 镜像 '{{.CROSS_IMAGE}}'，请先执行 task setup:docker。"
+        msg: "Docker image '{{.CROSS_IMAGE}}' not found, please run task setup:docker first."
     cmds:
       - docker run --rm --platform "{{.DOCKER_PLATFORM}}" --entrypoint /bin/sh -v "{{.PROJECT_ROOT}}:/app" {{.GO_CACHE_MOUNT}} {{.REPLACE_MOUNTS}} -e GOPATH=/go -e GOMODCACHE=/go/pkg/mod -e APP_NAME="{{.APP_NAME}}" -e EXTRA_LDFLAGS="-X cursor/internal/buildinfo.Version={{.APP_VERSION}}" -e GO_BUILD_LOG_MODE="{{.GO_BUILD_LOG_MODE}}" {{if .EXTRA_TAGS}}-e EXTRA_TAGS="{{.EXTRA_TAGS}}"{{end}} "{{.CROSS_IMAGE}}" /app/build/docker/build-linux.sh
       - docker run --rm --platform "{{.DOCKER_PLATFORM}}" --entrypoint chown -v "{{.PROJECT_ROOT}}:/app" "{{.CROSS_IMAGE}}" -R $(id -u):$(id -g) /app/bin
@@ -118,7 +118,7 @@ tasks:
           done | tr '\n' ' '
 
   package:archive:
-    summary: 打包 Linux updater 归档（.tar.gz）
+    summary: Package Linux updater archive (.tar.gz)
     internal: true
     cmds:
       - task: build
@@ -155,7 +155,7 @@ tasks:
             ref: .BINARY_NAME
 
   create:archive:
-    summary: 生成 Linux updater tar.gz 归档
+    summary: Generate Linux updater tar.gz archive
     internal: true
     vars:
       BINARY_NAME: '{{.BINARY_NAME | default .APP_NAME}}'
@@ -173,7 +173,7 @@ tasks:
       - rm -rf "{{.STAGING_DIR}}"
 
   cleanup:package:artifacts:
-    summary: 清理 Linux 打包中间产物
+    summary: Clean up Linux packaging intermediate artifacts
     internal: true
     vars:
       BINARY_NAME: '{{.BINARY_NAME | default .APP_NAME}}'
@@ -182,11 +182,11 @@ tasks:
       - rm -f "{{.BINARY_PATH}}"
 
   run:
-    summary: 运行 Linux 可执行文件
+    summary: Run Linux executable
     vars:
       OUTPUT: '{{.OUTPUT | default (printf "%s/%s" .BIN_DIR .APP_NAME)}}'
     preconditions:
       - sh: '[ "{{OS}}" = "linux" ]'
-        msg: "Linux 运行任务仅支持在 Linux 主机上执行。"
+        msg: "Linux run task is only supported on Linux host."
     cmds:
       - '{{.OUTPUT}}'

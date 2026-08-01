@@ -148,18 +148,18 @@ func (host *Host) Start() error {
 	}
 	listener, err := net.Listen("tcp", host.listenAddr)
 	if err != nil {
-		host.lastRunErr = fmt.Errorf("监听内置后端 %s 失败: %w", host.listenAddr, err)
+		host.lastRunErr = fmt.Errorf("failed to listen on embedded backend %s: %w", host.listenAddr, err)
 		return host.lastRunErr
 	}
 	host.listenAddr = listener.Addr().String()
 	host.httpServer = httpServer
 	host.lastRunErr = nil
-	logger.Infof("内置后端监听成功 listen_addr=%s", host.listenAddr)
+	logger.Infof("embedded backend listening successfully listen_addr=%s", host.listenAddr)
 
 	go func(serverInstance *http.Server, serverListener net.Listener) {
-		logger.Infof("内置后端开始提供服务 listen_addr=%s", serverListener.Addr().String())
+		logger.Infof("embedded backend started serving listen_addr=%s", serverListener.Addr().String())
 		if err := serverInstance.Serve(serverListener); err != nil && err != http.ErrServerClosed {
-			runErr := fmt.Errorf("内置后端在 %s 上异常退出: %w", serverListener.Addr().String(), err)
+			runErr := fmt.Errorf("embedded backend exited unexpectedly on %s: %w", serverListener.Addr().String(), err)
 			host.runMu.Lock()
 			if host.httpServer == serverInstance {
 				host.httpServer = nil
@@ -206,10 +206,10 @@ func (host *Host) HealthCheck(ctx context.Context) error {
 	if err != nil {
 		inProcessErr := host.InProcessHealthCheck()
 		if inProcessErr == nil {
-			logger.Errorf("内置后端进程内健康检查成功，但 loopback 访问失败 base_url=%s err=%v", host.BaseURL(), err)
-			return fmt.Errorf("内置后端进程内健康检查成功，但本机 loopback 访问失败: %w", err)
+			logger.Errorf("embedded backend in-process health check succeeded, but loopback access failed base_url=%s err=%v", host.BaseURL(), err)
+			return fmt.Errorf("embedded backend in-process health check succeeded, but local loopback access failed: %w", err)
 		}
-		logger.Errorf("内置后端 loopback 与进程内健康检查均失败 loopback_err=%v in_process_err=%v", err, inProcessErr)
+		logger.Errorf("embedded backend loopback and in-process health check both failed loopback_err=%v in_process_err=%v", err, inProcessErr)
 		if runErr := host.LastRunError(); runErr != nil {
 			return runErr
 		}
@@ -217,7 +217,7 @@ func (host *Host) HealthCheck(ctx context.Context) error {
 	}
 	defer response.Body.Close()
 	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("内置后端健康检查返回状态码 %d", response.StatusCode)
+		return fmt.Errorf("embedded backend health check returned status code %d", response.StatusCode)
 	}
 	return nil
 }
@@ -239,7 +239,7 @@ func (host *Host) InProcessHealthCheck() error {
 	if body != "ok" {
 		return fmt.Errorf("in-process health body %q", body)
 	}
-	logger.Infof("内置后端进程内健康检查成功")
+	logger.Infof("embedded backend in-process health check succeeded")
 	return nil
 }
 

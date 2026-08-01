@@ -19,17 +19,17 @@ const (
 func NormalizeBaseURL(raw string) (string, error) {
 	trimmed := strings.TrimSpace(raw)
 	if trimmed == "" {
-		return "", fmt.Errorf("模型适配器 baseURL 不能为空")
+		return "", fmt.Errorf("model adapter baseURL cannot be empty")
 	}
 	parsed, err := url.Parse(trimmed)
 	if err != nil {
-		return "", fmt.Errorf("模型适配器 baseURL 不是合法 URL")
+		return "", fmt.Errorf("model adapter baseURL is not a valid URL")
 	}
 	if parsed.Scheme != "http" && parsed.Scheme != "https" {
-		return "", fmt.Errorf("模型适配器 baseURL 仅支持 http 或 https")
+		return "", fmt.Errorf("model adapter baseURL only supports http or https")
 	}
 	if strings.TrimSpace(parsed.Host) == "" {
-		return "", fmt.Errorf("模型适配器 baseURL 缺少主机名")
+		return "", fmt.Errorf("model adapter baseURL is missing hostname")
 	}
 	parsed.Scheme = strings.ToLower(strings.TrimSpace(parsed.Scheme))
 	parsed.Host = strings.ToLower(strings.TrimSpace(parsed.Host))

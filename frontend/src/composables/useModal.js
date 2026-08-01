@@ -2,10 +2,10 @@ import { reactive } from "vue";
 
 export const modalState = reactive({
   visible: false,
-  title: "提示",
+  title: "Notice",
   content: "",
-  confirmText: "确定",
-  cancelText: "取消",
+  confirmText: "Confirm",
+  cancelText: "Cancel",
   showCancel: true,
   confirmDisabled: false,
   _resolve: null,
@@ -19,10 +19,10 @@ export const modalState = reactive({
 export function showModal(options = {}) {
   return new Promise((resolve) => {
     modalState.visible = true;
-    modalState.title = options.title ?? "提示";
+    modalState.title = options.title ?? "Notice";
     modalState.content = options.content ?? "";
-    modalState.confirmText = options.confirmText ?? "确定";
-    modalState.cancelText = options.cancelText ?? "取消";
+    modalState.confirmText = options.confirmText ?? "Confirm";
+    modalState.cancelText = options.cancelText ?? "Cancel";
     modalState.showCancel = options.showCancel ?? true;
     modalState.confirmDisabled = options.confirmDisabled ?? false;
     modalState._resolve = resolve;

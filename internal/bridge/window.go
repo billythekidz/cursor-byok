@@ -72,7 +72,7 @@ func (s *WindowService) InstallReadyUpdate() error {
 	manager := s.updater
 	s.mu.RUnlock()
 	if manager == nil {
-		return fmt.Errorf("更新管理器未初始化")
+		return fmt.Errorf("update manager not initialized")
 	}
 	return manager.InstallReadyUpdate()
 }
@@ -99,7 +99,7 @@ func (s *WindowService) OpenModelConfigWindow() {
 	}
 
 	win := s.app.Window.NewWithOptions(application.WebviewWindowOptions{
-		Title:               "模型配置",
+		Title:               "Model Configuration",
 		Width:               980,
 		Height:              700,
 		MinWidth:            820,
@@ -166,9 +166,9 @@ func (s *WindowService) OpenModelEditorWindow(index int, adapterJSON string) {
 		return
 	}
 
-	title := "新增模型配置"
+	title := "Add Model Configuration"
 	if index >= 0 {
-		title = "编辑模型配置"
+		title = "Edit Model Configuration"
 	}
 
 	win := s.app.Window.NewWithOptions(application.WebviewWindowOptions{

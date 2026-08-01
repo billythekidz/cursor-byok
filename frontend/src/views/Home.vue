@@ -87,14 +87,14 @@ function handleOpenHomeAd(slotId) {
 async function showActionError(title, error) {
   await showModal({
     title,
-    content: String(error || "服务错误").trim() || "服务错误",
+    content: String(error || "Service error").trim() || "Service error",
   });
 }
 
 async function handleToggleService() {
   const result = await toggleService();
   if (!result.ok) {
-    await showActionError("服务操作失败", result.error);
+    await showActionError("Service operation failed", result.error);
   }
 }
 
@@ -104,7 +104,7 @@ async function handleRefreshState() {
     syncHomeMetrics(),
   ]);
   if (serviceStateResult.status === "rejected") {
-    await showActionError("刷新失败", toUserError(serviceStateResult.reason));
+    await showActionError("Refresh failed", toUserError(serviceStateResult.reason));
   }
 }
 
@@ -116,7 +116,7 @@ async function handleOpenConfig() {
   try {
     await openConfigWindow();
   } catch (error) {
-    await showActionError("打开失败", toUserError(error));
+    await showActionError("Open failed", toUserError(error));
   }
 }
 
@@ -124,26 +124,26 @@ async function handleOpenModelConfig() {
   try {
     await openModelConfigWindow();
   } catch (error) {
-    await showActionError("打开失败", toUserError(error));
+    await showActionError("Open failed", toUserError(error));
   }
 }
 
 async function handleDirectModeChange(enabled) {
   const result = await saveRoutingMode(enabled ? "upstream" : "local");
   if (!result.ok) {
-    await showActionError("切换失败", result.error);
+    await showActionError("Switch failed", result.error);
     return;
   }
-  message.success(enabled ? "已切换到直连 Cursor 模式" : "已切换到本地服务模式");
+  message.success(enabled ? "Switched to Direct Cursor mode" : "Switched to Local Service mode");
 }
 
 async function handleDebugLogChange(enabled) {
   const result = await saveDebugLogEnabled(enabled);
   if (!result.ok) {
-    await showActionError("切换失败", result.error);
+    await showActionError("Switch failed", result.error);
     return;
   }
-  message.success(enabled ? "已开启调试日志" : "已关闭调试日志");
+  message.success(enabled ? "Debug log enabled" : "Debug log disabled");
 }
 
 onMounted(() => {
@@ -192,10 +192,10 @@ onBeforeUnmount(() => {
         </div>
 
         <Switch
-          label="直连模式"
-          description="开启后，Cursor将直接接通官方，请勿开启"
-          enabled-text="当前为直连模式"
-          disabled-text="当前为本地服务模式"
+          label="Direct Mode"
+          description="When enabled, Cursor will connect directly to official upstream."
+          enabled-text="Direct mode active"
+          disabled-text="Local service mode active"
           :enabled="directModeEnabled"
           :busy="appState.configSaving"
           :disabled="appState.configSaving"
@@ -203,10 +203,10 @@ onBeforeUnmount(() => {
         />
 
         <Switch
-          label="调试日志"
-          description="开启后记录请求/响应链路到 history/<会话ID>/debug/，用于排查问题"
-          enabled-text="调试日志已开启"
-          disabled-text="调试日志已关闭"
+          label="Debug Log"
+          description="When enabled, records request/response traces to history/<sessionID>/debug/"
+          enabled-text="Debug log enabled"
+          disabled-text="Debug log disabled"
           :enabled="appState.debugLogEnabled"
           :busy="appState.configSaving"
           :disabled="appState.configSaving"
@@ -218,12 +218,12 @@ onBeforeUnmount(() => {
     <Card>
       <div class="flex items-center justify-between gap-4">
         <div>
-          <h2 class="text-base font-medium text-white">本地配置</h2>
-          <div class="text-sm text-[#a3a3a3]">打开设置目录，或单独管理模型配置</div>
+          <h2 class="text-base font-medium text-white">Local Settings</h2>
+          <div class="text-sm text-[#a3a3a3]">Open settings folder or manage model configurations</div>
         </div>
         <div class="center-row gap-2">
-          <Button variant="default" @click="handleOpenConfig">设置文件夹</Button>
-          <Button variant="primary" @click="handleOpenModelConfig">模型配置</Button>
+          <Button variant="default" @click="handleOpenConfig">Settings Folder</Button>
+          <Button variant="primary" @click="handleOpenModelConfig">Model Config</Button>
         </div>
       </div>
     </Card>

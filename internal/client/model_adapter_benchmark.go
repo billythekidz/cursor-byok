@@ -29,7 +29,7 @@ const (
 	modelAdapterTestPrompt            = "Output the numbers 1 through 120 separated by a single space. No commas, no newlines, no explanation."
 	modelAdapterTestTimeout           = 45 * time.Second
 	modelAdapterTestDefaultMaxTokens  = 65_536
-	modelAdapterTestEmptyTextError    = "未收到文本输出，无法计算测速结果"
+	modelAdapterTestEmptyTextError    = "no text output received, unable to calculate benchmark result"
 	modelAdapterTestMaxErrorBodyBytes = 8192
 )
 

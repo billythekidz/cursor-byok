@@ -3,10 +3,10 @@ import Button from "@/components/ui/Button.vue";
 
 const props = defineProps({
   visible: { type: Boolean, default: false },
-  title: { type: String, default: "提示" },
+  title: { type: String, default: "Notice" },
   content: { type: String, default: "" },
-  confirmText: { type: String, default: "确定" },
-  cancelText: { type: String, default: "取消" },
+  confirmText: { type: String, default: "Confirm" },
+  cancelText: { type: String, default: "Cancel" },
   showCancel: { type: Boolean, default: true },
   confirmDisabled: { type: Boolean, default: false },
 });

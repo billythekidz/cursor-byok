@@ -24,7 +24,7 @@ func NewAdService(core *ads.Service) *AdService {
 
 func (service *AdService) GetAdRuntime() (AdRuntime, error) {
 	if service == nil || service.core == nil {
-		return AdRuntime{}, fmt.Errorf("广告服务未初始化")
+		return AdRuntime{}, fmt.Errorf("ad service not initialized")
 	}
 	return service.core.GetRuntime(context.Background())
 }
@@ -36,10 +36,10 @@ func (service *AdService) OpenExternalURL(rawURL string) error {
 	}
 	scheme := strings.ToLower(strings.TrimSpace(parsed.Scheme))
 	if scheme != "http" && scheme != "https" {
-		return fmt.Errorf("仅支持打开 http/https 地址")
+		return fmt.Errorf("only http/https URLs are supported")
 	}
 	if strings.TrimSpace(parsed.Host) == "" {
-		return fmt.Errorf("地址缺少主机名")
+		return fmt.Errorf("URL missing hostname")
 	}
 	return browser.OpenURL(parsed.String())
 }

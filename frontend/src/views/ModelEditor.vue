@@ -34,25 +34,25 @@ const modelTypeTabs = [
 ];
 
 const reasoningEffortOptions = [
-  { label: "低", value: "low", icon: "icon-[mdi--head-outline]" },
-  { label: "中", value: "medium", icon: "icon-[mdi--head-lightbulb-outline]" },
-  { label: "高", value: "high", icon: "icon-[mdi--brain]" },
-  { label: "极高", value: "xhigh", icon: "icon-[mdi--head-cog-outline]" },
-  { label: "最高", value: "max", icon: "icon-[mdi--brain]" },
+  { label: "Low", value: "low", icon: "icon-[mdi--head-outline]" },
+  { label: "Medium", value: "medium", icon: "icon-[mdi--head-lightbulb-outline]" },
+  { label: "High", value: "high", icon: "icon-[mdi--brain]" },
+  { label: "Extra High", value: "xhigh", icon: "icon-[mdi--head-cog-outline]" },
+  { label: "Max", value: "max", icon: "icon-[mdi--brain]" },
 ];
 
 const anthropicThinkingEffortOptions = [
-  { label: "低", value: "low", icon: "icon-[mdi--head-outline]" },
-  { label: "中", value: "medium", icon: "icon-[mdi--head-lightbulb-outline]" },
-  { label: "高", value: "high", icon: "icon-[mdi--brain]" },
-  { label: "极高", value: "xhigh", icon: "icon-[mdi--head-cog-outline]" },
+  { label: "Low", value: "low", icon: "icon-[mdi--head-outline]" },
+  { label: "Medium", value: "medium", icon: "icon-[mdi--head-lightbulb-outline]" },
+  { label: "High", value: "high", icon: "icon-[mdi--brain]" },
+  { label: "Extra High", value: "xhigh", icon: "icon-[mdi--head-cog-outline]" },
   { label: "Max", value: "max", icon: "icon-[mdi--brain]" },
 ];
 
 const openAIEndpointOptions = [
   { label: "/v1/responses", value: OPENAI_ENDPOINT_RESPONSES, icon: "icon-[mdi--api]" },
   { label: "/v1/chat/completions", value: OPENAI_ENDPOINT_CHAT_COMPLETIONS, icon: "icon-[mdi--message-text-outline]" },
-  { label: "自定义路径(请输入完整请求地址)", value: OPENAI_ENDPOINT_CUSTOM, icon: "icon-[mdi--pencil-outline]" },
+  { label: "Custom path (enter full request URL)", value: OPENAI_ENDPOINT_CUSTOM, icon: "icon-[mdi--pencil-outline]" },
 ];
 
 const editorIndex = ref(-1);
@@ -78,7 +78,7 @@ const maxCompletionTokensInput = createOptionalPositiveIntegerModel("maxCompleti
 const anthropicMaxTokensInput = createOptionalPositiveIntegerModel("anthropicMaxTokens");
 const contextWindowTokensInput = createOptionalPositiveIntegerModel("contextWindowTokens");
 const interfacePlaceholder = computed(() =>
-  draft.type === "anthropic" ? "例如：https://api.anthropic.com" : "例如：https://api.openai.com/v1",
+  draft.type === "anthropic" ? "e.g., https://api.anthropic.com" : "e.g., https://api.openai.com/v1",
 );
 const currentRequestHash = computed(() => buildModelAdapterTestRequestHash(draft));
 const directModelTestResult = computed(() => getModelAdapterTestResult(draft));
@@ -94,10 +94,10 @@ const modelTestSummary = computed(() => {
   if (localTestFailure.value) {
     return localTestFailure.value;
   }
-  return activeModelTestResult.value?.summaryText || "尚未测试";
+  return activeModelTestResult.value?.summaryText || "Not tested";
 });
 
-const title = computed(() => (editorIndex.value >= 0 ? "编辑模型配置" : "新增模型配置"));
+const title = computed(() => (editorIndex.value >= 0 ? "Edit Model Configuration" : "Add Model Configuration"));
 
 function ensureOpenAIExtraParamsJSON() {
   if (!String(draft.openAIExtraParamsJSON || "").trim()) {
@@ -124,20 +124,20 @@ function ensureAnthropicThinkingEffort() {
 }
 
 const fieldTips = {
-  displayName: "仅用于界面展示，便于你区分不同模型。",
-  modelID: "请求实际发送给服务端的模型名称，例如 gpt-4.1 或 claude-sonnet。",
-  baseURL: "模型服务的 API 根地址，通常为兼容 OpenAI 或 Anthropic 的接口入口。",
-  apiKey: "调用该模型服务需要使用的访问密钥。",
-  contextWindowTokens: "模型单次可接受的最大上下文 Token 数。留空时使用默认值。",
-  reasoningEffort: "推理强度仅对部分支持 reasoning_effort 的模型生效，并不是所有模型都支持。越高通常越稳，但也可能更慢。",
-  maxCompletionTokens: "单次回复允许生成的最大 Token 数。留空时使用默认值。",
-  openAIEndpoint: "选择接口协议端点。选“自定义路径”时，请在接口地址栏填写完整请求地址（含 /chat/completions 或 /responses 路径后缀），系统会根据末段自动判断协议形态。",
-  openAIExtraParams: "开启后会把 JSON 对象覆盖到 OpenAI 请求体。同名字段以这里为准。OpenAI service_tier 支持 auto、default、flex、scale、priority。",
-  customHeaders: "开启后会把 JSON 对象覆盖到最终请求头。同名请求头以这里为准，值必须是字符串。",
-  anthropicExtraParams: "开启后会把 JSON 对象覆盖到 Anthropic 请求体。同名字段以这里为准。",
-  anthropicMaxTokens: "Anthropic 模型单次回复允许生成的最大 Token 数。留空时使用默认值。",
-  anthropicThinkingEffort: "Anthropic adaptive thinking 的思考强度。请求会固定使用新版 thinking.type=adaptive。",
-  tooltipData: "模型列表 hover 时显示的备注说明。",
+  displayName: "Display name for UI identification.",
+  modelID: "The actual model name sent to the server, e.g. gpt-4.1 or claude-sonnet.",
+  baseURL: "Base API URL for the model service, typically compatible with OpenAI or Anthropic.",
+  apiKey: "API key used to call the model service.",
+  contextWindowTokens: "Maximum context tokens accepted by the model. Leave empty for default.",
+  reasoningEffort: "Reasoning effort only applies to models supporting reasoning_effort. Higher value is more stable but may be slower.",
+  maxCompletionTokens: "Maximum completion tokens generated per response. Leave empty for default.",
+  openAIEndpoint: "Select protocol endpoint. When 'Custom path' is selected, please enter full request URL.",
+  openAIExtraParams: "When enabled, overrides the OpenAI request body with this JSON object.",
+  customHeaders: "When enabled, overrides final request headers with this JSON object. Values must be strings.",
+  anthropicExtraParams: "When enabled, overrides the Anthropic request body with this JSON object.",
+  anthropicMaxTokens: "Maximum completion tokens generated per response for Anthropic models.",
+  anthropicThinkingEffort: "Anthropic adaptive thinking effort.",
+  tooltipData: "Notes displayed when hovering over the model in the list.",
 };
 
 async function loadContext() {
@@ -283,18 +283,18 @@ onMounted(async () => {
     <div class="flex shrink-0 items-center justify-between px-4 pb-2">
       <h2 class="text-base font-medium text-white">{{ title }}</h2>
       <div class="flex items-center gap-2">
-        <Button variant="default" @click="handleCancel">取消</Button>
+        <Button variant="default" @click="handleCancel">Cancel</Button>
         <Button variant="default" :disabled="isCurrentConfigTesting || appState.configSaving" @click="handleTest">
-          {{ isCurrentConfigTesting ? "测试中..." : "保存并测试" }}
+          {{ isCurrentConfigTesting ? "Testing..." : "Save & Test" }}
         </Button>
         <Button variant="primary" :disabled="appState.configSaving" @click="handleSave">
-          {{ appState.configSaving ? "保存中..." : "保存" }}
+          {{ appState.configSaving ? "Saving..." : "Save" }}
         </Button>
       </div>
     </div>
 
     <div v-if="loading" class="flex flex-1 items-center justify-center text-sm text-[#a3a3a3]">
-      加载中...
+      Loading...
     </div>
 
     <div v-else class="flex-1 overflow-y-auto min-h-0 px-4 pb-4">
@@ -319,12 +319,12 @@ onMounted(async () => {
           <label class="flex flex-col gap-1">
             <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
               <Tooltip :content="fieldTips.displayName" />
-              <span>显示名称</span>
+              <span>Display Name</span>
             </span>
             <input
               v-model="draft.displayName"
               type="text"
-              placeholder="例如：OpenAI - GPT-4.1"
+              placeholder="e.g., OpenAI - GPT-4.1"
               class="h-9 rounded-[6px] border border-[#3f3f3f] bg-[#232323] px-3 text-sm text-[#e5e5e5] outline-none focus:border-[#10AD5D]"
             />
           </label>
@@ -332,12 +332,12 @@ onMounted(async () => {
           <label class="flex flex-col gap-1">
             <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
               <Tooltip :content="fieldTips.modelID" />
-              <span>模型标识</span>
+              <span>Model ID</span>
             </span>
             <input
               v-model="draft.modelID"
               type="text"
-              placeholder="例如：gpt-4.1"
+              placeholder="e.g., gpt-4.1"
               class="h-9 rounded-[6px] border border-[#3f3f3f] bg-[#232323] px-3 text-sm text-[#e5e5e5] outline-none focus:border-[#10AD5D]"
             />
           </label>
@@ -345,13 +345,13 @@ onMounted(async () => {
           <label class="flex flex-col gap-1">
             <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
               <Tooltip :content="fieldTips.apiKey" />
-              <span>访问密钥</span>
+              <span>API Key</span>
             </span>
             <Input
               v-model="draft.apiKey"
               type="password"
               allow-visibility-toggle
-              placeholder="例如：sk-xxxxxx"
+              placeholder="e.g., sk-xxxxxx"
               autocomplete="off"
             />
           </label>
@@ -359,7 +359,7 @@ onMounted(async () => {
           <label class="flex flex-col gap-1">
             <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
               <Tooltip :content="fieldTips.baseURL" />
-              <span>接口地址</span>
+              <span>Base URL</span>
             </span>
             <input
               v-model="draft.baseURL"
@@ -372,13 +372,13 @@ onMounted(async () => {
           <label class="flex flex-col gap-1">
             <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
               <Tooltip :content="fieldTips.contextWindowTokens" />
-              <span>上下文窗口</span>
+              <span>Context Window</span>
             </span>
             <input
               v-model="contextWindowTokensInput"
               type="text"
               inputmode="numeric"
-              placeholder="例如：1000000（留空用默认值）"
+              placeholder="e.g., 1000000 (leave blank for default)"
               class="h-9 rounded-[6px] border border-[#3f3f3f] bg-[#232323] px-3 text-sm text-[#e5e5e5] outline-none focus:border-[#10AD5D]"
             />
           </label>
@@ -386,7 +386,7 @@ onMounted(async () => {
           <label v-if="draft.type === 'openai'" class="flex flex-col gap-1">
             <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
               <Tooltip :content="fieldTips.reasoningEffort" />
-              <span>推理强度</span>
+              <span>Reasoning Effort</span>
             </span>
             <Select
               v-model="draft.reasoningEffort"
@@ -397,13 +397,13 @@ onMounted(async () => {
           <label v-if="draft.type === 'anthropic'" class="flex flex-col gap-1">
             <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
               <Tooltip :content="fieldTips.anthropicMaxTokens" />
-              <span>最大输出 Token</span>
+              <span>Max Completion Tokens</span>
             </span>
             <input
               v-model="anthropicMaxTokensInput"
               type="text"
               inputmode="numeric"
-              placeholder="例如：65536（留空用默认值）"
+              placeholder="e.g., 65536 (leave blank for default)"
               class="h-9 rounded-[6px] border border-[#3f3f3f] bg-[#232323] px-3 text-sm text-[#e5e5e5] outline-none focus:border-[#10AD5D]"
             />
           </label>
@@ -411,7 +411,7 @@ onMounted(async () => {
           <label v-if="draft.type === 'anthropic'" class="flex flex-col gap-1">
             <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
               <Tooltip :content="fieldTips.anthropicThinkingEffort" />
-              <span>思考强度</span>
+              <span>Thinking Effort</span>
             </span>
             <Select
               v-model="draft.anthropicThinkingEffort"
@@ -425,13 +425,13 @@ onMounted(async () => {
           <label class="flex flex-col gap-1">
             <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
               <Tooltip :content="fieldTips.maxCompletionTokens" />
-              <span>最大输出 Token</span>
+              <span>Max Completion Tokens</span>
             </span>
             <input
               v-model="maxCompletionTokensInput"
               type="text"
               inputmode="numeric"
-              placeholder="例如：65536（留空用默认值）"
+              placeholder="e.g., 65536 (leave blank for default)"
               class="h-9 rounded-[6px] border border-[#3f3f3f] bg-[#232323] px-3 text-sm text-[#e5e5e5] outline-none focus:border-[#10AD5D]"
             />
           </label>
@@ -439,7 +439,7 @@ onMounted(async () => {
           <label class="flex flex-col gap-1">
             <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
               <Tooltip :content="fieldTips.openAIEndpoint" />
-              <span>接口端点</span>
+              <span>Protocol Endpoint</span>
             </span>
             <Select
               v-model="draft.openAIEndpoint"
@@ -452,7 +452,7 @@ onMounted(async () => {
           <div class="flex items-center justify-between gap-3">
             <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
               <Tooltip :content="fieldTips.openAIExtraParams" />
-              <span>额外参数 JSON</span>
+              <span>Extra Params JSON</span>
             </span>
             <label class="center-row gap-2 text-xs text-[#d4d4d4]">
               <input
@@ -460,7 +460,7 @@ onMounted(async () => {
                 type="checkbox"
                 class="size-4 accent-[#10AD5D]"
               />
-              <span>启用</span>
+              <span>Enable</span>
             </label>
           </div>
           <textarea
@@ -476,7 +476,7 @@ onMounted(async () => {
           <div class="flex items-center justify-between gap-3">
             <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
               <Tooltip :content="fieldTips.anthropicExtraParams" />
-              <span>Anthropic 额外参数 JSON</span>
+              <span>Anthropic Extra Params JSON</span>
             </span>
             <label class="center-row gap-2 text-xs text-[#d4d4d4]">
               <input
@@ -484,7 +484,7 @@ onMounted(async () => {
                 type="checkbox"
                 class="size-4 accent-[#10AD5D]"
               />
-              <span>启用</span>
+              <span>Enable</span>
             </label>
           </div>
           <textarea
@@ -500,7 +500,7 @@ onMounted(async () => {
           <div class="flex items-center justify-between gap-3">
             <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
               <Tooltip :content="fieldTips.customHeaders" />
-              <span>自定义请求头 JSON</span>
+              <span>Custom Headers JSON</span>
             </span>
             <label class="center-row gap-2 text-xs text-[#d4d4d4]">
               <input
@@ -508,7 +508,7 @@ onMounted(async () => {
                 type="checkbox"
                 class="size-4 accent-[#10AD5D]"
               />
-              <span>启用</span>
+              <span>Enable</span>
             </label>
           </div>
           <textarea
@@ -523,18 +523,18 @@ onMounted(async () => {
         <label class="flex flex-col gap-1">
           <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
             <Tooltip :content="fieldTips.tooltipData" />
-            <span>备注</span>
+            <span>Notes</span>
           </span>
           <textarea
             v-model="draft.tooltipData"
             rows="3"
-            placeholder="例如：用于日常代码补全与问答"
+            placeholder="e.g., Used for daily coding completion and Q&A"
             class="min-h-[96px] resize-none rounded-[6px] border border-[#3f3f3f] bg-[#232323] px-3 py-2 text-sm text-[#e5e5e5] outline-none focus:border-[#10AD5D]"
           />
         </label>
 
         <ModelAdapterTestCard
-          :result="localTestFailure ? { status: 'error', error: '测试失败', summaryText: '测试失败', rawResponse: modelTestSummary } : activeModelTestResult"
+          :result="localTestFailure ? { status: 'error', error: 'Test failed', summaryText: 'Test failed', rawResponse: modelTestSummary } : activeModelTestResult"
           :stale="modelTestResultStale"
           :show-metrics="true"
         />

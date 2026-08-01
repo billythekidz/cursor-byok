@@ -3,26 +3,26 @@
 #
 # The lines below are called `modelines`. See `:help modeline`
 
-name: "Cursor助手"
+name: "Cursor Helper"
 arch: ${GOARCH}
 platform: "linux"
 version: "0.0.43"
 section: "default"
 priority: "extra"
 maintainer: ${GIT_COMMITTER_NAME} <${GIT_COMMITTER_EMAIL}>
-description: "Cursor助手"
-vendor: "Cursor助手"
+description: "Cursor Helper"
+vendor: "Cursor Helper"
 homepage: "https://wails.io"
 license: "MIT"
 release: "1"
 
 contents:
-  - src: "./bin/Cursor助手"
-    dst: "/usr/local/bin/Cursor助手"
+  - src: "./bin/Cursor Helper"
+    dst: "/usr/local/bin/Cursor Helper"
   - src: "./build/appicon.png"
-    dst: "/usr/share/icons/hicolor/128x128/apps/Cursor助手.png"
-  - src: "./build/linux/Cursor助手.desktop"
-    dst: "/usr/share/applications/Cursor助手.desktop"
+    dst: "/usr/share/icons/hicolor/128x128/apps/Cursor Helper.png"
+  - src: "./build/linux/Cursor Helper.desktop"
+    dst: "/usr/share/applications/Cursor Helper.desktop"
 
 # Default dependencies for Debian 12/Ubuntu 22.04+ with WebKit 4.1
 depends:

@@ -25,11 +25,11 @@ const (
 func getCertThumbprint(certPEM []byte) (string, error) {
 	block, _ := pem.Decode(certPEM)
 	if block == nil {
-		return "", fmt.Errorf("无法解析证书 PEM")
+		return "", fmt.Errorf("failed to parse certificate PEM")
 	}
 	cert, err := x509.ParseCertificate(block.Bytes)
 	if err != nil {
-		return "", fmt.Errorf("解析证书失败: %w", err)
+		return "", fmt.Errorf("failed to parse certificate: %w", err)
 	}
 	// SHA1 thumbprint; certutil uses this format.
 	thumbprint := fmt.Sprintf("%X", sha1.Sum(cert.Raw))
@@ -47,7 +47,7 @@ func hideWindow() *syscall.SysProcAttr {
 func isCACertInstalled(certPEM []byte) (bool, error) {
 	thumbprint, err := getCertThumbprint(certPEM)
 	if err != nil {
-		return false, fmt.Errorf("获取证书指纹失败: %w", err)
+		return false, fmt.Errorf("failed to get certificate fingerprint: %w", err)
 	}
 
 	cmd := exec.Command(windowsCertutilExe, windowsUserStoreFlag, "-verifystore", windowsRootStoreName, thumbprint)
@@ -60,7 +60,7 @@ func isCACertInstalled(certPEM []byte) (bool, error) {
 			logger.Infof("isCACertInstalled: cert not found in system store, thumbprint=%s exitCode=%d", thumbprint, exitErr.ExitCode())
 			return false, nil
 		}
-		return false, fmt.Errorf("执行 certutil 检查系统证书存储失败: %w", err)
+		return false, fmt.Errorf("failed to execute certutil checking system cert store: %w", err)
 	}
 
 	outStr := strings.ToUpper(string(output))
@@ -78,7 +78,7 @@ func isCACertInstalled(certPEM []byte) (bool, error) {
 func installCACertToWindowsStore(certPEM []byte, certPath string) error {
 	thumbprint, err := getCertThumbprint(certPEM)
 	if err != nil {
-		return fmt.Errorf("获取证书指纹失败: %w", err)
+		return fmt.Errorf("failed to get certificate fingerprint: %w", err)
 	}
 
 	logger.Infof("installCACertToWindowsStore: installing cert into system store, path=%s thumbprint=%s", certPath, thumbprint)
@@ -87,15 +87,15 @@ func installCACertToWindowsStore(certPEM []byte, certPath string) error {
 	cmd.SysProcAttr = hideWindow()
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("写入当前用户 Windows 信任存储失败: %w: %s", err, strings.TrimSpace(string(output)))
+		return fmt.Errorf("failed to write to current user Windows trust store: %w: %s", err, strings.TrimSpace(string(output)))
 	}
 
 	installed, err := isCACertInstalled(certPEM)
 	if err != nil {
-		return fmt.Errorf("验证系统证书安装状态失败: %w", err)
+		return fmt.Errorf("failed to verify system cert installation status: %w", err)
 	}
 	if !installed {
-		return fmt.Errorf("证书导入命令已执行，但系统信任存储中未找到证书")
+		return fmt.Errorf("certificate import executed but certificate not found in system trust store")
 	}
 
 	logger.Infof("installCACertToWindowsStore: cert installed successfully into system store, thumbprint=%s", thumbprint)
@@ -112,7 +112,7 @@ func RemoveCACertFromWindowsStore(certPEM []byte) error {
 	cmd.SysProcAttr = hideWindow()
 	output, err := cmd.CombinedOutput()
 	if err != nil && !strings.Contains(strings.ToLower(string(output)), "not found") {
-		return fmt.Errorf("删除当前用户 Windows CA 失败: %w: %s", err, strings.TrimSpace(string(output)))
+		return fmt.Errorf("failed to delete CA from current user Windows store: %w: %s", err, strings.TrimSpace(string(output)))
 	}
 	return nil
 }
@@ -121,7 +121,7 @@ func RemoveCACertFromWindowsStore(certPEM []byte) error {
 func EnsureCACertInstalled(certPEM []byte, certPath string) error {
 	installed, err := isCACertInstalled(certPEM)
 	if err != nil {
-		return fmt.Errorf("检查系统证书安装状态失败: %w", err)
+		return fmt.Errorf("failed to check system cert installation status: %w", err)
 	}
 
 	if installed {

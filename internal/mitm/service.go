@@ -438,7 +438,7 @@ func (s *ProxyServer) newGoproxyHandler() *goproxy.ProxyHttpServer {
 			}
 			resp, err := s.forwardToServer(req)
 			if err != nil {
-				logger.Errorf("转发失败： %s %s %v", req.Method, raw, err)
+				logger.Errorf("forwarding failed: %s %s %v", req.Method, raw, err)
 				return req, goproxy.NewResponse(req, goproxy.ContentTypeText, http.StatusBadGateway, "bad gateway")
 			}
 

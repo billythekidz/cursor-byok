@@ -1,8 +1,8 @@
-# 文件地图
+# File Map
 
-## 已安装客户端 bundle
+## Installed Client Bundle
 
-优先核对这些实际运行中的客户端文件：
+Prioritize inspecting these running client bundle files:
 
 - `/Applications/Cursor.app/Contents/Resources/app/out/vs/workbench/workbench.desktop.main.js`
 - `/Applications/Cursor.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js`
@@ -12,29 +12,29 @@
 - `/Applications/Cursor.app/Contents/Resources/app/extensions/cursor-agent-exec/dist/*.js`
 - `/Applications/Cursor.app/Contents/Resources/app/extensions/cursor-agent-worker/dist/main.js`
 
-当前安装包里 `cursor-agent` 已拆成 split bundle；旧路径 `/Applications/Cursor.app/Contents/Resources/app/extensions/cursor-agent/dist/main.js` 通常不存在。不要按旧路径下结论；需要先列出 `extensions/`，再确认实际存在的 `cursor-agent-exec`、`cursor-agent-worker`、`cursor-always-local` 及其 `dist/` 文件。
+In current installations `cursor-agent` is split into bundles; legacy path `/Applications/Cursor.app/Contents/Resources/app/extensions/cursor-agent/dist/main.js` usually does not exist. Do not reach conclusions using legacy paths; list `extensions/` first to confirm active `cursor-agent-exec`, `cursor-agent-worker`, `cursor-always-local` and their `dist/` files.
 
-大致归属：
+General Roles:
 
-- `out/vs/workbench/workbench.desktop.main.js`：主 UI、agent window / titlebar、feature flag、用户可点击入口和只读/禁用态。
-- `cursor-always-local/dist/main.js`：本地模式协议、`BidiAppend`、`RunSSE`、`AgentServerMessage` / `AgentClientMessage` 桥接。
-- `cursor-agent-exec/dist/main.js` 与同目录数字 chunk：agent 执行侧、SDK/canvas runtime、工具执行、proto 消息定义与拆分 chunk。当前构建中 `411.js` 可能包含 agent 执行链路关键片段，但 chunk 编号不是稳定接口，先用 `dist/*.js` 搜索。
-- `cursor-agent-worker/dist/main.js`：agent worker 侧后台逻辑。
+- `out/vs/workbench/workbench.desktop.main.js`: Main UI, agent window / titlebar, feature flags, user clickable controls, read-only / disabled states.
+- `cursor-always-local/dist/main.js`: Local mode protocol, `BidiAppend`, `RunSSE`, `AgentServerMessage` / `AgentClientMessage` bridge.
+- `cursor-agent-exec/dist/main.js` and numeric chunks: Agent execution side, SDK/canvas runtime, tool execution, proto message definitions and split chunks. (In current builds `411.js` may contain key agent execution fragments, but chunk numbers are unstable; search `dist/*.js` first).
+- `cursor-agent-worker/dist/main.js`: Agent worker side background logic.
 
-用户机器上可能还存在其它 app 副本，例如：
+Other app copies may exist on user machine, e.g.:
 
 - `~/Applications/Cursor Hooked.app`
 - `/Applications/Cursor Patched.app`
 
-不要假设哪一个在跑，先看进程路径。
+Do not assume which copy is running; check running process path first.
 
-## 当前 backend/store 与 history
+## Current Backend / Store & History
 
-当前用户机器上的固定助手目录：
+Assistant root directory on user machine:
 
 - `~/.cursor-local-assistant-v2/`
 
-重点看：
+Key locations:
 
 - `~/.cursor-local-assistant-v2/config.yaml`
 - `~/.cursor-local-assistant-v2/data/ca.crt`
@@ -45,16 +45,16 @@
 - `~/.cursor-local-assistant-v2/history/<conversationId>/conversation.lock`
 - `~/.cursor-local-assistant-v2/logs/app.log`
 
-其中：
+Roles:
 
-- `state.json` 是会话元数据、loop 状态、latest provider/request prefix、当前 todos/plans、token/compaction 状态。
-- `context.json.items` 是 append-only 语义历史，也是 prompt replay 的事实源。
-- `usage.json` 是全局 provider call / turn usage 聚合。
-- `conversation.lock` 是会话级文件锁。
-- checkpoint 只表示同一 backend 进程内的 live state，不是持久化恢复事实源。
-- legacy artifacts：`conversation.json`、`entries.jsonl`、`turns/`、`request.json`、`summary.json`、`sse.jsonl`、`replay.json`、`runtime.json`、`latest.json`、数字 turn 目录，当前会被 history maintenance 清理。
+- `state.json`: Conversation metadata, loop state, latest provider/request prefix, current todos/plans, token/compaction state.
+- `context.json.items`: Append-only semantic history, source of truth for prompt replay.
+- `usage.json`: Global provider call / turn usage aggregation.
+- `conversation.lock`: Conversation-level file lock.
+- Checkpoints represent live state within single backend process; not persistent recovery sources of truth.
+- Legacy artifacts (`conversation.json`, `entries.jsonl`, `turns/`, `request.json`, `summary.json`, `sse.jsonl`, `replay.json`, `runtime.json`, `latest.json`, numeric turn directories) are cleaned automatically by history maintenance.
 
-这些内容的生成入口主要在：
+Generation entry points:
 
 - `internal/appdata/paths.go`
 - `internal/backend/host.go`
@@ -65,22 +65,22 @@
 - `internal/backend/forwarder/token_usage.go`
 - `internal/backend/forwarder/artifacts.go`
 
-## 本仓库协议与本地模式实现
+## Protocol & Local Mode Implementation in Repository
 
-协议定义：
+Protocol definitions:
 
 - `proto/agent_v1.proto`
 - `proto/aiserver_v1.proto`
 - `proto/from_extensions/agent_v1.proto`
 - `proto/from_extensions/aiserver_v1.proto`
 
-扩展快照与提取：
+Extension snapshot and extraction:
 
 - `proto/extensions-cursor-app/cursor-always-local/package.json`
 - `proto/extract_extensions_proto.sh`
 - `proto/ext_tool/main.go`
 
-本地后端入口：
+Local backend entry points:
 
 - `internal/backend/host.go`
 - `internal/backend/server/route.go`
@@ -90,7 +90,7 @@
 - `internal/backend/server/config/manager.go`
 - `internal/backend/server/config/resolver.go`
 
-forwarder 主链路：
+Forwarder main pipeline:
 
 - `internal/backend/forwarder/module.go`
 - `internal/backend/forwarder/service.go`
@@ -103,16 +103,16 @@ forwarder 主链路：
 - `internal/backend/forwarder/checkpoint_memory.go`
 - `internal/backend/forwarder/runtime_summary.go`
 
-协议解码：
+Protocol decoding:
 
 - `internal/backend/agent/protocol/inbound.go`
 
-执行桥 / 交互桥：
+Execution bridge / Interaction bridge:
 
 - `internal/backend/agent/bridge/exec/bridge.go`
 - `internal/backend/agent/bridge/interaction/bridge.go`
 
-模型适配：
+Model adaptation:
 
 - `internal/backend/agent/model/router.go`
 - `internal/backend/agent/model/openai.go`
@@ -123,7 +123,7 @@ forwarder 主链路：
 - `internal/modelchannel/identity.go`
 - `internal/runtime/local_runtime.go`
 
-Prompt / replay：
+Prompt / replay:
 
 - `internal/backend/agent/prompt/engine.go`
 - `internal/backend/agent/prompt/replay.go`
@@ -133,15 +133,15 @@ Prompt / replay：
 - `internal/backend/forwarder/reminders.go`
 - `internal/backend/forwarder/prompt_guard.go`
 
-## 构建相关参考（只读）
+## Build References (Read-Only)
 
-仓库内已有 macOS 构建与签名相关文件，可用于理解产物结构或历史处理方式，但不要把它们当成修改已安装 Cursor 客户端的操作指南：
+Build and code signing reference files in repository:
 
 - `Taskfile.yml`
 - `build/darwin/Taskfile.yml`
-- `build/dmg-extras/提示损坏？点我.command`
+- `build/dmg-extras/FixDamagedApp.command`
 
-重点看：
+Key sections:
 
-- `build/darwin/Taskfile.yml` 中的 `codesign:adhoc`
-- `build/dmg-extras/提示损坏？点我.command` 中的 `xattr -cr`
+- `codesign:adhoc` in `build/darwin/Taskfile.yml`
+- `xattr -cr` in `build/dmg-extras/FixDamagedApp.command`

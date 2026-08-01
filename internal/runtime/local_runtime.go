@@ -134,19 +134,19 @@ func NormalizeModelAdapterConfigs(input []ModelAdapterConfig) ([]ModelAdapterCon
 		next.CustomHeadersJSON = strings.TrimSpace(item.CustomHeadersJSON)
 		switch {
 		case next.DisplayName == "":
-			return nil, errors.New("模型适配器 displayName 不能为空")
+			return nil, errors.New("model adapter displayName cannot be empty")
 		case next.Type == "":
-			return nil, errors.New("模型适配器 type 仅支持 openai 或 anthropic")
+			return nil, errors.New("model adapter type only supports openai or anthropic")
 		case next.APIKey == "":
-			return nil, errors.New("模型适配器 apiKey 不能为空")
+			return nil, errors.New("model adapter apiKey cannot be empty")
 		case next.TooltipData == "":
-			return nil, errors.New("模型适配器 tooltipData 不能为空")
+			return nil, errors.New("model adapter tooltipData cannot be empty")
 		case next.ModelID == "":
-			return nil, errors.New("模型适配器 modelID 不能为空")
+			return nil, errors.New("model adapter modelID cannot be empty")
 		case next.Type == "openai" && next.ReasoningEffort == "":
-			return nil, errors.New("模型适配器 reasoningEffort 仅支持 low、medium、high、xhigh、max")
+			return nil, errors.New("model adapter reasoningEffort only supports low, medium, high, xhigh, max")
 		case next.Type == "openai" && next.OpenAIEndpoint == "":
-			return nil, errors.New("模型适配器 openAIEndpoint 仅支持 /v1/responses 或 /v1/chat/completions")
+			return nil, errors.New("model adapter openAIEndpoint only supports /v1/responses or /v1/chat/completions")
 		case next.Type == "openai" && next.OpenAIExtraParamsEnabled:
 			if err := validateJSONMap(next.OpenAIExtraParamsJSON, "openAIExtraParamsJSON"); err != nil {
 				return nil, err
@@ -160,11 +160,11 @@ func NormalizeModelAdapterConfigs(input []ModelAdapterConfig) ([]ModelAdapterCon
 				return nil, err
 			}
 		case next.Type == "anthropic" && next.AnthropicThinkingEffort == "":
-			return nil, errors.New("模型适配器 anthropicThinkingEffort 仅支持 low、medium、high、xhigh、max")
+			return nil, errors.New("model adapter anthropicThinkingEffort only supports low, medium, high, xhigh, max")
 		}
 		next.ID = modelchannel.BuildChannelID(next.BaseURL, next.ModelID, next.APIKey, next.DisplayName, next.OpenAIEndpoint)
 		if _, exists := seenChannelIDs[next.ID]; exists {
-			return nil, errors.New("模型适配器渠道不能重复，请检查 url、modelID、apiKey、displayName、endpoint 组合")
+			return nil, errors.New("model adapter channel cannot be duplicated, please check url, modelID, apiKey, displayName, endpoint combination")
 		}
 		seenChannelIDs[next.ID] = struct{}{}
 		normalized = append(normalized, next)
@@ -175,14 +175,14 @@ func NormalizeModelAdapterConfigs(input []ModelAdapterConfig) ([]ModelAdapterCon
 func validateJSONMap(value string, fieldName string) error {
 	text := strings.TrimSpace(value)
 	if text == "" {
-		return fmt.Errorf("模型适配器 %s 不能为空", fieldName)
+		return fmt.Errorf("model adapter %s cannot be empty", fieldName)
 	}
 	var parsed map[string]any
 	if err := json.Unmarshal([]byte(text), &parsed); err != nil {
-		return fmt.Errorf("模型适配器 %s 必须是合法 JSON 对象", fieldName)
+		return fmt.Errorf("model adapter %s must be a valid JSON object", fieldName)
 	}
 	if parsed == nil {
-		return fmt.Errorf("模型适配器 %s 必须是 JSON 对象", fieldName)
+		return fmt.Errorf("model adapter %s must be a JSON object", fieldName)
 	}
 	return nil
 }
@@ -194,11 +194,11 @@ func validateHeadersJSON(value string) error {
 	}
 	var parsed map[string]string
 	if err := json.Unmarshal([]byte(text), &parsed); err != nil {
-		return errors.New("模型适配器 customHeadersJSON 的值必须是字符串")
+		return errors.New("model adapter customHeadersJSON value must be a string")
 	}
 	for key := range parsed {
 		if strings.TrimSpace(key) == "" {
-			return errors.New("模型适配器 customHeadersJSON 的请求头名称不能为空")
+			return errors.New("model adapter customHeadersJSON header name cannot be empty")
 		}
 	}
 	return nil

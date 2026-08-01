@@ -282,7 +282,7 @@ func (store *UserRuleStore) scanRuleFilesLocked() ([]UserRuleRecord, error) {
 		}
 		record, err := store.readRuleFileLocked(filepath.Join(store.root, entry.Name()))
 		if err != nil {
-			logger.Infof("跳过不可用的共享 user rule 文件 path=%s err=%v", filepath.Join(store.root, entry.Name()), err)
+			logger.Infof("skipping unavailable shared user rule file path=%s err=%v", filepath.Join(store.root, entry.Name()), err)
 			continue
 		}
 		records = append(records, record)

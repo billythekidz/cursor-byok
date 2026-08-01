@@ -19,19 +19,19 @@ const routeModeOptions = ROUTE_MODE_OPTIONS;
 async function showActionError(title, error) {
   await showModal({
     title,
-    content: String(error || "服务错误").trim() || "服务错误",
+    content: String(error || "Service error").trim() || "Service error",
   });
 }
 
 async function handleSaveConfig() {
   const result = await persistUserConfig();
   if (!result.ok) {
-    await showActionError("保存失败", result.error);
+    await showActionError("Save failed", result.error);
     return;
   }
   await showModal({
-    title: "提示",
-    content: "本地配置已保存",
+    title: "Info",
+    content: "Local config saved",
   });
 }
 
@@ -39,7 +39,7 @@ async function handleOpenModelConfig() {
   try {
     await openModelConfigWindow();
   } catch (error) {
-    await showActionError("打开失败", toUserError(error));
+    await showActionError("Open failed", toUserError(error));
   }
 }
 
@@ -53,13 +53,13 @@ onMounted(async () => {
     <Card>
       <div class="flex items-center justify-between gap-4">
         <div>
-          <h2 class="text-base font-medium text-white">本地配置</h2>
+          <h2 class="text-base font-medium text-white">Local Configuration</h2>
           <div class="text-sm text-[#a3a3a3]">
-            可配置运行模式和模型渠道；运行日志位于 <code>~/.cursor-local-assistant-v2/logs/</code>
+            Configure routing mode and model channels; logs are located in <code>~/.cursor-local-assistant-v2/logs/</code>
           </div>
         </div>
         <Button variant="primary" :disabled="appState.configSaving" @click="handleSaveConfig">
-          {{ appState.configSaving ? "保存中..." : "保存配置" }}
+          {{ appState.configSaving ? "Saving..." : "Save Config" }}
         </Button>
       </div>
     </Card>
@@ -67,16 +67,16 @@ onMounted(async () => {
     <Card>
       <div class="flex items-center justify-between gap-4">
         <div>
-          <h2 class="text-base font-medium text-white">运行模式</h2>
+          <h2 class="text-base font-medium text-white">Routing Mode</h2>
           <div class="text-sm text-[#a3a3a3]">
-            控制白名单主链路请求走本地服务，还是回到原始 Cursor 上游地址
+            Control whether whitelist requests go through local service or direct upstream.
           </div>
         </div>
         <div class="w-[220px] max-w-full">
           <Select
             v-model="appState.routingMode"
             :options="routeModeOptions"
-            placeholder="选择模式"
+            placeholder="Select mode"
           />
         </div>
       </div>
@@ -85,9 +85,9 @@ onMounted(async () => {
     <Card>
       <div class="flex items-center justify-between gap-4">
         <div>
-          <h2 class="text-base font-medium text-white">界面语言</h2>
+          <h2 class="text-base font-medium text-white">Interface Language</h2>
           <div class="text-sm text-[#a3a3a3]">
-            切换当前界面显示语言，设置会立即生效并保存在本机
+            Switch application language. Changes take effect immediately.
           </div>
         </div>
         <LocaleSelect wrapper-class="w-[220px] max-w-full" />
@@ -97,12 +97,12 @@ onMounted(async () => {
     <Card>
       <div class="flex items-center justify-between gap-4">
         <div>
-          <h2 class="text-base font-medium text-white">模型配置</h2>
+          <h2 class="text-base font-medium text-white">Model Configuration</h2>
           <div class="text-sm text-[#a3a3a3]">
-            已配置 {{ appState.modelAdapters.length }} 个模型适配器
+            Configured {{ appState.modelAdapters.length }} model adapters
           </div>
         </div>
-        <Button variant="primary" @click="handleOpenModelConfig">打开模型配置</Button>
+        <Button variant="primary" @click="handleOpenModelConfig">Open Model Config</Button>
       </div>
     </Card>
   </div>

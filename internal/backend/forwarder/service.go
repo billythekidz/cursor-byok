@@ -420,11 +420,11 @@ func (service *Service) RunSSE(ctx context.Context, req *connect.Request[aiserve
 	}
 	requestID := protocol.NormalizeRequestID(protocol.ReadBidiRequestID(req.Msg))
 	if requestID == "" {
-		return buildRunSSECustomError(connect.CodeInvalidArgument, "请求参数无效", fmt.Errorf("request_id is required"))
+		return buildRunSSECustomError(connect.CodeInvalidArgument, "invalid request parameters", fmt.Errorf("request_id is required"))
 	}
 	subscriberID, signal, err := service.broker.Subscribe(requestID)
 	if err != nil {
-		return buildRunSSECustomError(connect.CodeInvalidArgument, "请求参数无效", err)
+		return buildRunSSECustomError(connect.CodeInvalidArgument, "invalid request parameters", err)
 	}
 	service.debug.LogRunSSE(ctx, requestID, "", "subscribe", map[string]any{
 		"subscriber_id": subscriberID,

@@ -21,7 +21,7 @@ import Logo from "@/assets/logo.png";
 const route = useRoute();
 const message = useMessage();
 const showIcon = computed(() => route.meta.showIcon !== false);
-const title = computed(() => route.meta.title ?? "Cursor助手｜永久免费｜自定义API");
+const title = computed(() => route.meta.title ?? "Cursor Helper | Free & BYOK");
 const directlyClose = computed(() => route.meta.directlyClose === true);
 const showFooter = computed(() => route.path === "/");
 const footerAuthorInfo = ref(null);
@@ -29,11 +29,11 @@ const footerAuthorInfo = ref(null);
 const localizedAuthorInfo = computed(() => {
   if (!footerAuthorInfo.value) return null;
   return {
-    buttonText: "作者 leookun",
-    dialogTitle: "作者寄语",
-    dialogContent: "本软件是纯免费软件，如果你被收费，那大概率就是被骗了。\n欢迎点击访问作者主页 https://space.bilibili.com/311706663/upload/video\n查看更多更新动态、使用分享和后续内容。",
-    dialogConfirmText: "访问主页",
-    dialogCancelText: "关闭",
+    buttonText: "Author leookun",
+    dialogTitle: "Author Message",
+    dialogContent: "This software is free software. If you were charged, you were scammed.\nVisit the author homepage https://space.bilibili.com/311706663/upload/video\nfor updates and sharing.",
+    dialogConfirmText: "Visit Homepage",
+    dialogCancelText: "Close",
   };
 });
 const usageDocsURL = "https://docs.leokun.cn";
@@ -44,25 +44,25 @@ const netProxyEndpoint = computed(
 );
 const proxyBadgeText = computed(() => {
   if (appState.netProxyUsingSystem) {
-    return "已识别系统代理";
+    return "System Proxy Detected";
   }
   return "";
 });
 const proxyBadgeTitle = computed(() => {
   if (appState.netProxyUsingSystem) {
     return netProxyEndpoint.value
-      ? `当前出站请求使用系统代理：${netProxyEndpoint.value}`
-      : "当前出站请求使用系统代理";
+      ? `Outbound request using system proxy: ${netProxyEndpoint.value}`
+      : "Outbound request using system proxy";
   }
   if (appState.netProxyUsingEnv) {
     return netProxyEndpoint.value
-      ? `当前出站请求使用环境变量代理：${netProxyEndpoint.value}`
-      : "当前出站请求使用环境变量代理";
+      ? `Outbound request using environment proxy: ${netProxyEndpoint.value}`
+      : "Outbound request using environment proxy";
   }
   if (appState.netProxyPacIgnored) {
-    return "检测到系统 PAC/自动代理，当前版本按直连处理";
+    return "System PAC / auto proxy detected, current version connects directly";
   }
-  return "当前出站请求未使用系统代理";
+  return "Outbound request not using system proxy";
 });
 
 async function minimizeWindow() {
@@ -74,13 +74,6 @@ async function closeWindow() {
     await Window.Close();
     return;
   }
-  // const confirmed = await showModal({
-  //   title: "Confirm close",
-  //   content: "The app will be minimized to the tray. To fully exit, quit from the tray. Cursor will be unusable after closing.",
-  // });
-  // if (!confirmed) {
-  //   return;
-  // }
   await new Promise((resolve) => setTimeout(resolve, 200));
   await Window.Hide();
 }
@@ -89,7 +82,7 @@ async function handleCheckForUpdates() {
   if (updateViewState.footerBusy || updateViewState.footerDownloading) {
     return;
   }
-  const loadingMessageID = message.loading("检查更新中...");
+  const loadingMessageID = message.loading("Checking for updates...");
   try {
     await checkForAppUpdates();
   } finally {
@@ -103,15 +96,15 @@ async function loadFooterAuthorInfo() {
   try {
     footerAuthorInfo.value = await getFooterAuthorInfo();
   } catch (error) {
-    console.error("[MainLayout] 加载作者信息失败", error);
+    console.error("[MainLayout] Failed to load author info", error);
   }
 }
 
 async function showActionError(title, error) {
   await showModal({
     title,
-    content: String(error || "操作失败").trim() || "操作失败",
-    confirmText: "确定",
+    content: String(error || "Operation failed").trim() || "Operation failed",
+    confirmText: "OK",
     showCancel: false,
   });
 }
@@ -133,7 +126,7 @@ async function handleOpenAuthorHome() {
   try {
     await openFooterAuthorHome();
   } catch (error) {
-    await showActionError("打开主页失败", error);
+    await showActionError("Failed to open homepage", error);
   }
 }
 
@@ -141,7 +134,7 @@ async function handleOpenUsageDocs() {
   try {
     await Browser.OpenURL(usageDocsURL);
   } catch (error) {
-    await showActionError("打开使用教程失败", error);
+    await showActionError("Failed to open usage documentation", error);
   }
 }
 
@@ -221,7 +214,7 @@ onUnmounted(() => {
         @click="handleCheckForUpdates"
       >
         <span>{{ updateViewState.footerVersionLabel }}</span>
-        <span>检查更新</span>
+        <span>Check for Updates</span>
       </button>
       <button
         type="button"
@@ -229,7 +222,7 @@ onUnmounted(() => {
         @click="handleOpenUsageDocs"
       >
         <span class="icon-[mdi--file-document-outline] text-[15px]"></span>
-        <span>使用教程</span>
+        <span>Usage Docs</span>
       </button>
       <button
         v-if="localizedAuthorInfo"
@@ -262,7 +255,12 @@ onUnmounted(() => {
       <div class="ml-auto flex shrink-0 items-center gap-[8px]">
         <LocaleSelect
           :border="false"
-          aria-label="界面语言"
+          aria-label="Language"
+          wrapper-class="w-auto"
+          button-class="h-[24px] bg-transparent px-1.5 text-[12px] !text-[#8f8f8f] !hover:text-[#e5e5e5]"
+          menu-class="text-[12px]"
+        />
+      </div>
           wrapper-class="w-auto"
           button-class="h-[24px] bg-transparent px-1.5 text-[12px] !text-[#8f8f8f] !hover:text-[#e5e5e5]"
           menu-class="text-[12px]"

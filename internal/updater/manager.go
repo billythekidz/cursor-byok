@@ -121,7 +121,7 @@ func (m *Manager) checkNow(manual bool) {
 		info := m.currentInfo
 		m.mu.Unlock()
 		if manual {
-			m.emitState(state, info, "", fmt.Sprintf("当前正在%s，请稍后再试。", stateLabel(state)), true, "idle")
+			m.emitState(state, info, "", fmt.Sprintf("Currently %s, please try again later.", stateLabel(state)), true, "idle")
 		}
 		return
 	default:
@@ -138,24 +138,24 @@ func (m *Manager) checkNow(manual bool) {
 
 	info, err := m.fetchUpdateInfo(ctx)
 	if err != nil {
-		logger.Errorf("检查更新失败: %v", err)
+		logger.Errorf("Check for updates failed: %v", err)
 		m.setState(StateError, nil, "")
 		m.emitError(nil, err.Error(), manual)
 		return
 	}
 	if info == nil {
 		m.setState(StateIdle, nil, "")
-		m.emitState(StateIdle, nil, "", fmt.Sprintf("当前已是最新版本（v%s）。", buildinfo.CurrentVersion()), manual, "idle")
+		m.emitState(StateIdle, nil, "", fmt.Sprintf("Already using the latest version (v%s).", buildinfo.CurrentVersion()), manual, "idle")
 		return
 	}
 
-	logger.Infof("发现新版本：current=%s latest=%s platform=%s", buildinfo.CurrentVersion(), info.Version, info.PlatformKey)
+	logger.Infof("New version found: current=%s latest=%s platform=%s", buildinfo.CurrentVersion(), info.Version, info.PlatformKey)
 	m.setState(StateDownloading, info, "")
 	m.emitState(StateDownloading, info, "", "", false, "")
 
 	archivePath, err := m.downloadUpdate(ctx, info)
 	if err != nil {
-		logger.Errorf("下载更新失败: %v", err)
+		logger.Errorf("Download update failed: %v", err)
 		m.setState(StateError, info, "")
 		m.emitError(info, err.Error(), manual)
 		return
@@ -551,13 +551,13 @@ func archiveSuffix(downloadURL string) string {
 func stateLabel(state State) string {
 	switch state {
 	case StateChecking:
-		return "检查更新"
+		return "checking for updates"
 	case StateDownloading:
-		return "下载更新"
+		return "downloading updates"
 	case StateInstalling:
-		return "安装更新"
+		return "installing updates"
 	case StateError:
-		return "更新失败"
+		return "update failed"
 	default:
 		return string(state)
 	}
@@ -566,7 +566,7 @@ func stateLabel(state State) string {
 func resolveMacBundlePath(executablePath string) (string, error) {
 	contentsDir := filepath.Dir(filepath.Dir(executablePath))
 	if filepath.Base(contentsDir) != "Contents" {
-		return "", errors.New("当前 macOS 运行环境不是 .app 包，无法执行原地更新")
+		return "", errors.New("current macOS execution environment is not an .app bundle, cannot perform in-place update")
 	}
 	appBundlePath := filepath.Dir(contentsDir)
 	if filepath.Ext(appBundlePath) != ".app" {

@@ -4,11 +4,11 @@ import { useLocale } from "@/i18n/runtime";
 
 const props = defineProps({
   border: { type: Boolean, default: true },
-  ariaLabel: { type: String, default: "界面语言" },
+  ariaLabel: { type: String, default: "Language" },
   buttonClass: { type: String, default: "" },
   menuClass: { type: String, default: "" },
   wrapperClass: { type: String, default: "w-[180px] max-w-full" },
-  placeholder: { type: String, default: "选择语言" },
+  placeholder: { type: String, default: "Select Language" },
 });
 
 const { locale, localeOptions, setLocale } = useLocale();

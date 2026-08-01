@@ -6,9 +6,9 @@ const props = defineProps({
   compact: { type: Boolean, default: false },
   label: { type: String, default: "" },
   description: { type: String, default: "" },
-  enabledText: { type: String, default: "已开启" },
-  disabledText: { type: String, default: "已关闭" },
-  busyText: { type: String, default: "切换中..." },
+  enabledText: { type: String, default: "Enabled" },
+  disabledText: { type: String, default: "Disabled" },
+  busyText: { type: String, default: "Switching..." },
 });
 
 const emit = defineEmits(["change"]);

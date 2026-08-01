@@ -38,18 +38,18 @@ func EnsureCACertFile(certPEM []byte, currentPath string) (string, error) {
 	}
 
 	if err := os.MkdirAll(filepath.Dir(certPath), 0o755); err != nil {
-		return "", fmt.Errorf("创建证书配置目录失败: %w", err)
+		return "", fmt.Errorf("failed to create certificate config directory: %w", err)
 	}
 
 	if existing, err := os.ReadFile(certPath); err == nil && bytes.Equal(existing, certPEM) {
 		logger.Infof("ensureCACertFile: unchanged path=%s", certPath)
 		return certPath, nil
 	} else if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return "", fmt.Errorf("读取内置 CA 证书失败: %w", err)
+		return "", fmt.Errorf("failed to read built-in CA certificate: %w", err)
 	}
 
 	if err := os.WriteFile(certPath, certPEM, 0o644); err != nil {
-		return "", fmt.Errorf("写入内置 CA 证书失败: %w", err)
+		return "", fmt.Errorf("failed to write built-in CA certificate: %w", err)
 	}
 	sum := sha256.Sum256(certPEM)
 	logger.Infof(
@@ -72,23 +72,23 @@ func samePath(left string, right string) bool {
 func SetSystemNodeExtraCACerts(caCertPath string) error {
 	caCertPath = strings.TrimSpace(caCertPath)
 	if caCertPath == "" {
-		return errors.New("CA 证书路径为空")
+		return errors.New("CA certificate path is empty")
 	}
 	if err := os.Setenv("NODE_EXTRA_CA_CERTS", caCertPath); err != nil {
-		return fmt.Errorf("设置进程环境变量失败: %w", err)
+		return fmt.Errorf("failed to set process environment variable: %w", err)
 	}
 
 	switch runtime.GOOS {
 	case "darwin":
 		out, err := exec.Command("launchctl", "setenv", "NODE_EXTRA_CA_CERTS", caCertPath).CombinedOutput()
 		if err != nil {
-			return fmt.Errorf("写入 macOS 用户环境变量失败: %v: %s", err, strings.TrimSpace(string(out)))
+			return fmt.Errorf("failed to write macOS user environment variable: %v: %s", err, strings.TrimSpace(string(out)))
 		}
 	case "linux":
 		// Linux distros differ greatly in how they persist environment variables; here we only ensure the current process takes effect.
 		logger.Infof("setSystemNodeExtraCACerts: linux detected, applied to current process only")
 	default:
-		return fmt.Errorf("不支持的系统: %s", runtime.GOOS)
+		return fmt.Errorf("unsupported operating system: %s", runtime.GOOS)
 	}
 
 	logger.Infof("setSystemNodeExtraCACerts: NODE_EXTRA_CA_CERTS=%s", caCertPath)
@@ -98,19 +98,19 @@ func SetSystemNodeExtraCACerts(caCertPath string) error {
 // ClearSystemNodeExtraCACerts handles logic related to ClearSystemNodeExtraCACerts.
 func ClearSystemNodeExtraCACerts() error {
 	if err := os.Unsetenv("NODE_EXTRA_CA_CERTS"); err != nil {
-		return fmt.Errorf("清理进程环境变量失败: %w", err)
+		return fmt.Errorf("failed to clear process environment variable: %w", err)
 	}
 
 	switch runtime.GOOS {
 	case "darwin":
 		out, err := exec.Command("launchctl", "unsetenv", "NODE_EXTRA_CA_CERTS").CombinedOutput()
 		if err != nil {
-			return fmt.Errorf("清理 macOS 用户环境变量失败: %v: %s", err, strings.TrimSpace(string(out)))
+			return fmt.Errorf("failed to clear macOS user environment variable: %v: %s", err, strings.TrimSpace(string(out)))
 		}
 	case "linux":
 		logger.Infof("clearSystemNodeExtraCACerts: linux detected, cleared in current process only")
 	default:
-		return fmt.Errorf("不支持的系统: %s", runtime.GOOS)
+		return fmt.Errorf("unsupported operating system: %s", runtime.GOOS)
 	}
 
 	logger.Infof("clearSystemNodeExtraCACerts: NODE_EXTRA_CA_CERTS cleared")
@@ -121,7 +121,7 @@ func ClearSystemNodeExtraCACerts() error {
 func WriteUserProxySettings(proxyURL string) error {
 	proxyURL = strings.TrimSpace(proxyURL)
 	if proxyURL == "" {
-		return errors.New("代理地址为空")
+		return errors.New("proxy URL is empty")
 	}
 
 	settingsPath, err := resolveCursorSettingsPath()
@@ -129,20 +129,20 @@ func WriteUserProxySettings(proxyURL string) error {
 		return err
 	}
 	if err := os.MkdirAll(filepath.Dir(settingsPath), 0o755); err != nil {
-		return fmt.Errorf("创建 Cursor 配置目录失败: %w", err)
+		return fmt.Errorf("failed to create Cursor config directory: %w", err)
 	}
 
 	settings := make(map[string]any)
 	data, err := os.ReadFile(settingsPath)
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
-			return fmt.Errorf("读取 Cursor 配置失败: %w", err)
+			return fmt.Errorf("failed to read Cursor config: %w", err)
 		}
 	} else if len(bytes.TrimSpace(data)) > 0 {
 		parsed, err := decodeCursorSettingsJSONC(data)
 		if err != nil {
 			if removeErr := os.Remove(settingsPath); removeErr != nil && !errors.Is(removeErr, os.ErrNotExist) {
-				return fmt.Errorf("解析 Cursor 配置失败，且删除损坏配置失败: %w", removeErr)
+				return fmt.Errorf("failed to parse Cursor config and failed to remove corrupted config: %w", removeErr)
 			}
 			logger.Infof("writeCursorUserProxySettings: removed invalid settings path=%s err=%v", settingsPath, err)
 			data = nil
@@ -159,7 +159,7 @@ func WriteUserProxySettings(proxyURL string) error {
 
 	encoded, err := json.MarshalIndent(settings, "", "  ")
 	if err != nil {
-		return fmt.Errorf("序列化 Cursor 配置失败: %w", err)
+		return fmt.Errorf("failed to serialize Cursor config: %w", err)
 	}
 	encoded = append(encoded, '\n')
 
@@ -170,10 +170,10 @@ func WriteUserProxySettings(proxyURL string) error {
 
 	tempPath := settingsPath + ".tmp"
 	if err := os.WriteFile(tempPath, encoded, 0o644); err != nil {
-		return fmt.Errorf("写入 Cursor 配置临时文件失败: %w", err)
+		return fmt.Errorf("failed to write Cursor temp config file: %w", err)
 	}
 	if err := os.Rename(tempPath, settingsPath); err != nil {
-		return fmt.Errorf("保存 Cursor 配置失败: %w", err)
+		return fmt.Errorf("failed to save Cursor config: %w", err)
 	}
 
 	logger.Infof("writeCursorUserProxySettings: path=%s proxy=%s", settingsPath, proxyURL)
@@ -192,7 +192,7 @@ func ClearUserProxySettings() error {
 		if errors.Is(err, os.ErrNotExist) {
 			return nil
 		}
-		return fmt.Errorf("读取 Cursor 配置失败: %w", err)
+		return fmt.Errorf("failed to read Cursor config: %w", err)
 	}
 	if len(bytes.TrimSpace(data)) == 0 {
 		return nil
@@ -201,7 +201,7 @@ func ClearUserProxySettings() error {
 	settings := make(map[string]any)
 	parsed, err := decodeCursorSettingsJSONC(data)
 	if err != nil {
-		return fmt.Errorf("解析 Cursor 配置失败: %w", err)
+		return fmt.Errorf("failed to parse Cursor config: %w", err)
 	}
 	settings = parsed
 
@@ -218,16 +218,16 @@ func ClearUserProxySettings() error {
 
 	encoded, err := json.MarshalIndent(settings, "", "  ")
 	if err != nil {
-		return fmt.Errorf("序列化 Cursor 配置失败: %w", err)
+		return fmt.Errorf("failed to serialize Cursor config: %w", err)
 	}
 	encoded = append(encoded, '\n')
 
 	tempPath := settingsPath + ".tmp"
 	if err := os.WriteFile(tempPath, encoded, 0o644); err != nil {
-		return fmt.Errorf("写入 Cursor 配置临时文件失败: %w", err)
+		return fmt.Errorf("failed to write Cursor temp config file: %w", err)
 	}
 	if err := os.Rename(tempPath, settingsPath); err != nil {
-		return fmt.Errorf("保存 Cursor 配置失败: %w", err)
+		return fmt.Errorf("failed to save Cursor config: %w", err)
 	}
 
 	logger.Infof("clearCursorUserProxySettings: path=%s", settingsPath)
@@ -238,7 +238,7 @@ func ClearUserProxySettings() error {
 func resolveCursorSettingsPath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return "", fmt.Errorf("获取用户目录失败: %w", err)
+		return "", fmt.Errorf("failed to get user home directory: %w", err)
 	}
 
 	switch runtime.GOOS {
@@ -257,7 +257,7 @@ func resolveCursorSettingsPath() (string, error) {
 		}
 		return filepath.Join(configDir, "Cursor", "User", "settings.json"), nil
 	default:
-		return "", fmt.Errorf("不支持的系统: %s", runtime.GOOS)
+		return "", fmt.Errorf("unsupported operating system: %s", runtime.GOOS)
 	}
 }
 
@@ -357,7 +357,7 @@ func stripJSONCComments(data []byte) ([]byte, error) {
 	}
 
 	if inBlockComment {
-		return nil, errors.New("JSONC 块注释未闭合")
+		return nil, errors.New("unclosed JSONC block comment")
 	}
 	return out, nil
 }

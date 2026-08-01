@@ -21,11 +21,11 @@ const (
 func getCertSHA1Fingerprint(certPEM []byte) (string, error) {
 	block, _ := pem.Decode(certPEM)
 	if block == nil {
-		return "", fmt.Errorf("无法解析证书 PEM")
+		return "", fmt.Errorf("failed to parse certificate PEM")
 	}
 	cert, err := x509.ParseCertificate(block.Bytes)
 	if err != nil {
-		return "", fmt.Errorf("解析证书失败: %w", err)
+		return "", fmt.Errorf("failed to parse certificate: %w", err)
 	}
 	fingerprint := fmt.Sprintf("%X", sha1.Sum(cert.Raw))
 	return fingerprint, nil
@@ -34,12 +34,12 @@ func getCertSHA1Fingerprint(certPEM []byte) (string, error) {
 func isCACertInstalled(certPEM []byte) (bool, error) {
 	fingerprint, err := getCertSHA1Fingerprint(certPEM)
 	if err != nil {
-		return false, fmt.Errorf("获取证书指纹失败: %w", err)
+		return false, fmt.Errorf("failed to get certificate fingerprint: %w", err)
 	}
 
 	out, err := exec.Command(darwinSecurityExe, "find-certificate", "-a", "-Z", darwinLoginKeychainName).CombinedOutput()
 	if err != nil {
-		return false, fmt.Errorf("检查 macOS 登录钥匙串失败: %w: %s", err, strings.TrimSpace(string(out)))
+		return false, fmt.Errorf("failed to check macOS login keychain: %w: %s", err, strings.TrimSpace(string(out)))
 	}
 	installed := strings.Contains(strings.ToUpper(string(out)), fingerprint)
 	if installed {
@@ -53,7 +53,7 @@ func isCACertInstalled(certPEM []byte) (bool, error) {
 func installCACertToDarwinKeychain(certPEM []byte, certPath string) error {
 	fingerprint, err := getCertSHA1Fingerprint(certPEM)
 	if err != nil {
-		return fmt.Errorf("获取证书指纹失败: %w", err)
+		return fmt.Errorf("failed to get certificate fingerprint: %w", err)
 	}
 
 	logger.Infof("installCACertToDarwinKeychain: installing cert into login keychain, path=%s fingerprint=%s", certPath, fingerprint)
@@ -66,15 +66,15 @@ func installCACertToDarwinKeychain(certPEM []byte, certPath string) error {
 		certPath,
 	).CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("安装 CA 到 macOS 登录钥匙串失败: %w: %s", err, strings.TrimSpace(string(out)))
+		return fmt.Errorf("failed to install CA into macOS login keychain: %w: %s", err, strings.TrimSpace(string(out)))
 	}
 
 	installed, err := isCACertInstalled(certPEM)
 	if err != nil {
-		return fmt.Errorf("验证 macOS 证书安装状态失败: %w", err)
+		return fmt.Errorf("failed to verify macOS certificate installation status: %w", err)
 	}
 	if !installed {
-		return fmt.Errorf("证书导入命令已执行，但 macOS 登录钥匙串中未找到证书")
+		return fmt.Errorf("certificate import executed but certificate not found in macOS login keychain")
 	}
 
 	logger.Infof("installCACertToDarwinKeychain: cert installed successfully, fingerprint=%s", fingerprint)
@@ -85,7 +85,7 @@ func installCACertToDarwinKeychain(certPEM []byte, certPath string) error {
 func EnsureCACertInstalled(certPEM []byte, certPath string) error {
 	installed, err := isCACertInstalled(certPEM)
 	if err != nil {
-		return fmt.Errorf("检查 macOS 证书安装状态失败: %w", err)
+		return fmt.Errorf("failed to check macOS certificate installation status: %w", err)
 	}
 	if installed {
 		logger.Infof("ensureCACertInstalled: cert already installed in macOS login keychain, skipping")
@@ -104,7 +104,7 @@ func RemoveCACertFromDarwinKeychain(certPEM []byte) error {
 	}
 	out, err := exec.Command(darwinSecurityExe, "delete-certificate", "-Z", fingerprint, darwinLoginKeychainName).CombinedOutput()
 	if err != nil && !strings.Contains(strings.ToLower(string(out)), "could not be found") {
-		return fmt.Errorf("删除 macOS 登录钥匙串 CA 失败: %w: %s", err, strings.TrimSpace(string(out)))
+		return fmt.Errorf("failed to delete CA from macOS login keychain: %w: %s", err, strings.TrimSpace(string(out)))
 	}
 	return nil
 }

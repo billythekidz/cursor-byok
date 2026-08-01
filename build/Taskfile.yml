@@ -8,19 +8,19 @@ vars:
 
 tasks:
   extract:proto:
-    summary: 从 Cursor 扩展快照提取 proto
+    summary: Extract proto from Cursor extension snapshot
     dir: '{{.ROOT_DIR}}'
     preconditions:
       - sh: 'test -z "{{.PROTO_INPUT}}" || test -f "{{.PROTO_INPUT}}"'
-        msg: "PROTO_INPUT 指向的 Cursor 扩展 bundle 不存在。"
+        msg: "Cursor extension bundle specified by PROTO_INPUT does not exist."
       - sh: 'test -n "{{.PROTO_INPUT}}" || test -f ./proto/extensions-cursor-app/cursor-always-local/dist/main.js || test -f /Applications/Cursor.app/Contents/Resources/app/extensions/cursor-always-local/dist/main.js'
-        msg: "未找到 Cursor 扩展 bundle；请传入 PROTO_INPUT=/path/to/cursor-always-local/dist/main.js。"
+        msg: "Cursor extension bundle not found; please pass PROTO_INPUT=/path/to/cursor-always-local/dist/main.js."
     cmds:
       - chmod +x ./proto/extract_extensions_proto.sh
       - '{{if .PROTO_INPUT}}./proto/extract_extensions_proto.sh "{{.PROTO_INPUT}}"{{else}}./proto/extract_extensions_proto.sh{{end}}'
 
   sync:proto:
-    summary: 从 Cursor 扩展快照同步 proto 并重新生成 Go 代码
+    summary: Sync proto from Cursor extension snapshot and regenerate Go code
     dir: '{{.ROOT_DIR}}'
     deps:
       - task: extract:proto
@@ -33,7 +33,7 @@ tasks:
       - task: generate:proto
 
   generate:proto:
-    summary: 生成 proto Go/Connect 代码
+    summary: Generate proto Go/Connect code
     dir: '{{.ROOT_DIR}}'
     sources:
       - proto/*.proto
@@ -43,25 +43,25 @@ tasks:
       - gen/aiserverv1/aiserverv1connect/*.go
     preconditions:
       - sh: protoc --version
-        msg: "未检测到 protoc，请先安装 Protocol Buffers 编译器。"
+        msg: "protoc not detected, please install Protocol Buffers compiler first."
       - sh: protoc-gen-go --version >/dev/null 2>&1 || which protoc-gen-go
-        msg: "未检测到 protoc-gen-go，请先安装。"
+        msg: "protoc-gen-go not detected, please install first."
       - sh: protoc-gen-connect-go --version >/dev/null 2>&1 || which protoc-gen-connect-go
-        msg: "未检测到 protoc-gen-connect-go，请先安装。"
+        msg: "protoc-gen-connect-go not detected, please install first."
     cmds:
       - rm -rf ./gen/agentv1 ./gen/aiserverv1
       - protoc -I ./proto --go_out=. --go_opt=module=cursor --connect-go_out=. --connect-go_opt=module=cursor ./proto/agent_v1.proto ./proto/aiserver_v1.proto
       - gofmt -w $(find ./gen -name '*.go' -type f)
 
   go:mod:tidy:
-    summary: 整理 Go 依赖
+    summary: Tidy Go dependencies
     internal: true
     dir: '{{.ROOT_DIR}}'
     cmds:
       - go mod tidy
 
   install:frontend:deps:
-    summary: 安装前端依赖（Yarn）
+    summary: Install frontend dependencies (Yarn)
     dir: '{{.ROOT_DIR}}/frontend'
     sources:
       - package.json
@@ -70,13 +70,13 @@ tasks:
       - node_modules
     preconditions:
       - sh: yarn --version
-        msg: "未检测到 Yarn，请先安装 Yarn。"
+        msg: "Yarn not detected, please install Yarn first."
     cmds:
       - yarn install --frozen-lockfile
 
   generate:bindings:
     label: generate:bindings (BUILD_FLAGS={{.BUILD_FLAGS}})
-    summary: 生成前端绑定
+    summary: Generate frontend bindings
     dir: '{{.ROOT_DIR}}'
     deps:
       - task: generate:proto
@@ -95,7 +95,7 @@ tasks:
 
   build:frontend:
     label: build:frontend (DEV={{.DEV}} SCAN={{.SCAN}})
-    summary: 构建前端资源
+    summary: Build frontend assets
     dir: '{{.ROOT_DIR}}/frontend'
     sources:
       - "**/*"
@@ -116,7 +116,7 @@ tasks:
       SCAN: '{{.SCAN | default "false"}}'
 
   dev:frontend:
-    summary: 启动前端开发服务
+    summary: Start frontend dev service
     dir: '{{.ROOT_DIR}}/frontend'
     deps:
       - task: install:frontend:deps
@@ -124,7 +124,7 @@ tasks:
       - yarn run dev --port {{.VITE_PORT}} --strictPort
 
   generate:icons:
-    summary: 仅使用 appicon.png 生成 Windows 与 macOS 图标
+    summary: Generate Windows and macOS icons using appicon.png
     dir: '{{.BUILD_DIR}}'
     sources:
       - "appicon.png"
@@ -135,19 +135,19 @@ tasks:
       - wails3 generate icons -input appicon.png -macfilename darwin/icons.icns -windowsfilename windows/icon.ico
 
   update:build-assets:
-    summary: 根据配置更新构建资产
+    summary: Update build assets based on config
     dir: '{{.BUILD_DIR}}'
     cmds:
       - wails3 update build-assets -name "{{.APP_NAME}}" -binaryname "{{.APP_NAME}}" -config config.yml -dir .
       - rm -rf ios
 
   setup:docker:
-    summary: 构建 Linux 交叉编译 Docker 镜像
+    summary: Build Linux cross-compilation Docker image
     dir: '{{.ROOT_DIR}}'
     preconditions:
       - sh: docker info >/dev/null 2>&1
-        msg: "未检测到可用的 Docker daemon，请先启动 Docker。"
+        msg: "No available Docker daemon detected, please start Docker first."
       - sh: test -f ./build/docker/Dockerfile.cross
-        msg: "未找到 build/docker/Dockerfile.cross。"
+        msg: "build/docker/Dockerfile.cross not found."
     cmds:
       - docker build --platform linux/amd64{{if .BASE_IMAGE}} --build-arg BASE_IMAGE="{{.BASE_IMAGE}}"{{end}}{{if .GO_TARBALL_URL}} --build-arg GO_TARBALL_URL="{{.GO_TARBALL_URL}}"{{end}} -t cursor-linux-amd64-cross -f ./build/docker/Dockerfile.cross ./build/docker

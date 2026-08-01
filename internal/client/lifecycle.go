@@ -107,7 +107,7 @@ func (s *ProxyService) StartProxy() (ProxyState, error) {
 			_ = s.proxy.Stop(stopCtx)
 		}
 		_ = s.backendHost.Stop(stopCtx)
-		startErr := fmt.Errorf("服务已启动，但注入 Cursor 配置失败: %w", err)
+		startErr := fmt.Errorf("service started, but applying Cursor settings failed: %w", err)
 		logger.Errorf("start service failed step=apply_cursor_settings err=%v", startErr)
 		s.setLastError(startErr)
 		s.emitState()
@@ -213,7 +213,7 @@ func (s *ProxyService) ClearLastError() ProxyState {
 // SetBaseURL handles logic related to SetBaseURL.
 func (s *ProxyService) SetBaseURL(baseURL string) (ProxyState, error) {
 	_ = strings.TrimSpace(baseURL)
-	err := fmt.Errorf("backend/proxy 地址已固定，不再支持直接修改 baseURL")
+	err := fmt.Errorf("backend/proxy address is fixed, directly modifying baseURL is no longer supported")
 	s.setLastError(err)
 	s.emitState()
 	return s.GetState(), err

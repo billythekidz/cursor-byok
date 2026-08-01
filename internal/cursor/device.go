@@ -16,15 +16,15 @@ func GetDeviceID() (string, error) {
 		rawID, rawErr := machineid.ID()
 		if rawErr != nil {
 			if err != nil {
-				return "", fmt.Errorf("获取设备码失败: %w", err)
+				return "", fmt.Errorf("failed to get device ID: %w", err)
 			}
-			return "", fmt.Errorf("获取设备码失败: %w", rawErr)
+			return "", fmt.Errorf("failed to get device ID: %w", rawErr)
 		}
 		deviceID = rawID
 	}
 	deviceID = strings.TrimSpace(deviceID)
 	if deviceID == "" {
-		return "", errors.New("获取设备码失败: 设备码为空")
+		return "", errors.New("failed to get device ID: device ID is empty")
 	}
 	return deviceID, nil
 }

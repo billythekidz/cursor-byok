@@ -5,7 +5,7 @@ includes:
 
 tasks:
   build:
-    summary: 构建 Windows 程序
+    summary: Build Windows binary
     internal: true
     cmds:
       - task: build:native
@@ -24,7 +24,7 @@ tasks:
             ref: .SCAN
 
   build:native:
-    summary: 使用 Go 原生交叉编译构建 Windows 程序
+    summary: Build Windows binary using Go native cross-compilation
     internal: true
     deps:
       - task: common:go:mod:tidy
@@ -56,7 +56,7 @@ tasks:
       GOARCH: '{{.ARCH | default ARCH}}'
 
   package:
-    summary: 打包 Windows 安装程序
+    summary: Package Windows installer
     internal: true
     cmds:
       - task: '{{if eq (.FORMAT | default "nsis") "msix"}}create:msix:package{{else}}create:nsis:installer{{end}}'
@@ -64,7 +64,7 @@ tasks:
       FORMAT: '{{.FORMAT | default "nsis"}}'
 
   generate:syso:
-    summary: 生成 Windows 图标与版本信息资源
+    summary: Generate Windows icon and version info resources
     internal: true
     dir: build
     cmds:
@@ -73,7 +73,7 @@ tasks:
       ARCH: '{{.ARCH | default ARCH}}'
 
   create:nsis:installer:
-    summary: 生成 NSIS 安装包
+    summary: Generate NSIS installer package
     internal: true
     dir: build/windows/nsis
     deps:
@@ -94,7 +94,7 @@ tasks:
       ARG_FLAG: '{{if eq .ARCH "amd64"}}AMD64{{else}}ARM64{{end}}'
 
   create:msix:package:
-    summary: 生成 MSIX 安装包
+    summary: Generate MSIX installer package
     internal: true
     deps:
       - task: build
@@ -119,7 +119,7 @@ tasks:
       USE_MSIX_TOOL: '{{.USE_MSIX_TOOL | default "false"}}'
 
   create:zip:
-    summary: 生成 Windows ZIP 包（包含 exe 与 certs）
+    summary: Generate Windows ZIP package (contains exe and certs)
     internal: true
     vars:
       ARCH: '{{.ARCH | default ARCH}}'
@@ -149,7 +149,7 @@ tasks:
       - rm -f "{{.OUTPUT}}"
 
   run:
-    summary: 运行 Windows 可执行文件（仅在 Windows 可用）
+    summary: Run Windows executable (only available on Windows)
     vars:
       OUTPUT: '{{.OUTPUT | default (printf "%s/%s.exe" .BIN_DIR .APP_NAME)}}'
     cmds:

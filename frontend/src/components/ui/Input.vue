@@ -64,7 +64,7 @@ function toggleVisibility() {
       v-if="canToggleVisibility"
       type="button"
       class="absolute inset-y-0 right-0 center-row px-3 text-[#8f8f8f] transition-colors hover:text-[#d4d4d4] focus:text-[#d4d4d4] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-      :aria-label="isPasswordVisible ? '隐藏访问密钥' : '显示访问密钥'"
+      :aria-label="isPasswordVisible ? 'Hide API key' : 'Show API key'"
       :aria-pressed="isPasswordVisible"
       :disabled="disabled"
       @click="toggleVisibility"

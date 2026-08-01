@@ -22,11 +22,11 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: "模型测试",
+    default: "Model Test",
   },
   emptyText: {
     type: String,
-    default: "尚未测试",
+    default: "Not Tested Yet",
   },
 });
 
@@ -41,10 +41,10 @@ const summaryText = computed(() => {
     return text;
   }
   if (normalizedStatus.value === "running") {
-    return "测试中...";
+    return "Testing...";
   }
   if (normalizedStatus.value === "error") {
-    return "测试失败";
+    return "Test Failed";
   }
   return props.emptyText;
 });
@@ -110,7 +110,7 @@ const summaryClass = computed(() => {
             {{ title }}
           </div>
           <div v-if="rawResponseText" class="center-row gap-1 text-[11px] text-[#8f8f8f]">
-            <span>原始返回</span>
+            <span>Raw Response</span>
             <Tooltip :content="rawResponseText" copyable />
           </div>
         </div>
@@ -122,12 +122,12 @@ const summaryClass = computed(() => {
         v-if="stale"
         class="shrink-0 rounded-[999px] border border-[#8a6d1a] px-2 py-1 text-xs text-[#f6d77a]"
       >
-        需重测
+        Re-test Required
       </span>
     </div>
 
     <div v-if="stale" class="mt-2 text-xs text-[#f6d77a]">
-      配置已变更，请重新测试
+      Config modified, please re-test
     </div>
 
     <div
@@ -135,11 +135,11 @@ const summaryClass = computed(() => {
       class="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2"
     >
       <div class="rounded-[8px] bg-[#1c1c1c] px-3 py-2">
-        <div class="text-[11px] uppercase tracking-[0.08em] text-[#666]">总耗时</div>
+        <div class="text-[11px] uppercase tracking-[0.08em] text-[#666]">Total Duration</div>
         <div class="mt-1 text-sm text-[#d4d4d4]">{{ formatDuration(result?.totalDurationMS) }}</div>
       </div>
       <div class="rounded-[8px] bg-[#1c1c1c] px-3 py-2">
-        <div class="text-[11px] uppercase tracking-[0.08em] text-[#666]">输出 Token</div>
+        <div class="text-[11px] uppercase tracking-[0.08em] text-[#666]">Output Tokens</div>
         <div class="mt-1 text-sm text-[#d4d4d4]">{{ result?.outputTokens ?? 0 }}</div>
       </div>
     </div>
@@ -148,7 +148,7 @@ const summaryClass = computed(() => {
       v-if="normalizedStatus === 'success' && result?.tokensEstimated"
       class="mt-2 text-xs text-[#8f8f8f]"
     >
-      输出 Token 为估算值
+      Output Tokens estimated
     </div>
   </div>
 </template>

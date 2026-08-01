@@ -544,7 +544,7 @@ func ExtractProtos(inputFile, outputDir string) {
 		fmt.Fprintf(os.Stderr, "Validation warning: %v\n", validateErr)
 	}
 
-	fmt.Printf("提取完成: %d 个消息, %d 个枚举, %d 个服务\n", len(messages), len(enums), len(services))
+	fmt.Printf("Extraction complete: %d messages, %d enums, %d services\n", len(messages), len(enums), len(services))
 }
 
 func hasValidationFailure(diag *extractionDiagnostics, validateErr error) bool {

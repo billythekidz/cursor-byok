@@ -3,7 +3,7 @@ import Button from "@/components/ui/Button.vue";
 
 const props = defineProps({
   visible: { type: Boolean, default: false },
-  title: { type: String, default: "提示" },
+  title: { type: String, default: "Notice" },
   content: { type: String, default: "" },
   placeholder: { type: String, default: "" },
   modelValue: { type: String, default: "" },
@@ -66,8 +66,8 @@ function onEnter(event) {
                 @keydown.enter="onEnter"
               />
               <div class="flex justify-end gap-2">
-                <Button variant="default" @click="handleCancel">取消</Button>
-                <Button variant="primary" @click="handleConfirm">确定</Button>
+                <Button variant="default" @click="handleCancel">Cancel</Button>
+                <Button variant="primary" @click="handleConfirm">Confirm</Button>
               </div>
             </div>
           </div>

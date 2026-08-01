@@ -16,7 +16,7 @@ func Health() HandlerFunc {
 			return nil
 		}
 		if ctx.Request != nil {
-			logger.Infof("内置后端 healthz 命中 remote_addr=%s user_agent=%s", ctx.Request.RemoteAddr, ctx.Request.UserAgent())
+			logger.Infof("embedded backend healthz hit remote_addr=%s user_agent=%s", ctx.Request.RemoteAddr, ctx.Request.UserAgent())
 		}
 		ctx.Writer.WriteHeader(http.StatusOK)
 		_, _ = ctx.Writer.Write([]byte("ok"))

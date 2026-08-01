@@ -256,7 +256,7 @@ func (service *Service) currentPackage(ctx context.Context, slotID string) (adPa
 	case packageValid:
 		return inspection.pkg, true, nil
 	default:
-		return adPackageFile{}, false, fmt.Errorf("广告缓存已损坏")
+		return adPackageFile{}, false, fmt.Errorf("ad cache is corrupted")
 	}
 }
 
@@ -489,7 +489,7 @@ func writeJSONFile(filePath string, payload any) error {
 func parsePackage(hash string, data []byte) (parsedPackage, error) {
 	reader, err := zip.NewReader(bytes.NewReader(data), int64(len(data)))
 	if err != nil {
-		return parsedPackage{}, fmt.Errorf("解析广告压缩包失败: %w", err)
+		return parsedPackage{}, fmt.Errorf("failed to parse ad zip package: %w", err)
 	}
 	seen := map[string]struct{}{}
 	var rawConfig []byte
@@ -503,7 +503,7 @@ func parsePackage(hash string, data []byte) (parsedPackage, error) {
 			return parsedPackage{}, err
 		}
 		if _, exists := seen[cleanPath]; exists {
-			return parsedPackage{}, fmt.Errorf("广告压缩包存在重复文件: %s", cleanPath)
+			return parsedPackage{}, fmt.Errorf("duplicate file in ad zip package: %s", cleanPath)
 		}
 		seen[cleanPath] = struct{}{}
 		payload, err := readZipFile(file)
@@ -520,10 +520,10 @@ func parsePackage(hash string, data []byte) (parsedPackage, error) {
 		})
 	}
 	if len(rawConfig) == 0 {
-		return parsedPackage{}, fmt.Errorf("广告压缩包缺少根目录 config.yaml")
+		return parsedPackage{}, fmt.Errorf("ad zip package is missing root config.yaml")
 	}
 	if _, ok := seen["index.html"]; !ok {
-		return parsedPackage{}, fmt.Errorf("广告压缩包缺少根目录 index.html")
+		return parsedPackage{}, fmt.Errorf("ad zip package is missing root index.html")
 	}
 	cfg, err := parseConfig(rawConfig)
 	if err != nil {
@@ -544,10 +544,10 @@ func parsePackage(hash string, data []byte) (parsedPackage, error) {
 func parseConfig(data []byte) (Config, error) {
 	var raw adConfigYAML
 	if err := yaml.Unmarshal(data, &raw); err != nil {
-		return Config{}, fmt.Errorf("解析广告 config.yaml 失败: %w", err)
+		return Config{}, fmt.Errorf("failed to parse ad config.yaml: %w", err)
 	}
 	if raw.Enabled == nil {
-		return Config{}, fmt.Errorf("广告 config.yaml 缺少 enabled")
+		return Config{}, fmt.Errorf("ad config.yaml is missing enabled field")
 	}
 	cfg := Config{
 		Enabled: *raw.Enabled,
