@@ -73,6 +73,7 @@ tasks:
         msg: "Yarn not detected, please install Yarn first."
     cmds:
       - yarn install --frozen-lockfile
+      - python -c "import pathlib; (pathlib.Path('node_modules') / 'go.mod').write_text('module cursor/frontend/node_modules\n')"
 
   generate:bindings:
     label: generate:bindings (BUILD_FLAGS={{.BUILD_FLAGS}})

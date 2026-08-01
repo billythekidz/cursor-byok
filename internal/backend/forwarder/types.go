@@ -247,6 +247,7 @@ type ProviderRequest struct {
 	RunID               string
 	ModelCallID         string
 	ModelID             string
+	WorkspacePath       string
 	Mode                agentv1.AgentMode
 	ThinkingEffort      string
 	Messages            []modeladapter.Message

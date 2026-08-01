@@ -30,6 +30,7 @@ const BATCH_TEST_CONCURRENCY = 10;
 const typeTabs = [
   { label: "OpenAI", value: "openai", icon: "icon-[bxl--openai]" },
   { label: "Anthropic", value: "anthropic", icon: "icon-[logos--claude-icon]" },
+  { label: "Codex", value: "codex", icon: "icon-[mdi--robot-outline]" },
 ];
 
 const activeType = ref("openai");
@@ -131,7 +132,13 @@ function maskSecret(value) {
 }
 
 function typeLabel(type) {
-  return type === "anthropic" ? "Anthropic" : "OpenAI";
+  if (type === "anthropic") {
+    return "Anthropic";
+  }
+  if (type === "codex") {
+    return "Codex";
+  }
+  return "OpenAI";
 }
 
 function formatHost(value) {
@@ -379,6 +386,14 @@ async function handleToggleActive(adapter) {
   if (appState.configSaving || !adapter) {
     return;
   }
+	if (
+		adapter.type === "codex" &&
+		!adapter.active &&
+		(!appState.codexRuntime.installed || !appState.codexRuntime.authenticated)
+	) {
+    await showActionError("Codex 尚未就绪", "请先安装并登录 Codex，再激活此模型。");
+    return;
+  }
   const groupID = adapter.openAIEndpointGroupID;
   const nextActive = !adapter.active;
   const current = appState.modelAdapters.map((item) => normalizeModelAdapter(item));
@@ -533,6 +548,57 @@ onBeforeUnmount(() => {
                 <Button variant="default" :disabled="appState.configSaving" @click="handleDuplicateModelAdapter(appState.modelAdapters.indexOf(adapter))">Duplicate</Button>
                 <Button variant="text" :disabled="appState.configSaving"
                   @click="handleDeleteModelAdapter(appState.modelAdapters.indexOf(adapter))">Delete</Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </template>
+
+      <template v-else-if="activeType === 'codex'">
+        <div
+          v-if="filteredAdapters.length === 0"
+          class="flex h-full min-h-[220px] items-center justify-center rounded-[8px] border border-dashed border-[#3a3a3a] bg-[#232323] px-4 text-sm text-[#a3a3a3]"
+        >
+          尚未配置 Codex 模型。
+        </div>
+        <div v-else class="grid gap-3 pb-1 [grid-template-columns:repeat(auto-fill,minmax(250px,1fr))]">
+          <Card v-for="adapter in filteredAdapters" :key="adapter.id || adapter.modelID">
+            <div class="flex h-full min-h-[180px] flex-col justify-between gap-3">
+              <div class="flex flex-col gap-2.5">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0 flex-1">
+                    <div class="truncate text-base font-medium text-white">{{ adapter.displayName }}</div>
+                    <div class="mt-1 truncate text-sm text-[#8f8f8f]">{{ adapter.modelID }}</div>
+                  </div>
+                  <span class="center-row shrink-0 gap-1 rounded-[999px] border border-[#3f3f3f] px-[7px] py-[4px] text-[11px] font-medium text-[#cfcfcf]">
+                    <span class="icon-[mdi--robot-outline] text-[14px]"></span>
+                    <span>Codex</span>
+                  </span>
+                </div>
+                <div class="rounded-[8px] bg-[#232323] px-3 py-2 text-sm text-[#a3a3a3]">
+                    <div class="text-[11px] uppercase tracking-[0.08em] text-[#666]">运行环境</div>
+                  <div class="mt-1 text-[#d4d4d4]">
+                    {{ appState.codexRuntime.installed && appState.codexRuntime.authenticated ? `已就绪 ${appState.codexRuntime.version}` : "需要安装并登录" }}
+                  </div>
+                </div>
+                <div class="text-xs text-[#e0a458]">Codex 管理 Shell 和文件工具。审批策略：never。</div>
+                <ModelContextWindowControl
+                  :value="adapter.contextWindowTokens"
+                  :disabled="appState.configSaving || batchTesting"
+                  :saving="isContextWindowSaving(adapter)"
+                  :error="contextWindowError(adapter)"
+                  @save="handleSaveContextWindow(adapter, $event)"
+                />
+              </div>
+              <div class="center-row flex-wrap justify-end gap-2 border-t border-[#343434] pt-3">
+                <Button variant="default" :disabled="appState.configSaving || batchTesting || isAdapterTesting(adapter)" @click="handleTestModelAdapter(adapter)">
+                  {{ isAdapterTesting(adapter) ? "Testing..." : "Test" }}
+                </Button>
+                <Button variant="default" :disabled="appState.configSaving" @click="openEditor(appState.modelAdapters.indexOf(adapter))">Edit</Button>
+                <Button variant="default" :disabled="appState.configSaving || batchTesting" @click="handleToggleActive(adapter)">
+                  {{ adapter.active ? "Deactivate" : "Activate" }}
+                </Button>
+                <Button variant="text" :disabled="appState.configSaving" @click="handleDeleteModelAdapter(appState.modelAdapters.indexOf(adapter))">Delete</Button>
               </div>
             </div>
           </Card>

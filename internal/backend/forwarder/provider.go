@@ -44,6 +44,7 @@ func (gateway *DefaultProviderGateway) StartStream(ctx context.Context, req Prov
 		ConversationID:      req.ConversationID,
 		Mode:                req.Mode,
 		ModelID:             req.ModelID,
+		WorkspacePath:       req.WorkspacePath,
 		ThinkingEffort:      req.ThinkingEffort,
 		Messages:            req.Messages,
 		StableMessageCount:  req.StableMessageCount,

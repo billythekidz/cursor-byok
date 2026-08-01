@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"cursor/internal/appdata"
+	"cursor/internal/backend/codex"
 	legacyruntime "cursor/internal/runtime"
 )
 
@@ -16,6 +18,8 @@ type Router struct {
 	openai ModelAdapter
 	// anthropic chịu trách nhiệm các yêu cầu luồng tương thích Anthropic.
 	anthropic ModelAdapter
+	// codex chịu trách nhiệm các yêu cầu chạy qua Codex app-server.
+	codex ModelAdapter
 	// resolver chịu trách nhiệm phân giải kênh mô hình thực tế từ cấu hình cục bộ.
 	resolver ChannelResolver
 }
@@ -30,6 +34,7 @@ func NewRouter(resolver ChannelResolver) *Router {
 	return &Router{
 		openai:    NewOpenAIAdapter(),
 		anthropic: NewAnthropicAdapter(),
+		codex:     NewCodexAdapter(codex.NewClientManager(appdata.HistoryRootPath())),
 		resolver:  resolver,
 	}
 }
@@ -129,6 +134,8 @@ func (router *Router) Stream(ctx context.Context, req StreamRequest, sink func(M
 		return router.anthropic.Stream(ctx, resolved, sink)
 	case "openai":
 		return router.openai.Stream(ctx, resolved, sink)
+	case "codex":
+		return router.codex.Stream(ctx, resolved, sink)
 	default:
 		return fmt.Errorf("unsupported provider %q", resolved.Provider)
 	}

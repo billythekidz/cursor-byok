@@ -144,7 +144,17 @@ tasks:
       - rm -rf "{{.STAGING_DIR}}"
       - mkdir -p "{{.STAGING_DIR}}"
       - cp "{{.OUTPUT}}" "{{.STAGING_DIR}}/"
-      - (cd "{{.STAGING_DIR}}" && zip -qry "../{{.ZIP_NAME}}" .)
+      - |
+        python - <<'PY'
+        import pathlib, sys, zipfile
+        zip_path = pathlib.Path(r"{{.BIN_DIR}}/{{.ZIP_NAME}}").resolve()
+        staging_dir = pathlib.Path(r"{{.STAGING_DIR}}").resolve()
+        zip_path.parent.mkdir(parents=True, exist_ok=True)
+        with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+            for file in staging_dir.rglob("*"):
+                if file.is_file():
+                    zf.write(file, file.relative_to(staging_dir))
+        PY
       - rm -rf "{{.STAGING_DIR}}"
       - rm -f "{{.OUTPUT}}"
 

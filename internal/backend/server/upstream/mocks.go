@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"cursor/internal/backend/codex"
 	legacyruntime "cursor/internal/runtime"
 )
 
@@ -502,12 +503,20 @@ func filterActiveModelAdapters(adapters []legacyruntime.ModelAdapterConfig) []le
 			break
 		}
 	}
-	if !hasActive {
+	codexReady := false
+	for _, adapter := range adapters {
+		if strings.EqualFold(strings.TrimSpace(adapter.Type), "codex") {
+			status := codex.GetRuntimeStatus(context.Background())
+			codexReady = status.Installed && status.Authenticated
+			break
+		}
+	}
+	if !hasActive && codexReady {
 		return adapters
 	}
 	filtered := make([]legacyruntime.ModelAdapterConfig, 0, len(adapters))
 	for _, adapter := range adapters {
-		if adapter.Active {
+		if (!hasActive || adapter.Active) && (!strings.EqualFold(strings.TrimSpace(adapter.Type), "codex") || codexReady) {
 			filtered = append(filtered, adapter)
 		}
 	}
@@ -774,7 +783,7 @@ func buildThinkingEffortVariantDisplayName(modelDisplayName string, effortValue 
 
 func thinkingEffortValuesForAdapter(adapterType string) []string {
 	values := []string{"disabled", "low", "medium", "high", "xhigh"}
-	if adapterType := strings.ToLower(strings.TrimSpace(adapterType)); adapterType == "openai" || adapterType == "anthropic" {
+	if adapterType := strings.ToLower(strings.TrimSpace(adapterType)); adapterType == "openai" || adapterType == "anthropic" || adapterType == "codex" {
 		values = append(values, "max")
 	}
 	return values

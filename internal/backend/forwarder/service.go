@@ -32,7 +32,7 @@ const (
 	completedExecRetention         = 15 * time.Second
 	nonStreamingExecCloseGrace     = 1500 * time.Millisecond
 	defaultSummaryCompletedThought = "Chat context summarized"
-	providerDefaultMaxOutputTokens = 65536
+	providerDefaultMaxOutputTokens = 131072
 	providerOutputSafetyTokens     = 1024
 
 	runtimeThinkingEffortParameterID = "thinking_effort"
@@ -1378,6 +1378,7 @@ func (service *Service) driveProvider(stream *ActiveStream) error {
 		RunID:              requestID,
 		ModelCallID:        modelCallID,
 		ModelID:            modelID,
+		WorkspacePath:      firstWorkspacePath(stream.WorkspacePaths),
 		Mode:               compiled.Mode,
 		ThinkingEffort:     compiled.Mode.String(),
 		Messages:           compiled.Messages,

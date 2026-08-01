@@ -1,3 +1,309 @@
 {
-  "entries": {}
+  "entries": {
+    "01e133a37deac955": {
+      "source": "Codex 设备登录失败",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/Config.vue",
+          "line": 60,
+          "column": 68
+        }
+      ]
+    },
+    "074440f880b95e75": {
+      "source": "Codex 管理 Shell 和文件工具。审批策略：never。",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 584,
+          "column": 53
+        }
+      ]
+    },
+    "156219e305f6cebc": {
+      "source": "未安装",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/Config.vue",
+          "line": 97,
+          "column": 16
+        }
+      ]
+    },
+    "1d01f8133d4fc9b0": {
+      "source": "尚未配置 Codex 模型。",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 561,
+          "column": 11
+        }
+      ]
+    },
+    "1dcbf1081de89a71": {
+      "source": "Codex CLI 管理 ChatGPT 登录。Shell 和文件工具将在选定工作区运行，审批策略为",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/ModelEditor.vue",
+          "line": 510,
+          "column": 22
+        }
+      ]
+    },
+    "29628cabd9a84b1f": {
+      "source": "已就绪 {0}",
+      "kind": "template",
+      "placeholders": 1,
+      "refs": [
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 581,
+          "column": 24
+        }
+      ]
+    },
+    "2a5d88777b6f9a4e": {
+      "source": "取消失败",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/Config.vue",
+          "line": 64,
+          "column": 68
+        }
+      ]
+    },
+    "34ac85b161547fba": {
+      "source": "无浏览器时使用设备登录",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/Config.vue",
+          "line": 107,
+          "column": 148
+        }
+      ]
+    },
+    "3709bc9325e8ae3e": {
+      "source": "取消设置",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/Config.vue",
+          "line": 108,
+          "column": 231
+        }
+      ]
+    },
+    "423f51a286789ed3": {
+      "source": "运行环境",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 579,
+          "column": 86
+        }
+      ]
+    },
+    "4929bb0141a8ff92": {
+      "source": "Codex 安装失败",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/Config.vue",
+          "line": 52,
+          "column": 64
+        }
+      ]
+    },
+    "54f59daa27b25c7e": {
+      "source": "安装 Codex",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/Config.vue",
+          "line": 105,
+          "column": 105
+        }
+      ]
+    },
+    "5f76b2bf82dd2c5d": {
+      "source": "版本",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/Config.vue",
+          "line": 100,
+          "column": 82
+        }
+      ]
+    },
+    "73364f2a8708572d": {
+      "source": "可以保存为草稿，但激活前必须安装并登录 Codex。",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/ModelEditor.vue",
+          "line": 511,
+          "column": 102
+        }
+      ]
+    },
+    "88c526b7a08a03f8": {
+      "source": "使用 ChatGPT 登录",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/Config.vue",
+          "line": 106,
+          "column": 112
+        }
+      ]
+    },
+    "90b0a90e2226cf15": {
+      "source": "检查状态",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/Config.vue",
+          "line": 104,
+          "column": 72
+        }
+      ]
+    },
+    "9dee3b7c608072bf": {
+      "source": "使用 Codex CLI 管理 OAuth、工作区工具和模型线程。",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/Config.vue",
+          "line": 94,
+          "column": 49
+        }
+      ]
+    },
+    "a0b670bd99d676f2": {
+      "source": "Codex 运行环境",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/Config.vue",
+          "line": 93,
+          "column": 58
+        },
+        {
+          "file": "src/views/ModelEditor.vue",
+          "line": 509,
+          "column": 44
+        }
+      ]
+    },
+    "ab27f80d046f3d7f": {
+      "source": "已就绪",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/Config.vue",
+          "line": 97,
+          "column": 16
+        }
+      ]
+    },
+    "d964d15dba62a08a": {
+      "source": "已安装，需登录",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/Config.vue",
+          "line": 97,
+          "column": 16
+        }
+      ]
+    },
+    "dab5871daa6ae3bb": {
+      "source": "Codex 尚未就绪",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 394,
+          "column": 27
+        }
+      ]
+    },
+    "f4a234fdd7bb3e51": {
+      "source": "请先安装并登录 Codex，再激活此模型。",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 394,
+          "column": 41
+        }
+      ]
+    },
+    "f4c395f89f9534aa": {
+      "source": "需要安装并登录",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 581,
+          "column": 24
+        }
+      ]
+    },
+    "f67d4506da9d9759": {
+      "source": "Codex 登录失败",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/Config.vue",
+          "line": 56,
+          "column": 62
+        }
+      ]
+    },
+    "faad53c28849b41c": {
+      "source": "{0} type 仅支持 OpenAI、Anthropic 或 Codex",
+      "kind": "template",
+      "placeholders": 1,
+      "refs": [
+        {
+          "file": "src/state/appState.js",
+          "line": 442,
+          "column": 14
+        }
+      ]
+    }
+  }
 }

@@ -81,11 +81,31 @@ func BuildLegacyChannelID(baseURL string, modelID string, apiKey string, name st
 }
 
 func BuildChannelID(baseURL string, modelID string, apiKey string, name string, openAIEndpoint string) string {
+	return BuildProviderChannelID("openai", baseURL, modelID, apiKey, name, openAIEndpoint)
+}
+
+// BuildLegacyChannelIDWithEndpoint preserves the pre-provider identity for
+// resolving model references emitted by older Cursor sessions.
+func BuildLegacyChannelIDWithEndpoint(baseURL string, modelID string, apiKey string, name string, openAIEndpoint string) string {
 	endpoint := strings.TrimSpace(openAIEndpoint)
 	if endpoint == "" {
 		return BuildLegacyChannelID(baseURL, modelID, apiKey, name)
 	}
 	return buildChannelID([]string{
+		strings.TrimSpace(baseURL),
+		strings.TrimSpace(modelID),
+		strings.TrimSpace(apiKey),
+		strings.TrimSpace(name),
+		endpoint,
+	})
+}
+
+// BuildProviderChannelID creates an adapter identity that includes the transport/provider.
+func BuildProviderChannelID(provider string, baseURL string, modelID string, apiKey string, name string, openAIEndpoint string) string {
+	provider = strings.ToLower(strings.TrimSpace(provider))
+	endpoint := strings.TrimSpace(openAIEndpoint)
+	return buildChannelID([]string{
+		provider,
 		strings.TrimSpace(baseURL),
 		strings.TrimSpace(modelID),
 		strings.TrimSpace(apiKey),

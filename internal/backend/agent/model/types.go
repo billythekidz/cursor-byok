@@ -114,6 +114,8 @@ type StreamRequest struct {
 	ThinkingBudgetTokens int
 	// Messages thể hiện danh sách thông điệp theo thứ tự.
 	Messages []Message
+	// WorkspacePath là workspace đầu tiên của Cursor conversation, dùng làm cwd cho Codex.
+	WorkspacePath string
 	// StableMessageCount thể hiện số lượng thông điệp provider-visible trong messages có thể dùng làm tiền tố cache ổn định.
 	StableMessageCount int
 	// Tools thể hiện danh sách JSON mô tả công cụ gốc.

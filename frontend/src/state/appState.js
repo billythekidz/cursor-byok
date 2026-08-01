@@ -5,6 +5,11 @@ import {
   checkForUpdates,
   getAppVersion,
   getHomeMetricsSummary,
+  getCodexRuntimeStatus,
+  installCodex,
+  startCodexLogin,
+  startCodexDeviceLogin,
+  cancelCodexSetup,
   getModelAdapterTestResults,
   installReadyUpdate,
   getProxyState,
@@ -22,7 +27,7 @@ import {
 
 const APP_STATE_STORAGE_KEY = "cursor-client:runtime-state:v2";
 const GENERIC_SERVICE_ERROR = "Service error";
-const SUPPORTED_MODEL_ADAPTER_TYPES = new Set(["openai", "anthropic"]);
+const SUPPORTED_MODEL_ADAPTER_TYPES = new Set(["openai", "anthropic", "codex"]);
 const SUPPORTED_REASONING_EFFORTS = new Set(["low", "medium", "high", "xhigh", "max"]);
 const SUPPORTED_ANTHROPIC_THINKING_EFFORTS = new Set(["low", "medium", "high", "xhigh", "max"]);
 export const ANTHROPIC_THINKING_EFFORT_DEFAULT = "xhigh";
@@ -45,6 +50,7 @@ const UPDATE_PROGRESS_EVENT = "update:progress";
 const UPDATE_READY_EVENT = "update:ready";
 const UPDATE_ERROR_EVENT = "update:error";
 const MODEL_ADAPTER_TEST_UPDATED_EVENT = "model-adapter-test:updated";
+const CODEX_RUNTIME_UPDATED_EVENT = "codex-runtime:updated";
 const SUPPORTED_MODEL_ADAPTER_TEST_STATUSES = new Set(["idle", "running", "success", "error"]);
 const HOME_METRICS_MIN_LOADING_MS = 600;
 
@@ -156,6 +162,7 @@ function normalizeBaseURL(value) {
 
 function buildModelAdapterIdentityKey(adapter) {
   return [
+    asString(adapter.type),
     normalizeBaseURL(adapter.baseURL),
     asString(adapter.modelID),
     asString(adapter.apiKey),
@@ -179,13 +186,14 @@ export function buildOpenAIEndpointGroupKey(baseURL, apiKey) {
   return hashStringFNV32a([normalizeBaseURL(baseURL), asString(apiKey)].join("\n"));
 }
 
-export function buildModelAdapterTestRequestHash(source) {  const adapter = normalizeModelAdapter(source);
+export function buildModelAdapterTestRequestHash(source) {
+  const adapter = normalizeModelAdapter(source);
   return hashStringFNV32a([
     asString(adapter.type),
     normalizeBaseURL(adapter.baseURL),
     asString(adapter.apiKey),
     asString(adapter.modelID),
-    adapter.type === "openai" ? asString(adapter.reasoningEffort || "medium") : "",
+    adapter.type === "openai" || adapter.type === "codex" ? asString(adapter.reasoningEffort || "medium") : "",
     adapter.type === "openai" ? normalizeOpenAIEndpoint(adapter.openAIEndpoint) : "",
     adapter.type === "openai" ? String(Boolean(adapter.openAIExtraParamsEnabled)) : "false",
     adapter.type === "openai" && adapter.openAIExtraParamsEnabled ? asString(adapter.openAIExtraParamsJSON) : "",
@@ -366,8 +374,12 @@ export function normalizeModelAdapter(source) {
   const openAIExtraParamsJSON = normalizedType === "openai"
     ? asString(raw.openAIExtraParamsJSON ?? raw.openaiExtraParamsJSON ?? raw.open_ai_extra_params_json) || OPENAI_EXTRA_PARAMS_DEFAULT_JSON
     : "";
-  const customHeadersEnabled = asBoolean(raw.customHeadersEnabled ?? raw.custom_headers_enabled);
-  const customHeadersJSON = asString(raw.customHeadersJSON ?? raw.custom_headers_json) || CUSTOM_HEADERS_DEFAULT_JSON;
+  const customHeadersEnabled = normalizedType === "codex"
+    ? false
+    : asBoolean(raw.customHeadersEnabled ?? raw.custom_headers_enabled);
+  const customHeadersJSON = normalizedType === "codex"
+    ? ""
+    : asString(raw.customHeadersJSON ?? raw.custom_headers_json) || CUSTOM_HEADERS_DEFAULT_JSON;
   const anthropicExtraParamsEnabled = normalizedType === "anthropic"
     ? asBoolean(raw.anthropicExtraParamsEnabled ?? raw.anthropic_extra_params_enabled)
     : false;
@@ -378,8 +390,8 @@ export function normalizeModelAdapter(source) {
     id: asString(raw.id),
     displayName: asString(raw.displayName || raw.name),
     type: SUPPORTED_MODEL_ADAPTER_TYPES.has(normalizedType) ? normalizedType : "",
-    baseURL: normalizeBaseURL(raw.baseURL || raw.url),
-    apiKey: asString(raw.apiKey || raw.key),
+    baseURL: normalizedType === "codex" ? "" : normalizeBaseURL(raw.baseURL || raw.url),
+    apiKey: normalizedType === "codex" ? "" : asString(raw.apiKey || raw.key),
     tooltipData: asString(raw.tooltipData),
     modelID: asString(raw.modelID),
     reasoningEffort: SUPPORTED_REASONING_EFFORTS.has(normalizedReasoningEffort)
@@ -427,12 +439,12 @@ export function validateModelAdapters(source) {
       return `${prefix} display name cannot be empty`;
     }
     if (!SUPPORTED_MODEL_ADAPTER_TYPES.has(adapter.type)) {
-      return `${prefix} type only supports OpenAI or Anthropic`;
+      return `${prefix} type 仅支持 OpenAI、Anthropic 或 Codex`;
     }
-    if (!adapter.baseURL) {
+    if (adapter.type !== "codex" && !adapter.baseURL) {
       return `${prefix} endpoint URL cannot be empty`;
     }
-    if (!adapter.apiKey) {
+    if (adapter.type !== "codex" && !adapter.apiKey) {
       return `${prefix} API key cannot be empty`;
     }
     if (!adapter.tooltipData) {
@@ -453,7 +465,7 @@ export function validateModelAdapters(source) {
         return `${prefix} ${extraParamsError}`;
       }
     }
-    if (adapter.customHeadersEnabled) {
+    if (adapter.type !== "codex" && adapter.customHeadersEnabled) {
       const customHeadersError = validateHeadersJSON(adapter.customHeadersJSON);
       if (customHeadersError) {
         return `${prefix} ${customHeadersError}`;
@@ -708,6 +720,55 @@ function handleModelAdapterTestUpdatedEvent(event) {
   void refreshModelAdapterTestResults().catch(() => {});
 }
 
+function normalizeCodexRuntimeStatus(source) {
+  const raw = source && typeof source === "object" ? source : {};
+  return {
+    installed: asBoolean(raw.installed),
+    binaryPath: asString(raw.binaryPath),
+    version: asString(raw.version),
+    authenticated: asBoolean(raw.authenticated),
+    authMethod: asString(raw.authMethod),
+    codexHome: asString(raw.codexHome),
+    error: asString(raw.error),
+    setupPhase: asString(raw.setupPhase),
+    setupOutput: asString(raw.setupOutput),
+    setupError: asString(raw.setupError),
+  };
+}
+
+function applyCodexRuntimeStatus(source) {
+  const raw = source && typeof source === "object" ? source : {};
+  const normalized = normalizeCodexRuntimeStatus(raw);
+  const hasSetupPhase = Object.prototype.hasOwnProperty.call(raw, "setupPhase");
+  const hasSetupOutput = Object.prototype.hasOwnProperty.call(raw, "setupOutput");
+  const hasSetupError = Object.prototype.hasOwnProperty.call(raw, "setupError");
+  appState.codexRuntime = {
+    ...appState.codexRuntime,
+    ...normalized,
+    setupPhase: hasSetupPhase ? normalized.setupPhase : appState.codexRuntime.setupPhase,
+    setupOutput: hasSetupOutput ? normalized.setupOutput : appState.codexRuntime.setupOutput,
+    setupError: hasSetupError ? normalized.setupError : appState.codexRuntime.setupError,
+  };
+  return appState.codexRuntime;
+}
+
+function handleCodexRuntimeUpdatedEvent(event) {
+  const payload = event?.data || event || {};
+  const phase = asString(payload.phase);
+  const setupPhase = phase === "installing" || phase === "login_started" || phase === "device_logging_in"
+    ? (phase === "installing" ? "installing" : phase === "device_logging_in" ? "device_logging_in" : "logging_in")
+    : phase === "install_complete" || phase === "login_complete"
+      ? (payload.success ? "ready" : "error")
+      : phase === "cancelled" ? "cancelled" : "";
+  applyCodexRuntimeStatus({
+    ...payload,
+    setupPhase,
+    setupOutput: asString(payload.output),
+    setupError: asString(payload.error),
+  });
+  void refreshCodexRuntimeStatus().catch(() => {});
+}
+
 function normalizeUpdateState(value) {
   const text = asString(value).toLowerCase();
   if (["idle", "checking", "downloading", "ready", "installing", "error"].includes(text)) {
@@ -839,6 +900,7 @@ export const appState = reactive({
   appVersion: "",
   modelAdapters: cachedConfig.modelAdapters,
   modelAdapterTestResults: {},
+  codexRuntime: normalizeCodexRuntimeStatus({}),
   configBackendListenAddr: cachedConfig.backendListenAddr,
   configProxyListenAddr: cachedConfig.proxyListenAddr,
   routingMode: cachedConfig.routing.mode,
@@ -921,6 +983,16 @@ watchSyncEffect((onCleanup) => {
     return;
   }
   const unsubscribe = Events.On(PROXY_STATE_EVENT, handleProxyStateEvent);
+  onCleanup(() => {
+    unsubscribe();
+  });
+});
+
+watchSyncEffect((onCleanup) => {
+  if (typeof window === "undefined") {
+    return;
+  }
+  const unsubscribe = Events.On(CODEX_RUNTIME_UPDATED_EVENT, handleCodexRuntimeUpdatedEvent);
   onCleanup(() => {
     unsubscribe();
   });
@@ -1105,6 +1177,41 @@ export async function refreshModelAdapterTestResults() {
   const results = await getModelAdapterTestResults();
   applyModelAdapterTestResults(results);
   return Object.values(appState.modelAdapterTestResults);
+}
+
+export async function refreshCodexRuntimeStatus() {
+  const status = await getCodexRuntimeStatus();
+  return applyCodexRuntimeStatus(status);
+}
+
+export async function installCodexRuntime() {
+  appState.codexRuntime = {
+    ...appState.codexRuntime,
+    setupPhase: "installing",
+    setupError: "",
+  };
+  const result = await installCodex();
+  await refreshCodexRuntimeStatus().catch(() => {});
+  if (result?.error) {
+    appState.codexRuntime.setupError = asString(result.error);
+  }
+  return result;
+}
+
+export async function loginCodexRuntime() {
+  appState.codexRuntime = { ...appState.codexRuntime, setupPhase: "logging_in", setupError: "" };
+  return startCodexLogin();
+}
+
+export async function deviceLoginCodexRuntime() {
+  appState.codexRuntime = { ...appState.codexRuntime, setupPhase: "device_logging_in", setupError: "" };
+  return startCodexDeviceLogin();
+}
+
+export async function cancelCodexRuntimeSetup() {
+  const result = await cancelCodexSetup();
+  appState.codexRuntime = { ...appState.codexRuntime, setupPhase: "cancelled" };
+  return result;
 }
 
 export function startModelAdapterTest(adapter) {
@@ -1442,6 +1549,7 @@ export async function bootstrapAppState() {
     // keep cached config if loading fails
   }
   await refreshModelAdapterTestResults().catch(() => {});
+  await refreshCodexRuntimeStatus().catch(() => {});
   try {
     appState.appVersion = await getAppVersion();
   } catch (_error) {

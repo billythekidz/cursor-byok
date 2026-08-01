@@ -31,6 +31,7 @@ import { computed, onMounted, reactive, ref, watch } from "vue";
 const modelTypeTabs = [
   { label: "OpenAI", value: "openai", icon: "icon-[bxl--openai]" },
   { label: "Anthropic", value: "anthropic", icon: "icon-[logos--claude-icon]" },
+  { label: "Codex", value: "codex", icon: "icon-[mdi--robot-outline]" },
 ];
 
 const reasoningEffortOptions = [
@@ -159,6 +160,14 @@ async function loadContext() {
 
 async function persistDraft() {
   const adapter = normalizeModelAdapter(draft);
+	if (
+		adapter.type === "codex" &&
+		adapter.active &&
+		(!appState.codexRuntime.installed || !appState.codexRuntime.authenticated)
+	) {
+		adapter.active = false;
+		draft.active = false;
+	}
 
   const singleCheck = validateModelAdapters([adapter]);
   if (singleCheck) {
@@ -342,7 +351,7 @@ onMounted(async () => {
             />
           </label>
 
-          <label class="flex flex-col gap-1">
+          <label v-if="draft.type !== 'codex'" class="flex flex-col gap-1">
             <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
               <Tooltip :content="fieldTips.apiKey" />
               <span>API Key</span>
@@ -356,7 +365,7 @@ onMounted(async () => {
             />
           </label>
 
-          <label class="flex flex-col gap-1">
+          <label v-if="draft.type !== 'codex'" class="flex flex-col gap-1">
             <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
               <Tooltip :content="fieldTips.baseURL" />
               <span>Base URL</span>
@@ -383,7 +392,7 @@ onMounted(async () => {
             />
           </label>
 
-          <label v-if="draft.type === 'openai'" class="flex flex-col gap-1">
+          <label v-if="draft.type === 'openai' || draft.type === 'codex'" class="flex flex-col gap-1">
             <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
               <Tooltip :content="fieldTips.reasoningEffort" />
               <span>Reasoning Effort</span>
@@ -496,7 +505,13 @@ onMounted(async () => {
           />
         </div>
 
-        <div class="rounded-[8px] border border-[#343434] bg-[#252525] p-3">
+        <div v-if="draft.type === 'codex'" class="rounded-[8px] border border-[#6b5428] bg-[#2a2418] p-3 text-sm text-[#e0c58a]">
+			<div class="font-medium text-[#f0d59a]">Codex 运行环境</div>
+			<div class="mt-1">Codex CLI 管理 ChatGPT 登录。Shell 和文件工具将在选定工作区运行，审批策略为 <code>never</code>。</div>
+			<div v-if="!appState.codexRuntime.installed || !appState.codexRuntime.authenticated" class="mt-2">可以保存为草稿，但激活前必须安装并登录 Codex。</div>
+		</div>
+
+        <div v-if="draft.type !== 'codex'" class="rounded-[8px] border border-[#343434] bg-[#252525] p-3">
           <div class="flex items-center justify-between gap-3">
             <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
               <Tooltip :content="fieldTips.customHeaders" />

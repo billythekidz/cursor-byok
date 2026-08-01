@@ -74,6 +74,36 @@ export function getAdRuntime() {
   return GetAdRuntime();
 }
 
+export function getCodexRuntimeStatus() {
+  return withApiLogging("GetCodexRuntimeStatus", undefined, () =>
+    Call.ByName(`${PROXY_SERVICE_NAME}.GetCodexRuntimeStatus`),
+  );
+}
+
+export function installCodex() {
+  return withApiLogging("InstallCodex", undefined, () =>
+    Call.ByName(`${PROXY_SERVICE_NAME}.InstallCodex`),
+  );
+}
+
+export function startCodexLogin() {
+  return withApiLogging("StartCodexLogin", undefined, () =>
+    Call.ByName(`${PROXY_SERVICE_NAME}.StartCodexLogin`),
+  );
+}
+
+export function startCodexDeviceLogin() {
+  return withApiLogging("StartCodexDeviceLogin", undefined, () =>
+    Call.ByName(`${PROXY_SERVICE_NAME}.StartCodexDeviceLogin`),
+  );
+}
+
+export function cancelCodexSetup() {
+  return withApiLogging("CancelCodexSetup", undefined, () =>
+    Call.ByName(`${PROXY_SERVICE_NAME}.CancelCodexSetup`),
+  );
+}
+
 export function openAdExternalURL(url) {
   return OpenAdExternalURL(url);
 }

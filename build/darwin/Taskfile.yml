@@ -263,9 +263,6 @@ tasks:
     vars:
       BINARY_NAME: '{{.BINARY_NAME | default .APP_NAME}}'
       EXECUTABLE_NAME: '{{.EXECUTABLE_NAME | default .APP_NAME}}'
-    vars:
-      BINARY_NAME: '{{.BINARY_NAME | default .APP_NAME}}'
-      EXECUTABLE_NAME: '{{.EXECUTABLE_NAME | default .APP_NAME}}'
     cmds:
       - mkdir -p "{{.BIN_DIR}}/{{.APP_NAME}}.dev.app/Contents/MacOS"
       - mkdir -p "{{.BIN_DIR}}/{{.APP_NAME}}.dev.app/Contents/Resources"

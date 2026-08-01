@@ -11,7 +11,7 @@ import (
 const (
 	defaultChannelTimeoutMS           = int((2 * 60 * 60) * 1000)
 	defaultChannelContextWindowTokens = 1_000_000
-	defaultChannelMaxTokens           = 65_536
+	defaultChannelMaxTokens           = 131_072
 	defaultChannelThinkingBudget      = 4_096
 	defaultChannelAnthropicEffort     = "xhigh"
 )
@@ -34,7 +34,10 @@ func resolveModelAdapterChannel(adapters []ModelAdapterConfig, requestedModel st
 		func(adapter ModelAdapterConfig) string { return adapter.ID },
 		func(adapter ModelAdapterConfig) string { return adapter.ModelID },
 		func(adapter ModelAdapterConfig) string {
-			return modelchannel.BuildLegacyChannelID(adapter.BaseURL, adapter.ModelID, adapter.APIKey, adapter.DisplayName)
+			return modelchannel.BuildProviderChannelID(adapter.Type, adapter.BaseURL, adapter.ModelID, adapter.APIKey, adapter.DisplayName, adapter.OpenAIEndpoint)
+		},
+		func(adapter ModelAdapterConfig) string {
+			return modelchannel.BuildLegacyChannelIDWithEndpoint(adapter.BaseURL, adapter.ModelID, adapter.APIKey, adapter.DisplayName, adapter.OpenAIEndpoint)
 		},
 	)
 	if !ok {

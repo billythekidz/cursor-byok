@@ -26,7 +26,7 @@ const (
 	// configurableChannelContextWindowTokens represents the default context window size in this declaration.
 	configurableChannelContextWindowTokens = 1_000_000
 	// configurableChannelMaxTokens represents the configurableChannelMaxTokens field in this declaration.
-	configurableChannelMaxTokens = 65_536
+	configurableChannelMaxTokens = 131_072
 	// configurableChannelThinkingBudgetTokens represents the configurableChannelThinkingBudgetTokens field in this declaration.
 	configurableChannelThinkingBudgetTokens = 4_096
 	// configurableChannelAnthropicThinkingEffort is the default intensity for Anthropic adaptive thinking.
@@ -102,9 +102,14 @@ func NormalizeModelAdapterConfigs(input []ModelAdapterConfig) ([]ModelAdapterCon
 	normalized := make([]ModelAdapterConfig, 0, len(input))
 	seenChannelIDs := make(map[string]struct{}, len(input))
 	for _, item := range input {
-		baseURL, err := modelchannel.NormalizeBaseURL(item.BaseURL)
-		if err != nil {
-			return nil, err
+		nextType := normalizeModelAdapterType(item.Type)
+		baseURL := strings.TrimSpace(item.BaseURL)
+		if nextType != "codex" {
+			var err error
+			baseURL, err = modelchannel.NormalizeBaseURL(baseURL)
+			if err != nil {
+				return nil, err
+			}
 		}
 		next := ModelAdapterConfig{
 			DisplayName:           strings.TrimSpace(item.DisplayName),
@@ -130,14 +135,25 @@ func NormalizeModelAdapterConfigs(input []ModelAdapterConfig) ([]ModelAdapterCon
 			next.AnthropicExtraParamsEnabled = item.AnthropicExtraParamsEnabled
 			next.AnthropicExtraParamsJSON = strings.TrimSpace(item.AnthropicExtraParamsJSON)
 		}
+		if next.Type == "codex" {
+			next.BaseURL = ""
+			next.APIKey = ""
+			next.OpenAIEndpoint = ""
+			next.CustomHeadersEnabled = false
+			next.CustomHeadersJSON = ""
+		}
 		next.CustomHeadersEnabled = item.CustomHeadersEnabled
 		next.CustomHeadersJSON = strings.TrimSpace(item.CustomHeadersJSON)
+		if next.Type == "codex" {
+			next.CustomHeadersEnabled = false
+			next.CustomHeadersJSON = ""
+		}
 		switch {
 		case next.DisplayName == "":
 			return nil, errors.New("model adapter displayName cannot be empty")
 		case next.Type == "":
-			return nil, errors.New("model adapter type only supports openai or anthropic")
-		case next.APIKey == "":
+			return nil, errors.New("model adapter type only supports openai, anthropic or codex")
+		case next.Type != "codex" && next.APIKey == "":
 			return nil, errors.New("model adapter apiKey cannot be empty")
 		case next.TooltipData == "":
 			return nil, errors.New("model adapter tooltipData cannot be empty")
@@ -162,7 +178,7 @@ func NormalizeModelAdapterConfigs(input []ModelAdapterConfig) ([]ModelAdapterCon
 		case next.Type == "anthropic" && next.AnthropicThinkingEffort == "":
 			return nil, errors.New("model adapter anthropicThinkingEffort only supports low, medium, high, xhigh, max")
 		}
-		next.ID = modelchannel.BuildChannelID(next.BaseURL, next.ModelID, next.APIKey, next.DisplayName, next.OpenAIEndpoint)
+		next.ID = modelchannel.BuildProviderChannelID(next.Type, next.BaseURL, next.ModelID, next.APIKey, next.DisplayName, next.OpenAIEndpoint)
 		if _, exists := seenChannelIDs[next.ID]; exists {
 			return nil, errors.New("model adapter channel cannot be duplicated, please check url, modelID, apiKey, displayName, endpoint combination")
 		}
@@ -240,6 +256,8 @@ func normalizeModelAdapterType(value string) string {
 		return "openai"
 	case "anthropic":
 		return "anthropic"
+	case "codex":
+		return "codex"
 	default:
 		return ""
 	}
@@ -384,7 +402,10 @@ func (s *FixedChannelService) SelectChannelForModel(ctx context.Context, modelID
 			func(adapter ModelAdapterConfig) string { return adapter.ID },
 			func(adapter ModelAdapterConfig) string { return adapter.ModelID },
 			func(adapter ModelAdapterConfig) string {
-				return modelchannel.BuildLegacyChannelID(adapter.BaseURL, adapter.ModelID, adapter.APIKey, adapter.DisplayName)
+				return modelchannel.BuildProviderChannelID(adapter.Type, adapter.BaseURL, adapter.ModelID, adapter.APIKey, adapter.DisplayName, adapter.OpenAIEndpoint)
+			},
+			func(adapter ModelAdapterConfig) string {
+				return modelchannel.BuildLegacyChannelIDWithEndpoint(adapter.BaseURL, adapter.ModelID, adapter.APIKey, adapter.DisplayName, adapter.OpenAIEndpoint)
 			},
 		)
 		if !ok {

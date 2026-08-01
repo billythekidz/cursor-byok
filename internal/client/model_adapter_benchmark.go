@@ -10,6 +10,7 @@ import (
 	"io"
 	"math"
 	"net/http"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -223,9 +224,56 @@ func (s *ProxyService) executeModelAdapterNonStreamingTest(ctx context.Context, 
 		return s.executeOpenAIStreamingTest(ctx, adapter)
 	case "anthropic":
 		return s.executeAnthropicStreamingTest(ctx, adapter)
+	case "codex":
+		return s.executeCodexStreamingTest(ctx, adapter)
 	default:
 		return nil, fmt.Errorf("unsupported provider %q", strings.TrimSpace(adapter.Type))
 	}
+}
+
+func (s *ProxyService) executeCodexStreamingTest(ctx context.Context, adapter serverconfig.ModelAdapterConfig) (*modelAdapterTestMetrics, error) {
+	_ = s
+	metrics := &modelAdapterTestMetrics{}
+	requestID := "model-adapter-test-" + buildModelAdapterTestRequestHash(adapter)
+	workspace, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+	err = modeladapter.NewCodexAdapter(nil).Stream(ctx, modeladapter.StreamRequest{
+		RequestID:       requestID,
+		RunID:           requestID,
+		ModelCallID:     requestID,
+		ConversationID:  requestID,
+		ModelID:         strings.TrimSpace(adapter.ID),
+		Provider:        "codex",
+		ProviderModelID: strings.TrimSpace(adapter.ModelID),
+		WorkspacePath:   workspace,
+		ReasoningEffort: strings.TrimSpace(adapter.ReasoningEffort),
+		Messages:        []modeladapter.Message{{Role: "user", Content: "Reply with the word ready and do not modify files."}},
+		Stream:          true,
+	}, func(event modeladapter.ModelEvent) error {
+		now := time.Now().UTC()
+		switch event.Kind {
+		case modeladapter.ModelEventKindTextDelta:
+			if strings.TrimSpace(event.Text) != "" && metrics.firstTextTokenAt.IsZero() {
+				metrics.firstTextTokenAt = now
+			}
+			_, _ = metrics.text.WriteString(event.Text)
+		case modeladapter.ModelEventKindTurnFinished:
+			metrics.finishedAt = now
+		case modeladapter.ModelEventKindProviderError:
+			if event.Err != nil {
+				return event.Err
+			}
+			return errors.New("Codex provider error")
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	metrics.rawResponse = strings.TrimSpace(metrics.text.String())
+	return metrics, nil
 }
 
 func (s *ProxyService) executeOpenAIStreamingTest(ctx context.Context, adapter serverconfig.ModelAdapterConfig) (*modelAdapterTestMetrics, error) {
@@ -575,12 +623,17 @@ func estimateBenchmarkTextTokens(text string) int64 {
 }
 
 func buildModelAdapterTestCacheKey(adapter serverconfig.ModelAdapterConfig, requestHash string) string {
+	if strings.EqualFold(strings.TrimSpace(adapter.Type), "codex") &&
+		strings.TrimSpace(adapter.DisplayName) != "" &&
+		strings.TrimSpace(adapter.ModelID) != "" {
+		return modelchannel.BuildProviderChannelID("codex", "", adapter.ModelID, "", adapter.DisplayName, "")
+	}
 	baseURL, baseURLErr := modelchannel.NormalizeBaseURL(adapter.BaseURL)
 	if baseURLErr == nil &&
 		strings.TrimSpace(adapter.DisplayName) != "" &&
 		strings.TrimSpace(adapter.ModelID) != "" &&
 		strings.TrimSpace(adapter.APIKey) != "" {
-		return modelchannel.BuildChannelID(baseURL, adapter.ModelID, adapter.APIKey, adapter.DisplayName, modelchannel.NormalizeOpenAIEndpoint(adapter.Type, adapter.OpenAIEndpoint))
+		return modelchannel.BuildProviderChannelID(adapter.Type, baseURL, adapter.ModelID, adapter.APIKey, adapter.DisplayName, modelchannel.NormalizeOpenAIEndpoint(adapter.Type, adapter.OpenAIEndpoint))
 	}
 	return "invalid:" + strings.TrimSpace(requestHash)
 }
@@ -676,7 +729,8 @@ func normalizeModelAdapterTestReasoning(value string) string {
 }
 
 func normalizeModelAdapterTestProviderReasoning(adapter serverconfig.ModelAdapterConfig) string {
-	if normalizeModelAdapterTestType(adapter.Type) != "openai" {
+	adapterType := normalizeModelAdapterTestType(adapter.Type)
+	if adapterType != "openai" && adapterType != "codex" {
 		return ""
 	}
 	return normalizeModelAdapterTestReasoning(adapter.ReasoningEffort)

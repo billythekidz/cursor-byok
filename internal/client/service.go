@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os/exec"
 	"sync"
 	"time"
 
@@ -65,6 +66,10 @@ type ProxyService struct {
 	modelTestMu sync.RWMutex
 	// modelTestResults stores the model speed test results within the current process.
 	modelTestResults map[string]ModelAdapterTestResult
+	// codexSetupCancel cancels an in-flight npm install or login flow.
+	codexSetupMu     sync.Mutex
+	codexSetupCancel context.CancelFunc
+	codexLoginCmd    *exec.Cmd
 }
 
 // NewProxyService handles logic related to NewProxyService.

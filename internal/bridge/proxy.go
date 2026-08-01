@@ -27,6 +27,12 @@ type ModelAdapterTestResultsPayload = client.ModelAdapterTestResultsPayload
 // OpenAIModelInfo defines a single model info returned by one OpenAI /v1/models scan.
 type OpenAIModelInfo = client.OpenAIModelInfo
 
+// CodexRuntimeStatus describes the local Codex installation without exposing credentials.
+type CodexRuntimeStatus = client.CodexRuntimeStatus
+
+// CodexInstallResult describes the npm installation result with redacted output.
+type CodexInstallResult = client.CodexInstallResult
+
 // LicenseActionRequest defines the LicenseActionRequest type in this module.
 type LicenseActionRequest = client.LicenseActionRequest
 
@@ -107,6 +113,31 @@ func (s *ProxyService) GetModelAdapterTestResults() []ModelAdapterTestResult {
 // ScanOpenAIModels handles logic related to ScanOpenAIModels.
 func (s *ProxyService) ScanOpenAIModels(baseURL string, apiKey string) ([]OpenAIModelInfo, error) {
 	return s.core.ScanOpenAIModels(baseURL, apiKey)
+}
+
+// GetCodexRuntimeStatus returns the local Codex installation and login state.
+func (s *ProxyService) GetCodexRuntimeStatus() (CodexRuntimeStatus, error) {
+	return s.core.GetCodexRuntimeStatus()
+}
+
+// InstallCodex installs the official Codex npm package after explicit user action.
+func (s *ProxyService) InstallCodex() (CodexInstallResult, error) {
+	return s.core.InstallCodex()
+}
+
+// StartCodexLogin starts the Codex-managed ChatGPT login flow.
+func (s *ProxyService) StartCodexLogin() error {
+	return s.core.StartCodexLogin()
+}
+
+// StartCodexDeviceLogin starts the headless Codex device-auth fallback.
+func (s *ProxyService) StartCodexDeviceLogin() error {
+	return s.core.StartCodexDeviceLogin()
+}
+
+// CancelCodexSetup cancels an in-flight Codex installation or login process.
+func (s *ProxyService) CancelCodexSetup() error {
+	return s.core.CancelCodexSetup()
 }
 
 // GetDeviceID handles logic related to GetDeviceID.
