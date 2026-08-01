@@ -261,11 +261,6 @@ onUnmounted(() => {
           menu-class="text-[12px]"
         />
       </div>
-          wrapper-class="w-auto"
-          button-class="h-[24px] bg-transparent px-1.5 text-[12px] !text-[#8f8f8f] !hover:text-[#e5e5e5]"
-          menu-class="text-[12px]"
-        />
-      </div>
     </footer>
   </div>
 </template>
