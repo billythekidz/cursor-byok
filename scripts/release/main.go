@@ -151,6 +151,9 @@ func runManifest(args []string) {
 		fullpath := filepath.Join(*assetsDir, filename)
 		asset, err := buildManifestAsset(fullpath, *repo, version, filename)
 		if err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
 			exitErr(err)
 		}
 		manifest.Platforms[spec.platform] = asset
