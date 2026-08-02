@@ -4,6 +4,7 @@ import Card from "@/components/ui/Card.vue";
 import Input from "@/components/ui/Input.vue";
 import ModelContextWindowControl from "@/components/ModelContextWindowControl.vue";
 import ModelAdapterTestCard from "@/components/ModelAdapterTestCard.vue";
+import Switch from "@/components/ui/Switch.vue";
 import { showModal } from "@/composables/useModal";
 import { scanOpenAIModels } from "@/services/clientApi";
 import {
@@ -46,6 +47,7 @@ const scanAPIKey = ref("");
 const scanning = ref(false);
 const scanError = ref("");
 const expandedGroupID = ref("");
+const showEndpointForm = ref(false);
 const contextWindowSavingKeys = reactive(new Set());
 const contextWindowErrors = reactive({});
 
@@ -53,39 +55,33 @@ const filteredAdapters = computed(() =>
   appState.modelAdapters.filter((adapter) => adapter.type === activeType.value),
 );
 
-// openaiGroups groups OpenAI adapters by openAIEndpointGroupID for display.
-// Adapters with a groupID are merged into endpoint-group cards; manually added adapters (no groupID) each get their own card.
+function endpointGroupIDOf(adapter) {
+  if (adapter?.openAIEndpointGroupID) {
+    return adapter.openAIEndpointGroupID;
+  }
+  return buildOpenAIEndpointGroupKey(adapter?.baseURL, adapter?.apiKey);
+}
+
+// openaiGroups is the endpoint layer of the UI. Older manually added models may
+// not have an explicit group ID, so derive the same stable key from their URL and key.
 const openaiGroups = computed(() => {
-  const groups = [];
   const grouped = new Map();
   for (const adapter of appState.modelAdapters) {
     if (adapter.type !== "openai") {
       continue;
     }
-    if (adapter.openAIEndpointGroupID) {
-      if (!grouped.has(adapter.openAIEndpointGroupID)) {
-        grouped.set(adapter.openAIEndpointGroupID, []);
-      }
-      grouped.get(adapter.openAIEndpointGroupID).push(adapter);
-    } else {
-      groups.push({ groupID: "", adapters: [adapter] });
+    const groupID = endpointGroupIDOf(adapter);
+    if (!grouped.has(groupID)) {
+      grouped.set(groupID, []);
     }
+    grouped.get(groupID).push(adapter);
   }
-  for (const [groupID, adapters] of grouped) {
-    groups.push({ groupID, adapters });
-  }
-  return groups;
+  return Array.from(grouped, ([groupID, adapters]) => ({ groupID, adapters }));
 });
 
 const expandedGroup = computed(() =>
-  openaiGroups.value.find((group) => group.groupID !== "" && group.groupID === expandedGroupID.value) || null,
+  openaiGroups.value.find((group) => group.groupID === expandedGroupID.value) || null,
 );
-const expandedGroupActiveAdapter = computed(() => {
-  if (!expandedGroup.value) {
-    return null;
-  }
-  return expandedGroup.value.adapters.find((adapter) => adapter.active) || null;
-});
 
 function activeAdapterOf(group) {
   return group.adapters.find((adapter) => adapter.active) || null;
@@ -112,6 +108,12 @@ watch(
   },
   { deep: true, immediate: true },
 );
+
+watch(openaiGroups, (groups) => {
+  if (expandedGroupID.value && !groups.some((group) => group.groupID === expandedGroupID.value)) {
+    expandedGroupID.value = "";
+  }
+}, { deep: true });
 
 async function showActionError(title, error) {
   await showModal({
@@ -154,10 +156,10 @@ function formatHost(value) {
   }
 }
 
-async function openEditor(index = -1) {
+async function openEditor(index = -1, adapterOverride = null) {
   const adapter = index >= 0
     ? appState.modelAdapters[index]
-    : {
+    : adapterOverride || {
         ...createEmptyModelAdapter(),
         type: activeType.value,
       };
@@ -166,6 +168,21 @@ async function openEditor(index = -1) {
   } catch (error) {
     await showActionError("Open failed", toUserError(error));
   }
+}
+
+function openEditorForSelectedEndpoint() {
+  const endpoint = expandedGroup.value?.adapters[0];
+  if (!endpoint) {
+    return openEditor();
+  }
+  return openEditor(-1, {
+    ...createEmptyModelAdapter(),
+    type: "openai",
+    baseURL: endpoint.baseURL,
+    apiKey: endpoint.apiKey,
+    openAIEndpoint: endpoint.openAIEndpoint,
+    openAIEndpointGroupID: endpointGroupIDOf(endpoint),
+  });
 }
 
 async function handleDeleteModelAdapter(index) {
@@ -368,7 +385,8 @@ async function handleScanOpenAI() {
       return;
     }
     await reloadUserConfig({ modelAdaptersOnly: true });
-    expandedGroupID.value = groupID;
+    expandedGroupID.value = "";
+    showEndpointForm.value = false;
     scanBaseURL.value = "";
     scanAPIKey.value = "";
     await showModal({
@@ -394,18 +412,21 @@ async function handleToggleActive(adapter) {
     await showActionError("Codex 尚未就绪", "请先安装并登录 Codex，再激活此模型。");
     return;
   }
-  const groupID = adapter.openAIEndpointGroupID;
   const nextActive = !adapter.active;
   const current = appState.modelAdapters.map((item) => normalizeModelAdapter(item));
-  for (const item of current) {
-    if (groupID) {
-      // At most one adapter can be active within the same endpoint group (mutually exclusive).
-      if (item.openAIEndpointGroupID === groupID) {
+  if (adapter.type === "openai") {
+    const groupID = endpointGroupIDOf(adapter);
+    for (const item of current) {
+      if (item.type === "openai" && endpointGroupIDOf(item) === groupID) {
+        // At most one adapter can be active within the same endpoint group (mutually exclusive).
         item.active = item.modelID === adapter.modelID && nextActive;
       }
-    } else if (item.modelID === adapter.modelID && item.baseURL === adapter.baseURL && item.apiKey === adapter.apiKey) {
-      // Manual models (no group) toggle their own active independently.
-      item.active = nextActive;
+    }
+  } else {
+    for (const item of current) {
+      if (item.type === adapter.type && item.modelID === adapter.modelID && item.baseURL === adapter.baseURL && item.apiKey === adapter.apiKey) {
+        item.active = nextActive;
+      }
     }
   }
   const result = await saveModelAdapters(current);
@@ -452,14 +473,17 @@ onBeforeUnmount(() => {
           >
             {{ batchButtonText }}
           </Button>
-          <Button variant="primary" :disabled="appState.configSaving || batchTesting" @click="openEditor()">Add Model</Button>
+          <Button variant="primary" :disabled="appState.configSaving || batchTesting" @click="activeType === 'openai' && expandedGroup ? openEditorForSelectedEndpoint() : openEditor()">Add Model</Button>
         </div>
       </div>
     </div>
 
     <div class="min-h-0 flex-1 overflow-y-auto pr-1">
-      <div v-if="activeType === 'openai'" class="mb-3 rounded-[8px] border border-[#343434] bg-[#232323] p-3">
-        <div class="mb-2 text-sm font-medium text-white">Scan OpenAI Compatible Endpoint</div>
+      <div v-if="activeType === 'openai' && (showEndpointForm || openaiGroups.length === 0)" class="mb-3 rounded-[8px] border border-[#343434] bg-[#232323] p-3">
+        <div class="mb-2 flex items-center justify-between gap-3">
+          <div class="text-sm font-medium text-white">Add OpenAI Compatible Endpoint</div>
+          <Button v-if="openaiGroups.length > 0" variant="text" :disabled="appState.configSaving || scanning" @click="showEndpointForm = false">Close</Button>
+        </div>
         <div class="grid grid-cols-2 gap-2">
           <Input v-model="scanBaseURL" placeholder="https://api.openai.com/v1" />
           <Input
@@ -614,20 +638,31 @@ onBeforeUnmount(() => {
         </div>
 
         <div v-else>
+          <div class="mb-2 flex items-end justify-between gap-3">
+            <div>
+              <div class="text-[11px] font-medium uppercase tracking-[0.12em] text-[#737373]">Endpoints</div>
+              <div class="mt-1 text-xs text-[#8f8f8f]">Choose an endpoint to manage its models.</div>
+            </div>
+            <Button variant="default" :disabled="appState.configSaving || batchTesting" @click="showEndpointForm = true">+ Add Endpoint</Button>
+          </div>
           <div class="grid gap-3 pb-1 [grid-template-columns:repeat(auto-fill,minmax(250px,1fr))]">
             <Card
               v-for="(group, groupIndex) in openaiGroups"
               :key="group.groupID || group.adapters[0]?.id || `manual-${groupIndex}`"
             >
-              <div class="flex h-full min-h-[154px] flex-col justify-between gap-3">
+              <div
+                class="flex h-full min-h-[154px] cursor-pointer flex-col justify-between gap-3 rounded-[7px] border border-transparent p-1 transition-colors duration-150 hover:border-[#4a4a4a]"
+                :class="expandedGroupID === group.groupID ? 'border-[#1ca35a] bg-[#123322]/35' : ''"
+                role="button"
+                tabindex="0"
+                @click="expandedGroupID = expandedGroupID === group.groupID ? '' : group.groupID"
+                @keydown.enter="expandedGroupID = expandedGroupID === group.groupID ? '' : group.groupID"
+                @keydown.space.prevent="expandedGroupID = expandedGroupID === group.groupID ? '' : group.groupID"
+              >
                 <div class="flex flex-col gap-2.5">
                   <div
                     v-if="group.groupID"
                     class="flex items-start justify-between gap-3"
-                    role="button"
-                    tabindex="0"
-                    @click="expandedGroupID = expandedGroupID === group.groupID ? '' : group.groupID"
-                    @keydown.enter="expandedGroupID = expandedGroupID === group.groupID ? '' : group.groupID"
                   >
                     <div class="min-w-0 flex-1">
                       <div class="truncate text-base font-medium text-white">{{ formatHost(group.adapters[0]?.baseURL) }}</div>
@@ -675,7 +710,7 @@ onBeforeUnmount(() => {
 
                 <div class="center-row flex-wrap justify-end gap-2 border-t border-[#343434] pt-3">
                   <template v-if="group.groupID">
-                    <Button variant="default" :disabled="appState.configSaving" @click="expandedGroupID = group.groupID">
+                    <Button variant="default" :disabled="appState.configSaving" @click.stop="expandedGroupID = group.groupID">
                       {{ expandedGroupID === group.groupID ? "Collapse" : "Expand" }}
                     </Button>
                   </template>
@@ -710,76 +745,116 @@ onBeforeUnmount(() => {
             </div>
 
             <div class="mb-4">
-              <div class="mb-2 text-[11px] uppercase tracking-[0.08em] text-[#666]">Currently Active Model</div>
-              <Card v-if="expandedGroupActiveAdapter">
-                <div class="flex items-center justify-between gap-3">
-                  <div class="min-w-0 flex-1">
-                    <div class="truncate text-sm font-medium text-white">{{ expandedGroupActiveAdapter.displayName }}</div>
-                    <div class="mt-0.5 truncate text-xs text-[#8f8f8f]">{{ expandedGroupActiveAdapter.modelID }}</div>
-                  </div>
-                  <span class="center-row shrink-0 gap-1 rounded-[999px] border border-[#1ca35a] bg-[#123322] px-[7px] py-[4px] text-[11px] font-medium text-[#10AD5D]">
-                    <span class="icon-[mdi--check-circle] text-[13px]"></span>
-                    <span>Active</span>
-                  </span>
+              <div class="mb-2 flex items-end justify-between gap-3">
+                <div>
+                  <div class="text-sm font-medium text-white">Active models</div>
+                  <div class="mt-0.5 text-xs text-[#737373]">Cursor can see and use these models.</div>
                 </div>
-              </Card>
+                <span class="rounded-full border border-[#1ca35a] bg-[#123322] px-2 py-1 text-[11px] text-[#10AD5D]">
+                  {{ expandedGroup.adapters.filter((adapter) => adapter.active).length }} active
+                </span>
+              </div>
               <div
-                v-else
-                class="flex h-[68px] items-center justify-center rounded-[8px] border border-dashed border-[#3a3a3a] bg-[#1f1f1f] px-4 text-center text-xs text-[#737373]"
+                v-if="expandedGroup.adapters.filter((adapter) => adapter.active).length === 0"
+                class="flex h-[84px] items-center justify-center rounded-[8px] border border-dashed border-[#3a3a3a] bg-[#1f1f1f] px-4 text-center text-xs text-[#737373]"
               >
-                No active model in this group yet. Select one below to activate.
+                No active model. Activate one from the available models below.
+              </div>
+              <div v-else class="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]">
+                <Card
+                  v-for="adapter in expandedGroup.adapters.filter((item) => item.active)"
+                  :key="adapter.id || `${adapter.baseURL}-${adapter.modelID}-active`"
+                >
+                  <div class="flex min-h-[138px] flex-col justify-between gap-3">
+                    <div>
+                      <div class="truncate text-sm font-medium text-white">{{ adapter.displayName }}</div>
+                      <div class="mt-1 truncate font-mono text-xs text-[#8f8f8f]">{{ adapter.modelID }}</div>
+                    </div>
+                    <Switch
+                      compact
+                      label="Visible to Cursor"
+                      enabled-text="Active"
+                      disabled-text="Available"
+                      :enabled="adapter.active"
+                      :disabled="appState.configSaving || batchTesting"
+                      @change="handleToggleActive(adapter)"
+                    />
+                    <div class="center-row flex-wrap justify-end gap-2 border-t border-[#343434] pt-2.5">
+                      <Button
+                        variant="default"
+                        :disabled="appState.configSaving || batchTesting || isAdapterTesting(adapter)"
+                        @click="handleTestModelAdapter(adapter)"
+                      >
+                        {{ isAdapterTesting(adapter) ? "Testing..." : "Test" }}
+                      </Button>
+                      <Button variant="default" :disabled="appState.configSaving" @click="openEditor(appState.modelAdapters.indexOf(adapter))">Edit</Button>
+                      <Button variant="text" :disabled="appState.configSaving" @click="handleDeleteModelAdapter(appState.modelAdapters.indexOf(adapter))">Delete</Button>
+                    </div>
+                  </div>
+                </Card>
               </div>
             </div>
 
-            <div class="grid gap-2 [grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]">
-              <Card
-                v-for="adapter in expandedGroup.adapters"
-                :key="adapter.id || `${adapter.baseURL}-${adapter.modelID}`"
-              >
-                <div class="flex flex-col gap-2.5">
-                  <div>
-                    <div class="truncate text-sm font-medium text-white">{{ adapter.displayName }}</div>
-                    <div class="mt-0.5 truncate text-xs text-[#8f8f8f]">{{ adapter.modelID }}</div>
-                  </div>
-                  <div class="flex items-center justify-between gap-2">
-                    <span
-                      class="center-row shrink-0 gap-1 rounded-[999px] border px-[7px] py-[4px] text-[11px] font-medium"
-                      :class="adapter.active
-                        ? 'border-[#1ca35a] bg-[#123322] text-[#10AD5D]'
-                        : 'border-[#3f3f3f] bg-[#1f1f1f] text-[#8f8f8f]'"
-                    >
-                      <span :class="adapter.active ? 'icon-[mdi--check-circle] text-[13px]' : 'icon-[mdi--circle-outline] text-[13px]'"></span>
-                      <span>{{ adapter.active ? "Active" : "Inactive" }}</span>
-                    </span>
-                    <Button
-                      variant="default"
-                      :disabled="appState.configSaving || batchTesting"
-                      @click="handleToggleActive(adapter)"
-                    >
-                      {{ adapter.active ? "Deactivate" : "Activate" }}
-                    </Button>
-                  </div>
-                  <ModelContextWindowControl
-                    :value="adapter.contextWindowTokens"
-                    :disabled="appState.configSaving || batchTesting"
-                    :saving="isContextWindowSaving(adapter)"
-                    :error="contextWindowError(adapter)"
-                    @save="handleSaveContextWindow(adapter, $event)"
-                  />
-                  <div class="center-row flex-wrap justify-end gap-2 border-t border-[#343434] pt-2.5">
-                    <Button
-                      variant="default"
-                      :disabled="appState.configSaving || batchTesting || isAdapterTesting(adapter)"
-                      @click="handleTestModelAdapter(adapter)"
-                    >
-                      {{ isAdapterTesting(adapter) ? "Testing..." : "Test" }}
-                    </Button>
-                    <Button variant="default" :disabled="appState.configSaving" @click="openEditor(appState.modelAdapters.indexOf(adapter))">Edit</Button>
-                    <Button variant="text" :disabled="appState.configSaving"
-                      @click="handleDeleteModelAdapter(appState.modelAdapters.indexOf(adapter))">Delete</Button>
-                  </div>
+            <div>
+              <div class="mb-2 flex items-end justify-between gap-3">
+                <div>
+                  <div class="text-sm font-medium text-white">Available models</div>
+                  <div class="mt-0.5 text-xs text-[#737373]">Configured here, but hidden from Cursor until activated.</div>
                 </div>
-              </Card>
+                <span class="rounded-full border border-[#3f3f3f] px-2 py-1 text-[11px] text-[#8f8f8f]">
+                  {{ expandedGroup.adapters.filter((adapter) => !adapter.active).length }} available
+                </span>
+              </div>
+              <div
+                v-if="expandedGroup.adapters.filter((adapter) => !adapter.active).length === 0"
+                class="flex h-[84px] items-center justify-center rounded-[8px] border border-dashed border-[#3a3a3a] bg-[#1f1f1f] px-4 text-center text-xs text-[#737373]"
+              >
+                All models for this endpoint are active.
+              </div>
+              <div v-else class="grid gap-2 [grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]">
+                <Card
+                  v-for="adapter in expandedGroup.adapters"
+                  :key="adapter.id || `${adapter.baseURL}-${adapter.modelID}`"
+                  v-show="!adapter.active"
+                >
+                  <div class="flex flex-col gap-2.5">
+                    <div>
+                      <div class="truncate text-sm font-medium text-white">{{ adapter.displayName }}</div>
+                      <div class="mt-0.5 truncate text-xs text-[#8f8f8f]">{{ adapter.modelID }}</div>
+                    </div>
+                    <div class="flex items-center justify-between gap-2">
+                      <Switch
+                        compact
+                        label="Cursor visibility"
+                        enabled-text="Active"
+                        disabled-text="Available"
+                        :enabled="adapter.active"
+                        :disabled="appState.configSaving || batchTesting"
+                        @change="handleToggleActive(adapter)"
+                      />
+                    </div>
+                    <ModelContextWindowControl
+                      :value="adapter.contextWindowTokens"
+                      :disabled="appState.configSaving || batchTesting"
+                      :saving="isContextWindowSaving(adapter)"
+                      :error="contextWindowError(adapter)"
+                      @save="handleSaveContextWindow(adapter, $event)"
+                    />
+                    <div class="center-row flex-wrap justify-end gap-2 border-t border-[#343434] pt-2.5">
+                      <Button
+                        variant="default"
+                        :disabled="appState.configSaving || batchTesting || isAdapterTesting(adapter)"
+                        @click="handleTestModelAdapter(adapter)"
+                      >
+                        {{ isAdapterTesting(adapter) ? "Testing..." : "Test" }}
+                      </Button>
+                      <Button variant="default" :disabled="appState.configSaving" @click="openEditor(appState.modelAdapters.indexOf(adapter))">Edit</Button>
+                      <Button variant="text" :disabled="appState.configSaving"
+                        @click="handleDeleteModelAdapter(appState.modelAdapters.indexOf(adapter))">Delete</Button>
+                    </div>
+                  </div>
+                </Card>
+              </div>
             </div>
           </div>
         </div>

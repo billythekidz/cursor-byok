@@ -1,3 +1,7 @@
+-------0.0.45------
+- Redesigned model settings with multiple endpoint cards and endpoint-scoped model lists
+- Split endpoint models into Active and Available card sections with Cursor visibility toggles
+
 -------0.0.44------
 - Translated CJK and Vietnamese strings to English across Go backend, Vue frontend UI, Taskfiles, and agent skills
 - Audited API contracts and state keys with rollback checkpointing
