@@ -51,22 +51,22 @@ function formatDefaultValue(value) {
 </script>
 
 <template>
-  <div class="rounded-[8px] border border-[#315842] bg-[#17251d] px-3 py-2.5">
-    <div class="flex items-center justify-between gap-3">
+  <div class="min-w-0 rounded-[8px] border border-[#315842] bg-[#17251d] px-3 py-2.5">
+    <div class="flex min-w-0 flex-col gap-2">
       <div class="min-w-0">
         <div class="text-[11px] font-medium uppercase tracking-[0.08em] text-[#9ee6b5]">Context Window</div>
         <div class="mt-1 text-[11px] leading-relaxed text-[#769982]">
           Default {{ formatDefaultValue(defaultValue) }}, leave blank to use default
         </div>
       </div>
-      <div class="center-row shrink-0 gap-2">
+      <div class="center-row min-w-0 w-full gap-2">
         <Input
           :model-value="draftValue"
           type="text"
           inputmode="numeric"
           :placeholder="formatDefaultValue(defaultValue)"
           :disabled="disabled || saving"
-          class="w-[126px]"
+          class="min-w-0 flex-1"
           aria-label="Context Window Token Count"
           @update:model-value="handleInput"
           @keydown.enter="handleSave"

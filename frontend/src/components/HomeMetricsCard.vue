@@ -235,11 +235,14 @@ const hasHomeAd = computed(() => normalizedHomeAds.value.length > 0);
 <template>
   <div>
     <div class="flex flex-col gap-4">
-      <div class="flex items-center justify-between gap-4 h-[42px]">
-        <div v-if="!hasHomeAd" class="flex flex-col gap-1 w-[200px] shrink-0">
+      <div class="flex min-h-[42px] min-w-0 flex-wrap items-center justify-between gap-2">
+        <div v-if="!hasHomeAd" class="flex min-w-0 flex-1 flex-col gap-1">
           <h2 class="text-[14px] font-medium text-white/80">Session Metrics</h2>
         </div>
-        <div v-else class="grid min-w-0  grid-cols-3 gap-2 shrink-0">
+        <div
+          v-else
+          class="grid min-w-0 flex-1 gap-2 [grid-template-columns:repeat(auto-fit,minmax(min(160px,100%),1fr))]"
+        >
           <div
             v-for="ad in normalizedHomeAds"
             :key="ad.id"
@@ -271,7 +274,7 @@ const hasHomeAd = computed(() => normalizedHomeAds.value.length > 0);
           </div>
         </div>
         <div
-          class="flex-1 center-row justify-end shrink-0 gap-2 text-xs text-[#6f6f6f] pr-4 w-[200px]"
+          class="center-row ml-auto shrink-0 gap-2 pr-1 text-xs text-[#6f6f6f]"
         >
           <button
             type="button"
@@ -289,7 +292,7 @@ const hasHomeAd = computed(() => normalizedHomeAds.value.length > 0);
       </div>
 
       <div
-        class="mt-[-4px] grid grid-cols-4 gap-0 overflow-hidden rounded-[8px] border border-[#343434] bg-[#242424] h-[130px]"
+        class="mt-[-4px] grid min-w-0 min-h-[130px] gap-0 overflow-hidden rounded-[8px] border border-[#343434] bg-[#242424] [grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr))]"
       >
         <div class="min-w-0 px-4 py-4 flex flex-col justify-between">
           <div class="center-row justify-start gap-1 text-xs text-[#7f7f7f]">

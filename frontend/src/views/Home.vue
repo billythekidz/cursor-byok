@@ -159,7 +159,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4 p-4 pt-0 text-[#e5e5e5]">
+  <div class="flex min-h-full min-w-0 flex-col gap-4 p-4 pt-0 text-[#e5e5e5]">
     <HomeMetricsCard
       :metrics="appState.homeMetrics"
       :loading="appState.homeMetricsLoading"
@@ -171,13 +171,13 @@ onBeforeUnmount(() => {
 
     <Card>
       <div class="flex flex-col gap-4">
-        <div class="flex items-start justify-between gap-4">
-          <div class="flex flex-col gap-1">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div class="min-w-0 flex flex-col gap-1">
             <div class="text-sm" :class="appViewState.serviceStatusClass">
               {{ appViewState.serviceStatusText }}
             </div>
           </div>
-          <div class="center-row gap-2">
+          <div class="center-row ml-auto max-w-full gap-2">
             <Button variant="primary" :disabled="appState.serviceBusy" @click="handleToggleService">
               <span class="icon-[mdi--pause] text-[16px]" v-if="appState.serviceRunning"></span>
               <span class="icon-[mdi--play] text-[16px]" v-else></span>
@@ -216,12 +216,12 @@ onBeforeUnmount(() => {
     </Card>
 
     <Card>
-      <div class="flex items-center justify-between gap-4">
-        <div>
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="min-w-0">
           <h2 class="text-base font-medium text-white">Local Settings</h2>
           <div class="text-sm text-[#a3a3a3]">Open settings folder or manage model configurations</div>
         </div>
-        <div class="center-row gap-2">
+        <div class="center-row ml-auto max-w-full flex-wrap gap-2">
           <Button variant="default" @click="handleOpenConfig">Settings Folder</Button>
           <Button variant="primary" @click="handleOpenModelConfig">Model Config</Button>
         </div>
