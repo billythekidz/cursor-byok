@@ -27,7 +27,6 @@ tasks:
     summary: Build Windows binary using Go native cross-compilation
     internal: true
     deps:
-      - task: common:go:mod:tidy
       - task: common:build:frontend
         vars:
           BUILD_FLAGS:
@@ -37,6 +36,12 @@ tasks:
           SCAN:
             ref: .SCAN
       - task: common:generate:icons
+      - task: common:build:openserp
+        vars:
+          GOOS: windows
+          ARCH:
+            ref: .ARCH
+          OUTPUT: 'internal/search/openserp/assets/openserp-windows-{{.ARCH}}'
     cmds:
       - task: generate:syso
         vars:
@@ -49,7 +54,7 @@ tasks:
         platforms: [darwin, linux]
     vars:
       OUTPUT: '{{.OUTPUT | default (printf "%s/%s.exe" .BIN_DIR .APP_NAME)}}'
-      BUILD_FLAGS: '{{if eq .DEV "true"}}{{if .EXTRA_TAGS}}-tags {{.EXTRA_TAGS}} {{end}}-buildvcs=false -gcflags=all="-l" -ldflags="-X cursor/internal/buildinfo.Version={{.APP_VERSION}}"{{else}}-tags production{{if .EXTRA_TAGS}},{{.EXTRA_TAGS}}{{end}} -trimpath -buildvcs=false -ldflags="-w -s -H windowsgui -X cursor/internal/buildinfo.Version={{.APP_VERSION}}"{{end}}'
+      BUILD_FLAGS: '{{if eq .DEV "true"}}-tags openserp_embedded{{if .EXTRA_TAGS}},{{.EXTRA_TAGS}}{{end}} -buildvcs=false -gcflags=all="-l" -ldflags="-X cursor/internal/buildinfo.Version={{.APP_VERSION}}"{{else}}-tags production,openserp_embedded{{if .EXTRA_TAGS}},{{.EXTRA_TAGS}}{{end}} -trimpath -buildvcs=false -ldflags="-w -s -H windowsgui -X cursor/internal/buildinfo.Version={{.APP_VERSION}}"{{end}}'
     env:
       GOOS: windows
       CGO_ENABLED: 0
@@ -157,6 +162,7 @@ tasks:
         PY
       - rm -rf "{{.STAGING_DIR}}"
       - rm -f "{{.OUTPUT}}"
+      - rm -f "internal/search/openserp/assets/openserp-windows-{{.ARCH}}"
 
   run:
     summary: Run Windows executable (only available on Windows)

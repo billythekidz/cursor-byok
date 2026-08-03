@@ -1,0 +1,15 @@
+[submodule "submodules/AntigravityManager"]
+	path = submodules/AntigravityManager
+	url = https://github.com/Draculabo/AntigravityManager.git
+[submodule "submodules/antigravity-sdk-python"]
+	path = submodules/antigravity-sdk-python
+	url = https://github.com/google-antigravity/antigravity-sdk-python.git
+[submodule "submodules/codex"]
+	path = submodules/codex
+	url = https://github.com/openai/codex.git
+[submodule "submodules/codex-auth"]
+	path = submodules/codex-auth
+	url = https://github.com/Loongphy/codex-auth.git
+[submodule "submodules/openserp"]
+	path = submodules/openserp
+	url = https://github.com/karust/openserp.git

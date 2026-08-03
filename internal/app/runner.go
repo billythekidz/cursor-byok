@@ -18,6 +18,7 @@ import (
 	"cursor/internal/buildinfo"
 	"cursor/internal/cursor"
 	"cursor/internal/historymetrics"
+	"cursor/internal/search/openserp"
 
 	"github.com/leaanthony/u"
 
@@ -140,6 +141,7 @@ func Run(resources EmbeddedResources) error {
 		},
 		OnShutdown: func() {
 			stopAdRefresh()
+			openserp.Shutdown()
 			if updateManager != nil {
 				updateManager.Shutdown()
 			}
@@ -268,6 +270,7 @@ func Run(resources EmbeddedResources) error {
 	})
 	menu.AddSeparator()
 	quitItem := menu.Add("Exit").OnClick(func(ctx *application.Context) {
+		openserp.Shutdown()
 		proxyService.ShutdownForQuit()
 		app.Quit()
 	})

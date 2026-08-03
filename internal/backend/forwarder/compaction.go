@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	compactionAutoReserveTokens      = 10000
+	compactionAutoReserveTokens      = 50000
 	compactionTriggerRemainingTokens = 8192
 	compactionPreferredTailTurns     = 4
 	compactionMinimumTailTurns       = 1

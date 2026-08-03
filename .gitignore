@@ -28,3 +28,6 @@ cursor-tab-server/cursor-tab-server-linux-amd64.tar
 # Bản build & công cụ tạm
 release_dist/
 tmp_tools/
+
+# Generated OpenSERP sidecars (embedded into the main binary at build time)
+internal/search/openserp/assets/openserp-*

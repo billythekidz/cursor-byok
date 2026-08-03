@@ -454,7 +454,7 @@ func (service *Service) RunSSE(ctx context.Context, req *connect.Request[aiserve
 				"cursor": cursor,
 				"error":  err.Error(),
 			})
-			return nil
+			return buildRunSSECustomError(connect.CodeInternal, "active stream unavailable", err)
 		}
 		if len(backlog) > 0 {
 			for _, event := range backlog {
@@ -504,8 +504,13 @@ func (service *Service) RunSSE(ctx context.Context, req *connect.Request[aiserve
 						return buildTerminalStreamError(event)
 					}
 				}
+			} else {
+				service.debug.LogRunSSE(context.Background(), requestID, "", "read_error_after_context_done", map[string]any{
+					"cursor": cursor,
+					"error":  err.Error(),
+				})
 			}
-			return nil
+			return ctx.Err()
 		case <-signal:
 			continue
 		case <-ticker.C:
@@ -515,7 +520,7 @@ func (service *Service) RunSSE(ctx context.Context, req *connect.Request[aiserve
 				"cursor": cursor,
 				"error":  err.Error(),
 			})
-			return nil
+			return buildRunSSECustomError(connect.CodeInternal, "active stream unavailable", err)
 		} else if len(backlog) > 0 {
 			continue
 		}
@@ -1733,9 +1738,18 @@ func (service *Service) handleToolInvocation(stream *ActiveStream, invocation ru
 		return nil
 	}
 	if isExecInvocation {
+		stream.mu.Lock()
+		conversationID := strings.TrimSpace(stream.ConversationID)
+		modelID := strings.TrimSpace(stream.ModelID)
+		rootConversationID := conversationID
+		if stream.CheckpointConversation != nil && strings.TrimSpace(stream.CheckpointConversation.RootConversationID) != "" {
+			rootConversationID = strings.TrimSpace(stream.CheckpointConversation.RootConversationID)
+		}
+		stream.mu.Unlock()
 		serverMessage, pendingExec, err := service.execBridge.OpenExec(execbridge.OpenExecContext{
-			ConversationID:         stream.ConversationID,
-			ModelID:                stream.ModelID,
+			ConversationID:         conversationID,
+			RootConversationID:     rootConversationID,
+			ModelID:                modelID,
 			SubagentModelOverrides: subagentOverrides,
 		}, invocation)
 		if err != nil {

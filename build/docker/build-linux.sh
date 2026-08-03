@@ -45,7 +45,7 @@ if [ -n "${EXTRA_LDFLAGS:-}" ]; then
     LDFLAGS="$LDFLAGS $EXTRA_LDFLAGS"
 fi
 
-TAGS="production"
+TAGS="production,openserp_embedded"
 if [ -n "${EXTRA_TAGS:-}" ]; then
     TAGS="${TAGS},${EXTRA_TAGS}"
 fi

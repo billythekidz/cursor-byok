@@ -7,6 +7,25 @@ vars:
     sh: 'cd "{{.TASKFILE_DIR}}" && pwd'
 
 tasks:
+  build:openserp:
+    summary: Build the OpenSERP sidecar for the target platform
+    internal: true
+    dir: '{{.ROOT_DIR}}/submodules/openserp'
+    vars:
+      TARGET_GOOS: '{{.GOOS | default OS}}'
+      TARGET_ARCH: '{{.ARCH | default ARCH}}'
+      EXTENSION: '{{if eq .TARGET_GOOS "windows"}}.exe{{end}}'
+      OUTPUT: '{{.OUTPUT | default (printf "%s/openserp-%s%s" .BIN_DIR .TARGET_ARCH .EXTENSION)}}'
+      CACHE_DIR: '{{.ROOT_DIR}}/{{.BIN_DIR}}/.cache/openserp/{{.TARGET_GOOS}}-{{.TARGET_ARCH}}'
+    cmds:
+      - mkdir -p "{{.ROOT_DIR}}/{{.BIN_DIR}}"
+      - mkdir -p "{{.ROOT_DIR}}/internal/search/openserp/assets"
+      - python "{{.ROOT_DIR}}/scripts/build/openserp_cache.py" --source-dir "{{.ROOT_DIR}}/submodules/openserp" --cache-dir "{{.CACHE_DIR}}" --output "{{.ROOT_DIR}}/{{.OUTPUT}}" --goos "{{.TARGET_GOOS}}" --goarch "{{.TARGET_ARCH}}"
+    env:
+      GOOS: '{{.TARGET_GOOS}}'
+      GOARCH: '{{.TARGET_ARCH}}'
+      CGO_ENABLED: 0
+
   extract:proto:
     summary: Extract proto from Cursor extension snapshot
     dir: '{{.ROOT_DIR}}'
@@ -81,7 +100,6 @@ tasks:
     dir: '{{.ROOT_DIR}}'
     deps:
       - task: generate:proto
-      - task: go:mod:tidy
     sources:
       - "**/*.[jt]s"
       - exclude: frontend/**/*
@@ -106,8 +124,7 @@ tasks:
       - task: install:frontend:deps
       - task: generate:bindings
         vars:
-          BUILD_FLAGS:
-            ref: .BUILD_FLAGS
+          BUILD_FLAGS: '{{.BINDINGS_BUILD_FLAGS | default ""}}'
     cmds:
       - yarn run {{.BUILD_COMMAND}}{{if eq .SCAN "true"}} --scan{{end}}
     env:

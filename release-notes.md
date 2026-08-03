@@ -1,3 +1,13 @@
+-------0.0.47-------
+- Fixed Task/subagent bridge session binding by forwarding root conversation IDs and execution options
+- Return explicit RunSSE errors when an active stream becomes unavailable instead of hanging silently
+- Increased compaction reserve for large-context sessions
+
+-------0.0.46------
+- Integrated OpenSERP as the default web search engine with Google, Baidu, DuckDuckGo, and Yandex top-five results
+- Added Yandex/Ecosia fallback handling and embedded OpenSERP binary packaging
+- Added automated integration tests for search aggregation, fallback, error thresholds, and binary extraction
+
 -------0.0.45------
 - Redesigned model settings with multiple endpoint cards and endpoint-scoped model lists
 - Split endpoint models into Active and Available card sections with Cursor visibility toggles

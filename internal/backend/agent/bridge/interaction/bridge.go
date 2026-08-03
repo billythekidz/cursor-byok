@@ -3,7 +3,9 @@ package interaction
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html"
 	"io"
@@ -24,6 +26,7 @@ import (
 	"cursor/gen/agentv1"
 	"cursor/internal/backend/agent/core"
 	"cursor/internal/netproxy"
+	"cursor/internal/search/openserp"
 )
 
 // InteractionApplyResult represents the minimal normalized result of an interaction bridge result.
@@ -54,12 +57,16 @@ type Bridge struct {
 	nextID atomic.Uint32
 	// httpClient is responsible for operations that require external network access, such as web search / web fetch.
 	httpClient *http.Client
+	// openSERP is the local OpenSERP-backed web search client.
+	openSERP *openserp.Client
 }
 
 // NewBridge creates an interaction bridge instance.
 func NewBridge() *Bridge {
+	httpClient := netproxy.NewHTTPClient(15 * time.Second)
 	return &Bridge{
-		httpClient: netproxy.NewHTTPClient(15 * time.Second),
+		httpClient: httpClient,
+		openSERP:   openserp.NewClient(httpClient),
 	}
 }
 
@@ -586,23 +593,81 @@ func (bridge *Bridge) executeWebSearch(searchTerm string) ([]*agentv1.WebSearchR
 		client = netproxy.NewHTTPClient(15 * time.Second)
 	}
 
-	// Try Baidu search first
+	if bridge.openSERP == nil {
+		bridge.openSERP = openserp.NewClient(client)
+	}
+	openSERPGroups, openSERPErr := bridge.openSERP.Search(context.Background(), searchTerm)
+	if openSERPErr == nil {
+		references := openSERPReferences(openSERPGroups)
+		if len(references) > 0 {
+			return references, formatWebSearchPayload(searchTerm, references), nil
+		}
+	}
+	if errors.Is(openSERPErr, openserp.ErrTooManyErrors) {
+		return nil, "", openSERPErr
+	}
+
+	// Keep the direct HTML path as a last-resort compatibility fallback when
+	// OpenSERP itself cannot be downloaded, built, or started.
+	duckReferences, _, duckErr := bridge.tryDuckDuckGoWebSearch(client, searchTerm)
+	if duckErr == nil && len(duckReferences) > 0 {
+		// Append up to five Baidu results after the primary results when available.
+		baiduReferences, _, _ := bridge.tryBaiduWebSearch(client, searchTerm)
+		references := append(duckReferences, baiduReferences...)
+		return references, formatWebSearchPayload(searchTerm, references), nil
+	}
+
+	// DuckDuckGo failed, fall back to Baidu.
 	baiduReferences, baiduPayload, baiduErr := bridge.tryBaiduWebSearch(client, searchTerm)
 	if baiduErr == nil && len(baiduReferences) > 0 {
 		return baiduReferences, baiduPayload, nil
 	}
 
-	// Baidu failed, fall back to DuckDuckGo
-	duckReferences, duckPayload, duckErr := bridge.tryDuckDuckGoWebSearch(client, searchTerm)
-	if duckErr == nil && len(duckReferences) > 0 {
-		return duckReferences, duckPayload, nil
-	}
-
-	// Both failed, return a combined error
+	// Both failed, return a combined error.
 	if baiduErr != nil && duckErr != nil {
 		return nil, "", fmt.Errorf("web search failed: baidu=%v, duckduckgo=%v", baiduErr, duckErr)
 	}
 	return nil, "", fmt.Errorf("web search returned no parseable results")
+}
+
+func openSERPReferences(groups []openserp.EngineResults) []*agentv1.WebSearchReference {
+	references := make([]*agentv1.WebSearchReference, 0, len(groups)*5)
+	for _, group := range groups {
+		label := displaySearchEngine(group.SourceEngine)
+		if group.Fallback {
+			label = fmt.Sprintf("%s fallback for %s", label, displaySearchEngine(group.RequestedEngine))
+		}
+		for _, result := range group.Results {
+			title := strings.TrimSpace(result.Title)
+			if title == "" {
+				title = strings.TrimSpace(result.URL)
+			}
+			snippet := strings.TrimSpace(result.Snippet)
+			references = append(references, &agentv1.WebSearchReference{
+				Title: fmt.Sprintf("[%s] %s", label, title),
+				Url:   strings.TrimSpace(result.URL),
+				Chunk: snippet,
+			})
+		}
+	}
+	return references
+}
+
+func displaySearchEngine(engine string) string {
+	switch strings.ToLower(strings.TrimSpace(engine)) {
+	case "google":
+		return "Google"
+	case "baidu":
+		return "Baidu"
+	case "duckduckgo":
+		return "DuckDuckGo"
+	case "yandex":
+		return "Yandex"
+	case "ecosia":
+		return "Ecosia"
+	default:
+		return engine
+	}
 }
 
 func (bridge *Bridge) tryBaiduWebSearch(client *http.Client, searchTerm string) ([]*agentv1.WebSearchReference, string, error) {

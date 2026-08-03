@@ -171,7 +171,14 @@ tasks:
       - rm -f "{{.BIN_DIR}}/macos-arm64.dmg" "{{.BIN_DIR}}/macos-intel.dmg" "{{.BIN_DIR}}/windows-32.zip" "{{.BIN_DIR}}/windows-64.zip" "{{.BIN_DIR}}/linux-amd64.tar.gz"
       - rm -f "{{.BIN_DIR}}/macos-arm64" "{{.BIN_DIR}}/macos-intel" "{{.BIN_DIR}}/windows-32.exe" "{{.BIN_DIR}}/windows-64.exe" "{{.BIN_DIR}}/linux-amd64"
       - rm -f "{{.BIN_DIR}}/{{.APP_NAME}}" "{{.BIN_DIR}}/{{.APP_NAME}}.exe"
+      - rm -f "internal/search/openserp/assets/openserp-windows-386" "internal/search/openserp/assets/openserp-windows-amd64" "internal/search/openserp/assets/openserp-windows-arm64" "internal/search/openserp/assets/openserp-darwin-amd64" "internal/search/openserp/assets/openserp-darwin-arm64" "internal/search/openserp/assets/openserp-linux-amd64" "internal/search/openserp/assets/openserp-linux-arm64" "internal/search/openserp/assets/openserp-linux-386"
       - rm -rf "{{.BIN_DIR}}/macos-arm64.app" "{{.BIN_DIR}}/macos-intel.app" "{{.BIN_DIR}}/{{.APP_NAME}}.app" "{{.BIN_DIR}}/{{.APP_NAME}}.dev.app"
+
+  clean:openserp:
+    summary: Remove cached OpenSERP sidecars and force their next rebuild
+    cmds:
+      - rm -rf "{{.BIN_DIR}}/.cache/openserp"
+      - rm -f "internal/search/openserp/assets/openserp-windows-386" "internal/search/openserp/assets/openserp-windows-amd64" "internal/search/openserp/assets/openserp-windows-arm64" "internal/search/openserp/assets/openserp-darwin-amd64" "internal/search/openserp/assets/openserp-darwin-arm64" "internal/search/openserp/assets/openserp-linux-amd64" "internal/search/openserp/assets/openserp-linux-arm64" "internal/search/openserp/assets/openserp-linux-386"
 
   dev:
     summary: Start dev mode (foreground, terminal will remain occupied)
@@ -321,10 +328,20 @@ tasks:
       - task: release:build:linux:amd64
 
   release:verify:assets:
-    summary: Verify whether release assets for current version are complete
+    summary: Verify release notes and at least one package for current version
     preconditions:
       - sh: test -f "{{.RELEASE_NOTES_PATH}}"
         msg: "Release notes not found, please run corresponding release:prepare task first."
+      - sh: 'test -f "{{.RELEASE_DIR}}/{{.RELEASE_BASE_NAME}}-{{.APP_VERSION}}-macos-arm64.tar.gz" || test -f "{{.RELEASE_DIR}}/{{.RELEASE_BASE_NAME}}-{{.APP_VERSION}}-macos-amd64.tar.gz" || test -f "{{.RELEASE_DIR}}/{{.RELEASE_BASE_NAME}}-{{.APP_VERSION}}-windows-amd64.zip" || test -f "{{.RELEASE_DIR}}/{{.RELEASE_BASE_NAME}}-{{.APP_VERSION}}-linux-amd64.tar.gz"'
+        msg: "No release package found for the current version."
+    cmds:
+      - echo "release assets verified"
+
+  release:verify:assets:complete:
+    summary: Verify all four platform packages for current version
+    deps:
+      - task: release:verify:assets
+    preconditions:
       - sh: test -f "{{.RELEASE_DIR}}/{{.RELEASE_BASE_NAME}}-{{.APP_VERSION}}-macos-arm64.tar.gz"
         msg: "Missing macOS arm64 release asset."
       - sh: test -f "{{.RELEASE_DIR}}/{{.RELEASE_BASE_NAME}}-{{.APP_VERSION}}-macos-amd64.tar.gz"
@@ -334,7 +351,7 @@ tasks:
       - sh: test -f "{{.RELEASE_DIR}}/{{.RELEASE_BASE_NAME}}-{{.APP_VERSION}}-linux-amd64.tar.gz"
         msg: "Missing Linux amd64 release asset."
     cmds:
-      - echo "release assets verified"
+      - echo "all release assets verified"
 
   release:sync:readme:
     summary: Sync README to public release repo (release log source is fixed to release-notes.md)
@@ -350,7 +367,7 @@ tasks:
         msg: "gh not logged in, please run gh auth login first."
     cmds:
       - |
-        python3 - <<'PY'
+        python - <<'PY'
         import base64
         import json
         import pathlib
@@ -435,7 +452,7 @@ tasks:
       - task: release:manifest
       - task: release:sync:readme
       - |
-        python3 - <<'PY'
+        python - <<'PY'
         import mimetypes
         import json
         import pathlib

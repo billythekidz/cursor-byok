@@ -38,6 +38,7 @@ type ExecApplyResult struct {
 // OpenExecContext represents the minimal context required when opening an execution bridge request.
 type OpenExecContext struct {
 	ConversationID         string
+	RootConversationID     string
 	ModelID                string
 	SubagentModelOverrides map[string]runtimecore.SubagentModelOverrideSelection
 }
@@ -775,6 +776,10 @@ func (bridge *Bridge) openTask(openContext OpenExecContext, toolCall runtimecore
 	execID := fmt.Sprintf("exec-subagent-%d", now.UnixNano())
 	readonly := readBoolArg(args, "readonly", "readOnly")
 	parentConversationID := strings.TrimSpace(openContext.ConversationID)
+	rootConversationID := strings.TrimSpace(openContext.RootConversationID)
+	if rootConversationID == "" {
+		rootConversationID = parentConversationID
+	}
 	taskRequestedModelID := strings.TrimSpace(readStringArg(args, "model", "model_id", "modelId"))
 	modelID := taskRequestedModelID
 	if override, _, ok := runtimecore.LookupSubagentModelOverride(openContext.SubagentModelOverrides, subagentType); ok {
@@ -790,6 +795,11 @@ func (bridge *Bridge) openTask(openContext OpenExecContext, toolCall runtimecore
 	if modelID == "" {
 		modelID = strings.TrimSpace(openContext.ModelID)
 	}
+	var runInBackground *bool
+	if readBoolArg(args, "run_in_background", "runInBackground") {
+		value := true
+		runInBackground = &value
+	}
 	serverMessage := &agentv1.AgentServerMessage{
 		Message: &agentv1.AgentServerMessage_ExecServerMessage{
 			ExecServerMessage: &agentv1.ExecServerMessage{
@@ -797,14 +807,17 @@ func (bridge *Bridge) openTask(openContext OpenExecContext, toolCall runtimecore
 				ExecId: execID,
 				Message: &agentv1.ExecServerMessage_SubagentArgs{
 					SubagentArgs: &agentv1.SubagentArgs{
-						ToolCallId:           toolCall.CallID,
-						SubagentType:         subagentType,
-						ModelId:              modelID,
-						Prompt:               strings.TrimSpace(readStringArg(args, "prompt")),
-						Readonly:             readonly,
-						ResumeAgentId:        stringPtr(strings.TrimSpace(readStringArg(args, "resume"))),
-						ParentConversationId: stringPtrIfNonEmpty(parentConversationID),
-						Mode:                 taskModeFromReadonly(readonly),
+						ToolCallId:               toolCall.CallID,
+						SubagentType:             subagentType,
+						ModelId:                  modelID,
+						Prompt:                   strings.TrimSpace(readStringArg(args, "prompt")),
+						Readonly:                 readonly,
+						ResumeAgentId:            stringPtr(strings.TrimSpace(readStringArg(args, "resume"))),
+						RunInBackground:          runInBackground,
+						ParentConversationId:     stringPtrIfNonEmpty(parentConversationID),
+						RootParentConversationId: stringPtrIfNonEmpty(rootConversationID),
+						Mode:                     taskModeFromReadonly(readonly),
+						Environment:              subagentExecutionEnvironmentFromString(readStringArg(args, "environment")),
 					},
 				},
 			},
@@ -1781,6 +1794,17 @@ func taskModeFromReadonly(readonly bool) agentv1.TaskMode {
 		return agentv1.TaskMode_TASK_MODE_PLAN
 	}
 	return agentv1.TaskMode_TASK_MODE_AGENT
+}
+
+func subagentExecutionEnvironmentFromString(raw string) agentv1.SubagentExecutionEnvironment {
+	switch strings.ToLower(strings.TrimSpace(raw)) {
+	case "local":
+		return agentv1.SubagentExecutionEnvironment_SUBAGENT_EXECUTION_ENVIRONMENT_LOCAL
+	case "cloud":
+		return agentv1.SubagentExecutionEnvironment_SUBAGENT_EXECUTION_ENVIRONMENT_CLOUD
+	default:
+		return agentv1.SubagentExecutionEnvironment_SUBAGENT_EXECUTION_ENVIRONMENT_UNSPECIFIED
+	}
 }
 
 func subagentTypeProtoFromString(raw string) *agentv1.SubagentType {

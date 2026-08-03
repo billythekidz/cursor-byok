@@ -10,43 +10,90 @@ permissions:
   contents: write
 
 jobs:
-  build-linux-amd64:
-    name: Build Linux amd64 (Self-Hosted Runner)
+  build-release-assets:
+    name: Build Linux and Windows amd64 release assets
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
-        continue-on-error: true
         with:
           node-version: 20
 
+      - name: Enable Yarn
+        run: |
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
+          yarn --version
+
       - name: Setup Go
         uses: actions/setup-go@v5
-        continue-on-error: true
         with:
-          go-version: '1.23'
+          go-version-file: go.mod
+
+      - name: Install Wails CLI
+        run: |
+          go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha.74
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Install Linux GUI Dependencies
         run: |
           if command -v apt-get >/dev/null 2>&1; then
-            sudo apt-get update && sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libwebkit2gtk-4.0-dev || true
+            sudo apt-get update
+            sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev
           fi
+          pkg-config --exists gtk+-3.0 webkit2gtk-4.1 gdk-3.0 gio-unix-2.0
 
       - name: Build Frontend
         run: |
           cd frontend
-          yarn install || npm install
-          yarn build || npm run build
+          yarn install --frozen-lockfile
+          yarn build
 
-      - name: Build & Package Linux amd64
+      - name: Build & Package Linux and Windows amd64
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          if [ -z "$VERSION" ] || [ "$VERSION" = "main" ]; then VERSION="0.0.43"; fi
+          if [ -z "$VERSION" ] || [ "$VERSION" = "main" ]; then
+            VERSION="$(go run ./scripts/release version -config ./build/config.yml)"
+          fi
+          CONFIG_VERSION="$(go run ./scripts/release version -config ./build/config.yml)"
+          if [ "$VERSION" != "$CONFIG_VERSION" ]; then
+            echo "Tag version $VERSION does not match build/config.yml version $CONFIG_VERSION" >&2
+            exit 1
+          fi
           mkdir -p bin release_dist
-          go build -tags production -trimpath -ldflags="-w -s -X cursor/internal/buildinfo.Version=${VERSION}" -o bin/cursor-byok .
-          tar -czf "release_dist/cursor-byok-${VERSION}-linux-amd64.tar.gz" -C bin cursor-byok
+
+          wails3 generate icons -input build/appicon.png -macfilename build/darwin/icons.icns -windowsfilename build/windows/icon.ico
+          wails3 generate syso -arch amd64 -icon build/windows/icon.ico -manifest build/windows/wails.exe.manifest -info build/windows/info.json -out wails_windows_amd64.syso
+
+          python scripts/build/openserp_cache.py \
+            --source-dir submodules/openserp \
+            --cache-dir bin/.cache/openserp/linux-amd64 \
+            --output internal/search/openserp/assets/openserp-linux-amd64 \
+            --goos linux \
+            --goarch amd64
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -tags production,openserp_embedded -trimpath -buildvcs=false -ldflags="-w -s -X cursor/internal/buildinfo.Version=${VERSION}" -o bin/cursor-byok-linux-amd64 .
+          tar -czf "release_dist/cursor-byok-${VERSION}-linux-amd64.tar.gz" -C bin cursor-byok-linux-amd64
+
+          python scripts/build/openserp_cache.py \
+            --source-dir submodules/openserp \
+            --cache-dir bin/.cache/openserp/windows-amd64 \
+            --output internal/search/openserp/assets/openserp-windows-amd64 \
+            --goos windows \
+            --goarch amd64
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -tags production,openserp_embedded -trimpath -buildvcs=false -ldflags="-w -s -H windowsgui -X cursor/internal/buildinfo.Version=${VERSION}" -o bin/cursor-byok-windows-amd64.exe
+          python - <<'PY'
+          import pathlib
+          import zipfile
+
+          version = pathlib.Path("build/config.yml").read_text(encoding="utf-8").split('version: "', 1)[1].split('"', 1)[0]
+          archive = pathlib.Path(f"release_dist/cursor-byok-{version}-windows-amd64.zip")
+          with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as zf:
+              zf.write("bin/cursor-byok-windows-amd64.exe", "cursor-byok-windows-amd64.exe")
+          PY
 
       - name: Generate update.json Manifest
         run: |
@@ -56,9 +103,9 @@ jobs:
             -out release_dist/update.json \
             -repo "${{ github.repository }}" \
             -base-name cursor-byok \
-            -notes release-notes.md || true
+            -notes release-notes.md
 
-      - name: Upload Linux Assets and Manifest to Release
+      - name: Upload Release Assets and Manifest
         uses: softprops/action-gh-release@v2
         with:
           files: release_dist/*
