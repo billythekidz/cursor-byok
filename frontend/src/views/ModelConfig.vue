@@ -56,10 +56,13 @@ const filteredAdapters = computed(() =>
 );
 
 function endpointGroupIDOf(adapter) {
-  if (adapter?.openAIEndpointGroupID) {
-    return adapter.openAIEndpointGroupID;
+  if (adapter?.type === "openai" && (adapter?.baseURL || adapter?.apiKey)) {
+    // The persisted group ID can become stale after duplicating a model and
+    // editing its endpoint. Derive the group from the actual endpoint identity
+    // so different endpoints can stay active at the same time.
+    return buildOpenAIEndpointGroupKey(adapter.baseURL, adapter.apiKey);
   }
-  return buildOpenAIEndpointGroupKey(adapter?.baseURL, adapter?.apiKey);
+  return adapter?.openAIEndpointGroupID || buildOpenAIEndpointGroupKey(adapter?.baseURL, adapter?.apiKey);
 }
 
 // openaiGroups is the endpoint layer of the UI. Older manually added models may
@@ -352,7 +355,7 @@ async function handleScanOpenAI() {
     }
     const groupID = buildOpenAIEndpointGroupKey(baseURL, apiKey);
     const current = appState.modelAdapters.map((adapter) => normalizeModelAdapter(adapter));
-    const existingKeys = new Set(current.map((adapter) => `${adapter.openAIEndpointGroupID}::${adapter.modelID}`));
+    const existingKeys = new Set(current.map((adapter) => `${endpointGroupIDOf(adapter)}::${adapter.modelID}`));
     const newAdapters = [];
     for (const info of models) {
       const modelID = String(info?.modelID || "").trim();

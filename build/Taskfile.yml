@@ -96,10 +96,8 @@ tasks:
 
   generate:bindings:
     label: generate:bindings (BUILD_FLAGS={{.BUILD_FLAGS}})
-    summary: Generate frontend bindings
+    summary: Generate frontend bindings (run common:generate:proto explicitly when proto files change)
     dir: '{{.ROOT_DIR}}'
-    deps:
-      - task: generate:proto
     sources:
       - "**/*.[jt]s"
       - exclude: frontend/**/*
