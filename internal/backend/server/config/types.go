@@ -43,7 +43,7 @@ type ModelAdapterConfig struct {
 	ThinkingBudgetTokens        int    `json:"thinkingBudgetTokens" yaml:"thinkingBudgetTokens"`
 	// OpenAIEndpointGroupID identifies the OpenAI endpoint group this adapter belongs to. Adapters added manually leave it empty.
 	OpenAIEndpointGroupID string `json:"openAIEndpointGroupID" yaml:"openAIEndpointGroupID"`
-	// Active reports whether this adapter is injected into Cursor. At most one model per endpoint group is active.
+	// Active is retained for config compatibility and normalized true for every configured adapter.
 	Active bool `json:"active" yaml:"active"`
 }
 
@@ -138,7 +138,7 @@ func NormalizeModelAdapterConfigs(input []ModelAdapterConfig) ([]ModelAdapterCon
 			AnthropicMaxTokens:    normalizeMaxCompletionTokens(item.AnthropicMaxTokens),
 			ThinkingBudgetTokens:  normalizeMaxCompletionTokens(item.ThinkingBudgetTokens),
 			OpenAIEndpointGroupID: strings.TrimSpace(item.OpenAIEndpointGroupID),
-			Active:                item.Active,
+			Active:                true,
 		}
 		if next.Type == "openai" {
 			next.OpenAIExtraParamsEnabled = item.OpenAIExtraParamsEnabled
