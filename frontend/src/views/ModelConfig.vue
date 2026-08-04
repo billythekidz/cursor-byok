@@ -4,6 +4,7 @@ import Card from "@/components/ui/Card.vue";
 import Input from "@/components/ui/Input.vue";
 import ModelContextWindowControl from "@/components/ModelContextWindowControl.vue";
 import ModelAdapterTestCard from "@/components/ModelAdapterTestCard.vue";
+import Switch from "@/components/ui/Switch.vue";
 import { showModal } from "@/composables/useModal";
 import { scanOpenAIModels } from "@/services/clientApi";
 import {
@@ -84,6 +85,10 @@ const openaiGroups = computed(() => {
 const expandedGroup = computed(() =>
   openaiGroups.value.find((group) => group.groupID === expandedGroupID.value) || null,
 );
+
+function activeAdaptersOf(group) {
+  return group?.adapters.filter((adapter) => adapter.active) || [];
+}
 
 const batchButtonText = computed(() => {
   if (batchStopping.value) {
@@ -398,6 +403,41 @@ async function handleScanOpenAI() {
   }
 }
 
+async function handleToggleActive(adapter) {
+  if (appState.configSaving || !adapter) {
+    return;
+  }
+  if (
+    adapter.type === "codex" &&
+    !adapter.active &&
+    (!appState.codexRuntime.installed || !appState.codexRuntime.authenticated)
+  ) {
+    await showActionError("Codex 尚未就绪", "请先安装并登录 Codex，再激活此模型。");
+    return;
+  }
+
+  const nextActive = !adapter.active;
+  const current = appState.modelAdapters.map((item) => normalizeModelAdapter(item));
+  for (const item of current) {
+    const sameAdapter = adapter.id && item.id
+      ? item.id === adapter.id
+      : item.type === adapter.type &&
+        item.modelID === adapter.modelID &&
+        item.baseURL === adapter.baseURL &&
+        item.apiKey === adapter.apiKey;
+    if (sameAdapter) {
+      item.active = nextActive;
+    }
+  }
+
+  const result = await saveModelAdapters(current);
+  if (!result.ok) {
+    await showActionError("Save failed", result.error);
+    return;
+  }
+  await reloadUserConfig({ modelAdaptersOnly: true });
+}
+
 onMounted(async () => {
   await reloadUserConfig({ modelAdaptersOnly: true }).catch(() => { });
 });
@@ -580,6 +620,9 @@ onBeforeUnmount(() => {
                   {{ isAdapterTesting(adapter) ? "Testing..." : "Test" }}
                 </Button>
                 <Button variant="default" :disabled="appState.configSaving" @click="openEditor(appState.modelAdapters.indexOf(adapter))">Edit</Button>
+                <Button variant="default" :disabled="appState.configSaving || batchTesting" @click="handleToggleActive(adapter)">
+                  {{ adapter.active ? "停用" : "启用" }}
+                </Button>
                 <Button variant="text" :disabled="appState.configSaving" @click="handleDeleteModelAdapter(appState.modelAdapters.indexOf(adapter))">Delete</Button>
               </div>
             </div>
@@ -699,26 +742,93 @@ onBeforeUnmount(() => {
               <Button variant="text" :disabled="appState.configSaving" @click="expandedGroupID = ''">Collapse</Button>
             </div>
 
-            <div>
+            <div class="mb-4">
               <div class="mb-2 flex items-end justify-between gap-3">
                 <div>
-                  <div class="text-sm font-medium text-white">已配置模型</div>
-                  <div class="mt-0.5 text-xs text-[#737373]">Cursor 可见并可使用该 endpoint 下的全部模型。</div>
+                  <div class="text-sm font-medium text-white">已启用模型</div>
+                  <div class="mt-0.5 text-xs text-[#737373]">Cursor 可以看到并使用这些模型。</div>
                 </div>
                 <span class="rounded-full border border-[#1ca35a] bg-[#123322] px-2 py-1 text-[11px] text-[#10AD5D]">
-                  {{ expandedGroup.adapters.length }} 个模型
+                  {{ activeAdaptersOf(expandedGroup).length }} 个模型
                 </span>
               </div>
-              <div class="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]">
+              <div
+                v-if="activeAdaptersOf(expandedGroup).length === 0"
+                class="flex h-[84px] items-center justify-center rounded-[8px] border border-dashed border-[#3a3a3a] bg-[#1f1f1f] px-4 text-center text-xs text-[#737373]"
+              >
+                没有启用的模型，请从下方的可用模型中启用。
+              </div>
+              <div v-else class="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]">
                 <Card
-                  v-for="adapter in expandedGroup.adapters"
-                  :key="adapter.id || `${adapter.baseURL}-${adapter.modelID}`"
+                  v-for="adapter in activeAdaptersOf(expandedGroup)"
+                  :key="adapter.id || `${adapter.baseURL}-${adapter.modelID}-active`"
                 >
                   <div class="flex min-h-[138px] flex-col justify-between gap-3">
                     <div>
                       <div class="truncate text-sm font-medium text-white">{{ adapter.displayName }}</div>
                       <div class="mt-1 truncate font-mono text-xs text-[#8f8f8f]">{{ adapter.modelID }}</div>
                     </div>
+                    <Switch
+                      compact
+                      label="模型已启用"
+                      enabled-text="已启用"
+                      disabled-text="可用"
+                      :enabled="adapter.active"
+                      :disabled="appState.configSaving || batchTesting"
+                      @change="handleToggleActive(adapter)"
+                    />
+                    <div class="center-row flex-wrap justify-end gap-2 border-t border-[#343434] pt-2.5">
+                      <Button
+                        variant="default"
+                        :disabled="appState.configSaving || batchTesting || isAdapterTesting(adapter)"
+                        @click="handleTestModelAdapter(adapter)"
+                      >
+                        {{ isAdapterTesting(adapter) ? "Testing..." : "Test" }}
+                      </Button>
+                      <Button variant="default" :disabled="appState.configSaving" @click="openEditor(appState.modelAdapters.indexOf(adapter))">Edit</Button>
+                      <Button variant="text" :disabled="appState.configSaving" @click="handleDeleteModelAdapter(appState.modelAdapters.indexOf(adapter))">Delete</Button>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            </div>
+
+            <div>
+              <div class="mb-2 flex items-end justify-between gap-3">
+                <div>
+                  <div class="text-sm font-medium text-white">可用模型</div>
+                  <div class="mt-0.5 text-xs text-[#737373]">已配置但未启用，启用后 Cursor 才能看到。</div>
+                </div>
+                <span class="rounded-full border border-[#3f3f3f] px-2 py-1 text-[11px] text-[#8f8f8f]">
+                  {{ expandedGroup.adapters.length - activeAdaptersOf(expandedGroup).length }} 个模型
+                </span>
+              </div>
+              <div
+                v-if="activeAdaptersOf(expandedGroup).length === expandedGroup.adapters.length"
+                class="flex h-[84px] items-center justify-center rounded-[8px] border border-dashed border-[#3a3a3a] bg-[#1f1f1f] px-4 text-center text-xs text-[#737373]"
+              >
+                该 endpoint 的所有模型都已启用。
+              </div>
+              <div v-else class="grid gap-2 [grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]">
+                <Card
+                  v-for="adapter in expandedGroup.adapters"
+                  :key="adapter.id || `${adapter.baseURL}-${adapter.modelID}`"
+                  v-show="!adapter.active"
+                >
+                  <div class="flex flex-col gap-2.5">
+                    <div>
+                      <div class="truncate text-sm font-medium text-white">{{ adapter.displayName }}</div>
+                      <div class="mt-1 truncate text-xs text-[#8f8f8f]">{{ adapter.modelID }}</div>
+                    </div>
+                    <Switch
+                      compact
+                      label="模型已启用"
+                      enabled-text="已启用"
+                      disabled-text="可用"
+                      :enabled="adapter.active"
+                      :disabled="appState.configSaving || batchTesting"
+                      @change="handleToggleActive(adapter)"
+                    />
                     <ModelContextWindowControl
                       :value="adapter.contextWindowTokens"
                       :disabled="appState.configSaving || batchTesting"

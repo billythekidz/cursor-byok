@@ -295,7 +295,7 @@ export function createEmptyModelAdapter() {
     anthropicThinkingEffort: ANTHROPIC_THINKING_EFFORT_DEFAULT,
     thinkingBudgetTokens: 0,
     openAIEndpointGroupID: "",
-    active: true,
+    active: false,
   };
 }
 
@@ -422,7 +422,7 @@ export function normalizeModelAdapter(source) {
       raw.thinkingBudgetTokens ?? raw.thinking_budget_tokens,
     ),
     openAIEndpointGroupID: asString(raw.openAIEndpointGroupID ?? raw.openAIEndpointGroupId ?? raw.open_ai_endpoint_group_id),
-    active: true,
+    active: asBoolean(raw.active),
   };
 }
 

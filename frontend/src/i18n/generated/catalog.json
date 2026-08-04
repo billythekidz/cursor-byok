@@ -1,5 +1,17 @@
 {
   "entries": {
+    "000f03156ea9642b": {
+      "source": "可用模型",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 799,
+          "column": 63
+        }
+      ]
+    },
     "01e133a37deac955": {
       "source": "Codex 设备登录失败",
       "kind": "text",
@@ -19,7 +31,7 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 569,
+          "line": 609,
           "column": 53
         }
       ]
@@ -43,7 +55,7 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 546,
+          "line": 586,
           "column": 11
         }
       ]
@@ -60,15 +72,15 @@
         }
       ]
     },
-    "22c85d7d74b49015": {
-      "source": "Cursor 可见并可使用该 endpoint 下的全部模型。",
+    "246f96a4f97d77cf": {
+      "source": "没有启用的模型，请从下方的可用模型中启用。",
       "kind": "text",
       "placeholders": 0,
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 706,
-          "column": 62
+          "line": 759,
+          "column": 1
         }
       ]
     },
@@ -79,7 +91,7 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 566,
+          "line": 606,
           "column": 24
         }
       ]
@@ -120,6 +132,18 @@
         }
       ]
     },
+    "40c57832760a68ec": {
+      "source": "已启用模型",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 748,
+          "column": 63
+        }
+      ]
+    },
     "423f51a286789ed3": {
       "source": "运行环境",
       "kind": "text",
@@ -127,8 +151,20 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 564,
+          "line": 604,
           "column": 86
+        }
+      ]
+    },
+    "4495ca302ca3ea71": {
+      "source": "已配置但未启用，启用后 Cursor 才能看到。",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 800,
+          "column": 62
         }
       ]
     },
@@ -144,15 +180,32 @@
         }
       ]
     },
-    "4b7ba720eff822c1": {
-      "source": "已配置模型",
+    "4d99c976beb8827e": {
+      "source": "可用",
       "kind": "text",
       "placeholders": 0,
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 705,
-          "column": 63
+          "line": 775,
+          "column": 23
+        },
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 827,
+          "column": 23
+        }
+      ]
+    },
+    "4e6fd0e28c55860b": {
+      "source": "停用",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 624,
+          "column": 22
         }
       ]
     },
@@ -180,6 +233,18 @@
         }
       ]
     },
+    "69752218453ef0af": {
+      "source": "该 endpoint 的所有模型都已启用。",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 810,
+          "column": 1
+        }
+      ]
+    },
     "73364f2a8708572d": {
       "source": "可以保存为草稿，但激活前必须安装并登录 Codex。",
       "kind": "text",
@@ -199,8 +264,25 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 709,
-          "column": 55
+          "line": 752,
+          "column": 64
+        },
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 803,
+          "column": 96
+        }
+      ]
+    },
+    "7fd85c70afdbe192": {
+      "source": "Cursor 可以看到并使用这些模型。",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 749,
+          "column": 62
         }
       ]
     },
@@ -225,6 +307,23 @@
           "file": "src/views/Config.vue",
           "line": 104,
           "column": 72
+        }
+      ]
+    },
+    "98ca0f5768d1b366": {
+      "source": "模型已启用",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 773,
+          "column": 23
+        },
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 825,
+          "column": 23
         }
       ]
     },
@@ -281,6 +380,47 @@
         }
       ]
     },
+    "dab5871daa6ae3bb": {
+      "source": "Codex 尚未就绪",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 415,
+          "column": 27
+        }
+      ]
+    },
+    "dfb802238b38fbd4": {
+      "source": "已启用",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 774,
+          "column": 23
+        },
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 826,
+          "column": 23
+        }
+      ]
+    },
+    "f4a234fdd7bb3e51": {
+      "source": "请先安装并登录 Codex，再激活此模型。",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 415,
+          "column": 41
+        }
+      ]
+    },
     "f4c395f89f9534aa": {
       "source": "需要安装并登录",
       "kind": "text",
@@ -288,8 +428,20 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 566,
+          "line": 606,
           "column": 24
+        }
+      ]
+    },
+    "f4f0ead1116b5b62": {
+      "source": "启用",
+      "kind": "text",
+      "placeholders": 0,
+      "refs": [
+        {
+          "file": "src/views/ModelConfig.vue",
+          "line": 624,
+          "column": 22
         }
       ]
     },

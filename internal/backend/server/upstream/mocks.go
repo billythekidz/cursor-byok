@@ -436,7 +436,7 @@ func buildAvailableModelsPayload(reqCtx *RequestContext) (map[string]any, error)
 	if err != nil {
 		return nil, err
 	}
-	adapters = filterCursorVisibleModelAdapters(adapters)
+	adapters = filterActiveModelAdapters(adapters)
 	modelRefs := collectModelAdapterRefs(adapters)
 	defaultModel := ""
 	if len(modelRefs) > 0 {
@@ -482,19 +482,26 @@ func buildDefaultModelNudgeDataPayload(reqCtx *RequestContext) (map[string]any, 
 	if err != nil {
 		return nil, err
 	}
-	adapters = filterCursorVisibleModelAdapters(adapters)
+	adapters = filterActiveModelAdapters(adapters)
 	return map[string]any{
 		"modelsWithNoDefaultSwitch": collectModelAdapterRefs(adapters),
 		"nudgeDate":                 "0",
 	}, nil
 }
 
-// filterCursorVisibleModelAdapters keeps every configured non-Codex adapter
-// visible to Cursor. The legacy active field no longer controls model visibility;
-// Cursor owns model selection for each chat. Codex remains gated on runtime readiness.
-func filterCursorVisibleModelAdapters(adapters []legacyruntime.ModelAdapterConfig) []legacyruntime.ModelAdapterConfig {
+// filterActiveModelAdapters keeps every explicitly active adapter visible to Cursor.
+// Multiple models may be active for the same endpoint; Cursor owns chat model selection.
+// If no adapter is explicitly active, retain legacy behavior and expose all non-Codex models.
+func filterActiveModelAdapters(adapters []legacyruntime.ModelAdapterConfig) []legacyruntime.ModelAdapterConfig {
 	if len(adapters) == 0 {
 		return adapters
+	}
+	hasActive := false
+	for _, adapter := range adapters {
+		if adapter.Active {
+			hasActive = true
+			break
+		}
 	}
 	codexReady := false
 	for _, adapter := range adapters {
@@ -504,12 +511,10 @@ func filterCursorVisibleModelAdapters(adapters []legacyruntime.ModelAdapterConfi
 			break
 		}
 	}
-	if codexReady {
-		return adapters
-	}
 	filtered := make([]legacyruntime.ModelAdapterConfig, 0, len(adapters))
 	for _, adapter := range adapters {
-		if !strings.EqualFold(strings.TrimSpace(adapter.Type), "codex") {
+		if (!hasActive || adapter.Active) &&
+			(!strings.EqualFold(strings.TrimSpace(adapter.Type), "codex") || codexReady) {
 			filtered = append(filtered, adapter)
 		}
 	}
