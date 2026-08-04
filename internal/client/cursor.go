@@ -50,9 +50,6 @@ func (s *ProxyService) ClearCursorSettings() error {
 	if goruntime.GOOS == "darwin" {
 		cleanupErr = errors.Join(cleanupErr, cursor.ClearSystemNodeExtraCACerts())
 	}
-	if goruntime.GOOS == "windows" {
-		cleanupErr = errors.Join(cleanupErr, cursor.RemoveCACertFromWindowsStore(s.caCertPEM))
-	}
 	if goruntime.GOOS == "darwin" {
 		cleanupErr = errors.Join(cleanupErr, cursor.RemoveCACertFromDarwinKeychain(s.caCertPEM))
 	}
