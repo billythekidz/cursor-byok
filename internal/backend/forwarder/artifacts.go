@@ -2,6 +2,7 @@ package forwarder
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -105,6 +106,17 @@ func (recorder *artifactRecorder) RecordLLMSummary(requestID string, _ string, m
 	}
 	recorder.debug.LogProviderArtifact(context.Background(), requestID, session.conversationID, modelCallID, "llm_summary", payload)
 	return "", nil
+}
+
+func (recorder *artifactRecorder) RecordCodexNotification(requestID string, runID string, modelCallID string, method string, params json.RawMessage) {
+	if recorder == nil {
+		return
+	}
+	session, err := recorder.ensureSession(requestID, modelCallID)
+	if err != nil {
+		return
+	}
+	recorder.debug.LogCodexNotification(context.Background(), requestID, session.conversationID, runID, modelCallID, method, params)
 }
 
 func (recorder *artifactRecorder) persistLatestRequestPrefix(conversationID string, requestID string, modelCallID string, prefix *requestArtifactPrefix) {

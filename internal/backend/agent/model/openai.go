@@ -27,6 +27,7 @@ type OpenAIAdapter struct {
 type openAIRequestBody struct {
 	Model           string            `json:"model"`
 	Tools           []json.RawMessage `json:"tools,omitempty"`
+	ToolChoice      string            `json:"tool_choice"`
 	Messages        []map[string]any  `json:"messages"`
 	Stream          bool              `json:"stream"`
 	MaxTokens       int               `json:"max_tokens,omitempty"`
@@ -40,6 +41,7 @@ type openAIResponsesRequestBody struct {
 	Instructions    string                    `json:"instructions,omitempty"`
 	Input           []map[string]any          `json:"input"`
 	Tools           []map[string]any          `json:"tools,omitempty"`
+	ToolChoice      string                    `json:"tool_choice"`
 	Stream          bool                      `json:"stream"`
 	MaxOutputTokens int                       `json:"max_output_tokens,omitempty"`
 	Reasoning       *openAIResponsesReasoning `json:"reasoning,omitempty"`
@@ -50,6 +52,29 @@ type openAIResponsesRequestBody struct {
 
 type openAIResponsesReasoning struct {
 	Effort string `json:"effort,omitempty"`
+}
+
+const defaultOpenAIToolChoice = "auto"
+
+func resolveOpenAIToolChoice(value string) string {
+	if choice := strings.TrimSpace(value); choice != "" {
+		return choice
+	}
+	return defaultOpenAIToolChoice
+}
+
+func ensureOpenAIToolChoice(body map[string]any, requested string) {
+	if body == nil {
+		return
+	}
+	choice, exists := body["tool_choice"]
+	if !exists || choice == nil {
+		body["tool_choice"] = resolveOpenAIToolChoice(requested)
+		return
+	}
+	if choiceText, ok := choice.(string); ok && strings.TrimSpace(choiceText) == "" {
+		body["tool_choice"] = resolveOpenAIToolChoice(requested)
+	}
 }
 
 type openAIToolAccumulator struct {
@@ -454,6 +479,7 @@ func (adapter *OpenAIAdapter) streamChatCompletions(ctx context.Context, req Str
 		requestBody := openAIRequestBody{
 			Model:         modelID,
 			Messages:      normalizedMessages,
+			ToolChoice:    resolveOpenAIToolChoice(req.ToolChoice),
 			Stream:        true,
 			StreamOptions: map[string]any{"include_usage": true},
 		}
@@ -485,6 +511,7 @@ func (adapter *OpenAIAdapter) streamChatCompletions(ctx context.Context, req Str
 		recordLLMSummaryArtifact(req, buildLLMSummaryPayload(req, "openai", modelID, startedAt, time.Time{}, finishedAt, "", 0, 0, 0, 0, err))
 		return err
 	}
+	ensureOpenAIToolChoice(bodyMap, req.ToolChoice)
 	body = bodyMap
 	requestURL := OpenAIEndpointURL(baseURL, req.OpenAIEndpoint)
 	recordLLMRequestArtifact(req, "openai", modelID, "POST", requestURL, body)
@@ -919,6 +946,7 @@ func (adapter *OpenAIAdapter) streamResponses(ctx context.Context, req StreamReq
 			Model:        modelID,
 			Instructions: instructions,
 			Input:        input,
+			ToolChoice:   resolveOpenAIToolChoice(req.ToolChoice),
 			Stream:       true,
 			Store:        false,
 		}
@@ -963,6 +991,7 @@ func (adapter *OpenAIAdapter) streamResponses(ctx context.Context, req StreamReq
 		recordLLMSummaryArtifact(req, buildLLMSummaryPayload(req, "openai", modelID, startedAt, time.Time{}, finishedAt, "", 0, 0, 0, 0, err))
 		return err
 	}
+	ensureOpenAIToolChoice(bodyMap, req.ToolChoice)
 	body = bodyMap
 
 	requestURL := OpenAIEndpointURL(baseURL, req.OpenAIEndpoint)

@@ -194,7 +194,7 @@ func currentModeContractText(mode agentv1.AgentMode, childSubagent bool) string 
 	case agentv1.AgentMode_AGENT_MODE_MULTITASK:
 		return "For the turn that contains this reminder, the active mode is multitask. Act as the foreground coordinator: delegate most non-trivial work to a coherent worker with Task, avoid duplicating delegated work in the foreground, and do not wait just for a worker to finish."
 	default:
-		return "For the turn that contains this reminder, the active mode is agent. CreatePlan is not available in this mode; do not call CreatePlan. If the user explicitly asks to create or revise a plan, call SwitchMode to return to plan mode first. If there is an accepted or current plan, execute or continue the implementation using the available agent-mode tools."
+		return "For the turn that contains this reminder, the active mode is agent. CreatePlan is not available in this mode; do not call CreatePlan. If the user explicitly asks to create or revise a plan, call SwitchMode to return to plan mode first. If there is an accepted or current plan, execute or continue the implementation using the available agent-mode tools. When the request requires an action or verification, emit the appropriate structured tool call and continue until the action is complete; do not end with only a promise to use a tool. A brief preamble is allowed, but it is not completion. If no tool is needed, answer directly."
 	}
 }
 

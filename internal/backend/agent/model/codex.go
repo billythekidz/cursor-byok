@@ -70,19 +70,40 @@ func (adapter *CodexAdapter) Stream(ctx context.Context, req StreamRequest, sink
 
 func mapCodexNotification(req StreamRequest, notice codex.Notification, sink func(ModelEvent) error) error {
 	var payload struct {
-		Delta   string `json:"delta"`
-		Message string `json:"message"`
-		Turn    struct {
+		Delta    string          `json:"delta"`
+		Message  string          `json:"message"`
+		ThreadID string          `json:"threadId"`
+		TurnID   string          `json:"turnId"`
+		ItemID   string          `json:"itemId"`
+		Stream   string          `json:"stream"`
+		Item     json.RawMessage `json:"item"`
+		Changes  json.RawMessage `json:"changes"`
+		Diff     string          `json:"diff"`
+		Turn     struct {
+			ID     string `json:"id"`
 			Status string `json:"status"`
 		} `json:"turn"`
+	}
+	if observer, ok := req.Observer.(CodexNotificationObserver); ok {
+		observer.RecordCodexNotification(req.RequestID, req.RunID, req.ModelCallID, notice.Method, notice.Params)
 	}
 	if err := json.Unmarshal(notice.Params, &payload); err != nil {
 		return fmt.Errorf("decode Codex notification %s: %w", notice.Method, err)
 	}
+	itemID, itemType := codexItemMetadata(payload.Item)
+	itemID = firstNonEmpty(payload.ItemID, itemID)
+	turnID := firstNonEmpty(payload.TurnID, payload.Turn.ID)
 	event := ModelEvent{
-		OccurredAt: time.Now().UTC(),
-		Provider:   "codex",
-		Model:      firstNonEmpty(req.ProviderModelID, req.ModelID),
+		OccurredAt:          time.Now().UTC(),
+		Provider:            "codex",
+		Model:               firstNonEmpty(req.ProviderModelID, req.ModelID),
+		ProviderEventMethod: notice.Method,
+		ProviderThreadID:    firstNonEmpty(payload.ThreadID),
+		ProviderTurnID:      turnID,
+		ProviderItemID:      itemID,
+		ProviderItemType:    itemType,
+		ProviderRawParams:   copyRawJSON(notice.Params),
+		ProviderRawItem:     copyRawJSON(payload.Item),
 	}
 	switch notice.Method {
 	case "item/agentMessage/delta":
@@ -92,6 +113,26 @@ func mapCodexNotification(req StreamRequest, notice codex.Notification, sink fun
 		event.Kind = ModelEventKindThinkingDelta
 		event.ThinkingStyle = agentv1.ThinkingStyle_THINKING_STYLE_DEFAULT
 		event.Text = payload.Delta
+	case "item/started":
+		event.Kind = ModelEventKindProviderItemStarted
+	case "item/completed":
+		event.Kind = ModelEventKindProviderItemCompleted
+	case "item/commandExecution/outputDelta":
+		event.Kind = ModelEventKindProviderShellOutputDelta
+		event.ProviderItemType = "commandExecution"
+		event.ProviderShellOutputDelta = buildCodexShellOutputDelta(payload.Stream, payload.Delta)
+	case "item/fileChange/patchUpdated":
+		event.Kind = ModelEventKindProviderFileChangeDelta
+		event.ProviderItemType = "fileChange"
+		event.ProviderFileChangeDelta = formatCodexFileChanges(payload.Changes)
+	case "item/fileChange/outputDelta":
+		event.Kind = ModelEventKindProviderFileChangeDelta
+		event.ProviderItemType = "fileChange"
+		event.ProviderFileChangeDelta = payload.Delta
+	case "turn/diff/updated":
+		event.Kind = ModelEventKindProviderFileChangeDelta
+		event.ProviderItemType = "fileChange"
+		event.ProviderFileChangeDelta = payload.Diff
 	case "turn/completed":
 		if status := strings.ToLower(strings.TrimSpace(payload.Turn.Status)); status == "failed" || status == "error" || status == "interrupted" || status == "cancelled" {
 			return fmt.Errorf("Codex turn ended with status %s", status)
@@ -112,6 +153,66 @@ func mapCodexNotification(req StreamRequest, notice codex.Notification, sink fun
 		return nil
 	}
 	return sink(event)
+}
+
+func codexItemMetadata(raw json.RawMessage) (string, string) {
+	if len(raw) == 0 {
+		return "", ""
+	}
+	var item struct {
+		ID   string `json:"id"`
+		Type string `json:"type"`
+	}
+	if err := json.Unmarshal(raw, &item); err != nil {
+		return "", ""
+	}
+	return strings.TrimSpace(item.ID), strings.TrimSpace(item.Type)
+}
+
+func copyRawJSON(raw json.RawMessage) json.RawMessage {
+	if len(raw) == 0 {
+		return nil
+	}
+	return append(json.RawMessage(nil), raw...)
+}
+
+func buildCodexShellOutputDelta(stream string, delta string) *agentv1.ShellOutputDeltaUpdate {
+	if strings.EqualFold(strings.TrimSpace(stream), "stderr") {
+		return &agentv1.ShellOutputDeltaUpdate{
+			Event: &agentv1.ShellOutputDeltaUpdate_Stderr{
+				Stderr: &agentv1.ShellStreamStderr{Data: delta},
+			},
+		}
+	}
+	return &agentv1.ShellOutputDeltaUpdate{
+		Event: &agentv1.ShellOutputDeltaUpdate_Stdout{
+			Stdout: &agentv1.ShellStreamStdout{Data: delta},
+		},
+	}
+}
+
+func formatCodexFileChanges(raw json.RawMessage) string {
+	if len(raw) == 0 {
+		return ""
+	}
+	var changes []struct {
+		Path string          `json:"path"`
+		Kind json.RawMessage `json:"kind"`
+		Diff string          `json:"diff"`
+	}
+	if err := json.Unmarshal(raw, &changes); err != nil {
+		return string(raw)
+	}
+	sections := make([]string, 0, len(changes))
+	for _, change := range changes {
+		kind := strings.TrimSpace(string(change.Kind))
+		if kind == "" {
+			kind = "unknown"
+		}
+		section := fmt.Sprintf("path: %s\nkind: %s\n%s", change.Path, kind, change.Diff)
+		sections = append(sections, strings.TrimSpace(section))
+	}
+	return strings.TrimSpace(strings.Join(sections, "\n\n"))
 }
 
 func latestUserText(messages []Message) string {

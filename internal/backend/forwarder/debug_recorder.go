@@ -131,6 +131,47 @@ func (recorder *debugRecorder) LogProviderArtifact(ctx context.Context, requestI
 	})
 }
 
+func (recorder *debugRecorder) LogCodexNotification(ctx context.Context, requestID string, conversationID string, runID string, modelCallID string, method string, params json.RawMessage) {
+	if !recorder.enabled(ctx) {
+		return
+	}
+	event := recorder.baseEvent("codex_raw", requestID, conversationID)
+	event["run_id"] = strings.TrimSpace(runID)
+	event["model_call_id"] = strings.TrimSpace(modelCallID)
+	event["method"] = strings.TrimSpace(method)
+	var metadata struct {
+		ThreadID string `json:"threadId"`
+		TurnID   string `json:"turnId"`
+		ItemID   string `json:"itemId"`
+		Item     struct {
+			ID   string `json:"id"`
+			Type string `json:"type"`
+		} `json:"item"`
+		Turn struct {
+			ID string `json:"id"`
+		} `json:"turn"`
+	}
+	if err := json.Unmarshal(params, &metadata); err == nil {
+		event["thread_id"] = strings.TrimSpace(metadata.ThreadID)
+		event["turn_id"] = firstNonEmpty(metadata.TurnID, metadata.Turn.ID)
+		event["item_id"] = firstNonEmpty(metadata.ItemID, metadata.Item.ID)
+		event["item_type"] = strings.TrimSpace(metadata.Item.Type)
+	}
+	event["params"] = rawJSONDebugPayload(params)
+	recorder.appendJSONL(ctx, requestID, conversationID, "codex.raw.jsonl", event)
+}
+
+func rawJSONDebugPayload(raw json.RawMessage) any {
+	if len(raw) == 0 {
+		return nil
+	}
+	var payload any
+	if err := json.Unmarshal(raw, &payload); err == nil {
+		return payload
+	}
+	return string(raw)
+}
+
 func (recorder *debugRecorder) baseEvent(layer string, requestID string, conversationID string) map[string]any {
 	resolvedConversationID := firstNonEmpty(strings.TrimSpace(conversationID), recorder.conversationIDForRequest(requestID))
 	return map[string]any{

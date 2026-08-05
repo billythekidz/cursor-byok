@@ -1256,15 +1256,6 @@ func (service *Service) scheduleProviderResume(stream *ActiveStream, _ int) erro
 	return service.requestProviderAction(stream, providerActionResume)
 }
 
-func shouldResumeAfterToolResults(finishReason string) bool {
-	switch strings.TrimSpace(finishReason) {
-	case "tool_use", "tool_calls", "function_call":
-		return true
-	default:
-		return false
-	}
-}
-
 func (service *Service) cancelScheduledProviderResume(stream *ActiveStream) {
 	if stream == nil {
 		return
@@ -1389,6 +1380,7 @@ func (service *Service) driveProvider(stream *ActiveStream) error {
 		Messages:           compiled.Messages,
 		StableMessageCount: compiled.StableMessageCount,
 		Tools:              compiled.Tools,
+		ToolChoice:         "auto",
 		MaxTokens:          maxTokens,
 		RequestKnobs:       requestKnobs,
 		CompileSummary:     compiled.CompileSummary,
@@ -1403,6 +1395,7 @@ func (service *Service) driveProvider(stream *ActiveStream) error {
 		"model_name":             strings.TrimSpace(modelName),
 		"mode":                   compiled.Mode.String(),
 		"thinking_effort":        strings.TrimSpace(thinkingEffort),
+		"tool_choice":            "auto",
 		"max_tokens":             maxTokens,
 		"request_knobs":          requestKnobs,
 		"message_count":          len(compiled.Messages),

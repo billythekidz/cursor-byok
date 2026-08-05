@@ -7,7 +7,7 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 799,
+          "line": 826,
           "column": 63
         }
       ]
@@ -31,7 +31,7 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 609,
+          "line": 619,
           "column": 53
         }
       ]
@@ -55,7 +55,7 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 586,
+          "line": 596,
           "column": 11
         }
       ]
@@ -67,7 +67,7 @@
       "refs": [
         {
           "file": "src/views/ModelEditor.vue",
-          "line": 510,
+          "line": 612,
           "column": 22
         }
       ]
@@ -79,8 +79,8 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 759,
-          "column": 1
+          "line": 778,
+          "column": 17
         }
       ]
     },
@@ -91,7 +91,7 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 606,
+          "line": 616,
           "column": 24
         }
       ]
@@ -139,7 +139,7 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 748,
+          "line": 768,
           "column": 63
         }
       ]
@@ -151,7 +151,7 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 604,
+          "line": 614,
           "column": 86
         }
       ]
@@ -163,7 +163,7 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 800,
+          "line": 827,
           "column": 62
         }
       ]
@@ -187,12 +187,12 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 775,
+          "line": 795,
           "column": 23
         },
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 827,
+          "line": 854,
           "column": 23
         }
       ]
@@ -204,7 +204,7 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 624,
+          "line": 634,
           "column": 22
         }
       ]
@@ -240,8 +240,8 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 810,
-          "column": 1
+          "line": 836,
+          "column": 17
         }
       ]
     },
@@ -252,7 +252,7 @@
       "refs": [
         {
           "file": "src/views/ModelEditor.vue",
-          "line": 511,
+          "line": 613,
           "column": 102
         }
       ]
@@ -264,12 +264,12 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 752,
+          "line": 772,
           "column": 64
         },
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 803,
+          "line": 830,
           "column": 96
         }
       ]
@@ -281,7 +281,7 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 749,
+          "line": 769,
           "column": 62
         }
       ]
@@ -317,12 +317,12 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 773,
+          "line": 793,
           "column": 23
         },
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 825,
+          "line": 852,
           "column": 23
         }
       ]
@@ -351,7 +351,7 @@
         },
         {
           "file": "src/views/ModelEditor.vue",
-          "line": 509,
+          "line": 611,
           "column": 44
         }
       ]
@@ -387,7 +387,7 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 415,
+          "line": 425,
           "column": 27
         }
       ]
@@ -399,12 +399,12 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 774,
+          "line": 794,
           "column": 23
         },
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 826,
+          "line": 853,
           "column": 23
         }
       ]
@@ -416,7 +416,7 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 415,
+          "line": 425,
           "column": 41
         }
       ]
@@ -428,7 +428,7 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 606,
+          "line": 616,
           "column": 24
         }
       ]
@@ -440,7 +440,7 @@
       "refs": [
         {
           "file": "src/views/ModelConfig.vue",
-          "line": 624,
+          "line": 634,
           "column": 22
         }
       ]

@@ -34,6 +34,11 @@ func (gateway *DefaultProviderGateway) StartStream(ctx context.Context, req Prov
 	if req.MaxTokens > 0 {
 		requestKnobs["max_tokens"] = req.MaxTokens
 	}
+	toolChoice := strings.TrimSpace(req.ToolChoice)
+	if toolChoice == "" {
+		toolChoice = "auto"
+	}
+	requestKnobs["tool_choice"] = toolChoice
 	if strings.TrimSpace(req.ThinkingEffort) != "" {
 		requestKnobs["runtime_thinking_effort"] = strings.TrimSpace(req.ThinkingEffort)
 	}
@@ -49,6 +54,7 @@ func (gateway *DefaultProviderGateway) StartStream(ctx context.Context, req Prov
 		Messages:            req.Messages,
 		StableMessageCount:  req.StableMessageCount,
 		Tools:               append([]json.RawMessage(nil), req.Tools...),
+		ToolChoice:          toolChoice,
 		MaxTokens:           req.MaxTokens,
 		Stream:              true,
 		RequestKnobs:        requestKnobs,

@@ -1,3 +1,13 @@
+-------0.0.49-------
+- Added endpoint selection to the Add Model dialog so new OpenAI models reuse configured endpoint credentials and appear under the matching endpoint.
+- Added Scan Models access inside expanded endpoint panels.
+- Improved Codex tool progress mirroring and ensured OpenAI tool calls use automatic tool selection.
+
+-------0.0.48-------
+- Always send OpenAI tool_choice=auto to preserve structured tool execution
+- Resume agent turns only after an actual structured tool call
+- Prevent Agent mode from ending with a promise instead of executing the requested tool action
+
 -------0.0.47-------
 - Fixed Task/subagent bridge session binding by forwarding root conversation IDs and execution options
 - Return explicit RunSSE errors when an active stream becomes unavailable instead of hanging silently

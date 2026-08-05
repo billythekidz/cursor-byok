@@ -335,7 +335,7 @@ async function handleTestAllModelAdapters() {
   }
 }
 
-async function handleScanOpenAI() {
+async function handleScanOpenAI(groupIDToKeep = "") {
   if (scanning.value) {
     return;
   }
@@ -388,7 +388,7 @@ async function handleScanOpenAI() {
       return;
     }
     await reloadUserConfig({ modelAdaptersOnly: true });
-    expandedGroupID.value = "";
+    expandedGroupID.value = groupIDToKeep;
     showEndpointForm.value = false;
     scanBaseURL.value = "";
     scanAPIKey.value = "";
@@ -401,6 +401,16 @@ async function handleScanOpenAI() {
   } finally {
     scanning.value = false;
   }
+}
+
+async function handleScanOpenAIForGroup(group) {
+  const endpoint = group?.adapters?.[0];
+  if (!endpoint) {
+    return;
+  }
+  scanBaseURL.value = endpoint.baseURL || "";
+  scanAPIKey.value = endpoint.apiKey || "";
+  await handleScanOpenAI(group.groupID);
 }
 
 async function handleToggleActive(adapter) {
@@ -739,8 +749,18 @@ onBeforeUnmount(() => {
                 <div class="truncate text-sm font-medium text-white">{{ formatHost(expandedGroup.adapters[0]?.baseURL) }}</div>
                 <div class="mt-0.5 truncate text-xs text-[#737373]">{{ expandedGroup.adapters.length }} models</div>
               </div>
-              <Button variant="text" :disabled="appState.configSaving" @click="expandedGroupID = ''">Collapse</Button>
+              <div class="center-row shrink-0 gap-2">
+                <Button
+                  variant="primary"
+                  :disabled="appState.configSaving || batchTesting || scanning"
+                  @click.stop="handleScanOpenAIForGroup(expandedGroup)"
+                >
+                  {{ scanning ? "Scanning..." : "Scan Models" }}
+                </Button>
+                <Button variant="text" :disabled="appState.configSaving" @click="expandedGroupID = ''">Collapse</Button>
+              </div>
             </div>
+            <div v-if="scanError" class="mb-3 truncate text-xs text-[#e06c75]">{{ scanError }}</div>
 
             <div class="mb-4">
               <div class="mb-2 flex items-end justify-between gap-3">
@@ -776,6 +796,13 @@ onBeforeUnmount(() => {
                       :enabled="adapter.active"
                       :disabled="appState.configSaving || batchTesting"
                       @change="handleToggleActive(adapter)"
+                    />
+                    <ModelContextWindowControl
+                      :value="adapter.contextWindowTokens"
+                      :disabled="appState.configSaving || batchTesting"
+                      :saving="isContextWindowSaving(adapter)"
+                      :error="contextWindowError(adapter)"
+                      @save="handleSaveContextWindow(adapter, $event)"
                     />
                     <div class="center-row flex-wrap justify-end gap-2 border-t border-[#343434] pt-2.5">
                       <Button

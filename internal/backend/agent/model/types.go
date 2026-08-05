@@ -120,6 +120,8 @@ type StreamRequest struct {
 	StableMessageCount int
 	// Tools thể hiện danh sách JSON mô tả công cụ gốc.
 	Tools []json.RawMessage
+	// ToolChoice thể hiện chính sách chọn công cụ của provider; để trống sẽ dùng auto giống Codex.
+	ToolChoice string
 	// MaxTokens thể hiện số token đầu ra tối đa của vòng này.
 	MaxTokens int
 	// Stream thể hiện request hiện tại phải dùng luồng.
@@ -152,6 +154,12 @@ type LLMArtifactObserver interface {
 	RecordLLMSummary(requestID string, runID string, modelCallID string, payload map[string]any) (string, error)
 }
 
+// CodexNotificationObserver records the raw Codex app-server notification
+// stream without adding provider-owned progress to the conversation history.
+type CodexNotificationObserver interface {
+	RecordCodexNotification(requestID string, runID string, modelCallID string, method string, params json.RawMessage)
+}
+
 // ModelEventKind thể hiện loại sự kiện mô hình thống nhất.
 type ModelEventKind string
 
@@ -172,6 +180,14 @@ const (
 	ModelEventKindTurnFinished ModelEventKind = "turn_finished"
 	// ModelEventKindProviderError thể hiện phía provider trả về lỗi.
 	ModelEventKindProviderError ModelEventKind = "provider_error"
+	// ModelEventKindProviderItemStarted thể hiện Codex bắt đầu một output item.
+	ModelEventKindProviderItemStarted ModelEventKind = "provider_item_started"
+	// ModelEventKindProviderItemCompleted thể hiện Codex hoàn tất một output item.
+	ModelEventKindProviderItemCompleted ModelEventKind = "provider_item_completed"
+	// ModelEventKindProviderShellOutputDelta thể hiện output shell do Codex sở hữu.
+	ModelEventKindProviderShellOutputDelta ModelEventKind = "provider_shell_output_delta"
+	// ModelEventKindProviderFileChangeDelta thể hiện patch file do Codex sở hữu.
+	ModelEventKindProviderFileChangeDelta ModelEventKind = "provider_file_change_delta"
 )
 
 // ModelEvent thể hiện một sự kiện mô hình thống nhất.
@@ -196,6 +212,22 @@ type ModelEvent struct {
 	ThinkingSignatureSource string
 	// ProviderItemID lưu id output item gốc của provider, dùng cho stateless Responses replay.
 	ProviderItemID string
+	// ProviderEventMethod lưu method notification gốc của provider.
+	ProviderEventMethod string
+	// ProviderThreadID lưu thread id gốc của Codex app-server.
+	ProviderThreadID string
+	// ProviderTurnID lưu turn id gốc của Codex app-server.
+	ProviderTurnID string
+	// ProviderItemType lưu type của item gốc, ví dụ commandExecution hoặc fileChange.
+	ProviderItemType string
+	// ProviderRawParams lưu nguyên payload notification để debug/raw mirror.
+	ProviderRawParams json.RawMessage
+	// ProviderRawItem lưu nguyên item lifecycle khi notification có trường item.
+	ProviderRawItem json.RawMessage
+	// ProviderShellOutputDelta là output shell đã chuyển sang schema stream của Cursor.
+	ProviderShellOutputDelta *agentv1.ShellOutputDeltaUpdate
+	// ProviderFileChangeDelta là patch file đã chuẩn hóa thành text delta của Cursor.
+	ProviderFileChangeDelta string
 	// ProviderStatus lưu status output item gốc của provider, dùng cho stateless Responses replay.
 	ProviderStatus string
 	// ProviderSummary lưu summary output item gốc của provider, dùng cho stateless Responses replay.

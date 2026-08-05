@@ -478,6 +478,11 @@ func (service *Service) applyProviderModelEvent(stream *ActiveStream, event mode
 	stream.mu.Unlock()
 
 	switch event.Kind {
+	case modeladapter.ModelEventKindProviderItemStarted,
+		modeladapter.ModelEventKindProviderItemCompleted,
+		modeladapter.ModelEventKindProviderShellOutputDelta,
+		modeladapter.ModelEventKindProviderFileChangeDelta:
+		return service.applyCodexProviderEvent(stream, event)
 	case modeladapter.ModelEventKindTextDelta:
 		stream.mu.Lock()
 		stream.ProviderAccumulatedText += event.Text
@@ -800,7 +805,7 @@ func (service *Service) handleProviderDoneEvent(stream *ActiveStream, payload *s
 		return nil
 	}
 
-	if (hadToolInvocation || shouldResumeAfterToolResults(finishReason)) && !terminalToolInvocation {
+	if hadToolInvocation && !terminalToolInvocation {
 		if err := service.publishCheckpoint(requestID, conversationID); err != nil {
 			return service.failStreamIfNonTerminal(stream, "unknown", err)
 		}
@@ -1132,12 +1137,11 @@ func mergeCompletionDisposition(existing pendingCompletionDisposition, incoming 
 	return completionDispositionCompleteAfterExternal
 }
 
-func completionDispositionForExternalResults(finishReason string, forceComplete bool, hadToolInvocation bool) pendingCompletionDisposition {
+func completionDispositionForExternalResults(_ string, forceComplete bool, hadToolInvocation bool) pendingCompletionDisposition {
 	if forceComplete {
 		return completionDispositionCompleteAfterExternal
 	}
-	// Some providers may report end_turn even after emitting a valid tool_use block.
-	if hadToolInvocation || shouldResumeAfterToolResults(finishReason) {
+	if hadToolInvocation {
 		return completionDispositionResumeAfterExternal
 	}
 	return completionDispositionCompleteAfterExternal

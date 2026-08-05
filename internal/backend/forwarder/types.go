@@ -253,6 +253,7 @@ type ProviderRequest struct {
 	Messages            []modeladapter.Message
 	StableMessageCount  int
 	Tools               []json.RawMessage
+	ToolChoice          string
 	MaxTokens           int
 	RequestKnobs        map[string]any
 	CompileSummary      string

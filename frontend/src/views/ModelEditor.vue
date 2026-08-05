@@ -8,6 +8,7 @@ import { getModelEditorContext } from "@/services/clientApi";
 import {
   ANTHROPIC_THINKING_EFFORT_DEFAULT,
   appState,
+  buildOpenAIEndpointGroupKey,
   buildModelAdapterTestRequestHash,
   createEmptyModelAdapter,
   CUSTOM_HEADERS_DEFAULT_JSON,
@@ -62,6 +63,7 @@ const errorMessage = ref("");
 const loading = ref(true);
 const lastTestAdapterID = ref("");
 const localTestFailure = ref("");
+const selectedOpenAIEndpointGroupID = ref("");
 
 function createOptionalPositiveIntegerModel(key) {
   return computed({
@@ -99,6 +101,83 @@ const modelTestSummary = computed(() => {
 });
 
 const title = computed(() => (editorIndex.value >= 0 ? "Edit Model Configuration" : "Add Model Configuration"));
+const isAddingOpenAIModel = computed(() => editorIndex.value < 0 && draft.type === "openai");
+
+function maskSecret(value) {
+  const text = String(value || "").trim();
+  if (!text) {
+    return "-";
+  }
+  if (text.length <= 8) {
+    return `${"*".repeat(Math.max(text.length - 2, 0))}${text.slice(-2)}`;
+  }
+  return `${text.slice(0, 4)}****${text.slice(-4)}`;
+}
+
+function formatEndpointHost(value) {
+  const text = String(value || "").trim();
+  if (!text) {
+    return "-";
+  }
+  try {
+    return new URL(text).host || text;
+  } catch {
+    return text.replace(/^https?:\/\//, "");
+  }
+}
+
+const configuredOpenAIEndpointOptions = computed(() => {
+  const seen = new Set();
+  const options = [];
+  for (const rawAdapter of appState.modelAdapters) {
+    const adapter = normalizeModelAdapter(rawAdapter);
+    if (adapter.type !== "openai" || !adapter.baseURL || !adapter.apiKey) {
+      continue;
+    }
+    const groupID = buildOpenAIEndpointGroupKey(adapter.baseURL, adapter.apiKey);
+    if (seen.has(groupID)) {
+      continue;
+    }
+    seen.add(groupID);
+    options.push({
+      value: groupID,
+      label: `${formatEndpointHost(adapter.baseURL)} · ${maskSecret(adapter.apiKey)}`,
+      icon: "icon-[mdi--server-network]",
+      baseURL: adapter.baseURL,
+      apiKey: adapter.apiKey,
+      openAIEndpoint: adapter.openAIEndpoint || OPENAI_ENDPOINT_RESPONSES,
+    });
+  }
+  return options;
+});
+
+function applySelectedOpenAIEndpoint(groupID) {
+  const endpoint = configuredOpenAIEndpointOptions.value.find((option) => option.value === groupID);
+  if (!endpoint) {
+    draft.baseURL = "";
+    draft.apiKey = "";
+    draft.openAIEndpointGroupID = "";
+    return;
+  }
+  draft.baseURL = endpoint.baseURL;
+  draft.apiKey = endpoint.apiKey;
+  draft.openAIEndpoint = endpoint.openAIEndpoint;
+  draft.openAIEndpointGroupID = endpoint.value;
+}
+
+function initializeNewOpenAIEndpoint() {
+  if (!isAddingOpenAIModel.value) {
+    return;
+  }
+  const currentGroupID = draft.baseURL && draft.apiKey
+    ? buildOpenAIEndpointGroupKey(draft.baseURL, draft.apiKey)
+    : "";
+  const selected = configuredOpenAIEndpointOptions.value.some((option) => option.value === currentGroupID)
+    ? currentGroupID
+    : configuredOpenAIEndpointOptions.value[0]?.value || "";
+  selectedOpenAIEndpointGroupID.value = selected;
+  applySelectedOpenAIEndpoint(selected);
+}
 
 function ensureOpenAIExtraParamsJSON() {
   if (!String(draft.openAIExtraParamsJSON || "").trim()) {
@@ -150,9 +229,11 @@ async function loadContext() {
     if (!draft.type) {
       draft.type = "openai";
     }
+    initializeNewOpenAIEndpoint();
   } catch (_error) {
     Object.assign(draft, createEmptyModelAdapter());
     draft.type = "openai";
+    initializeNewOpenAIEndpoint();
   } finally {
     loading.value = false;
   }
@@ -214,6 +295,7 @@ function handleModelTypeChange(type) {
   } else if (type === "anthropic") {
     ensureAnthropicThinkingEffort();
   }
+  initializeNewOpenAIEndpoint();
 }
 
 async function handleTest() {
@@ -282,6 +364,14 @@ watch(
   },
 );
 
+watch(
+  configuredOpenAIEndpointOptions,
+  () => {
+    initializeNewOpenAIEndpoint();
+  },
+  { deep: true },
+);
+
 onMounted(async () => {
   await loadContext();
 });
@@ -293,10 +383,10 @@ onMounted(async () => {
       <h2 class="text-base font-medium text-white">{{ title }}</h2>
       <div class="flex items-center gap-2">
         <Button variant="default" @click="handleCancel">Cancel</Button>
-        <Button variant="default" :disabled="isCurrentConfigTesting || appState.configSaving" @click="handleTest">
+        <Button variant="default" :disabled="isCurrentConfigTesting || appState.configSaving || (isAddingOpenAIModel && !selectedOpenAIEndpointGroupID)" @click="handleTest">
           {{ isCurrentConfigTesting ? "Testing..." : "Save & Test" }}
         </Button>
-        <Button variant="primary" :disabled="appState.configSaving" @click="handleSave">
+        <Button variant="primary" :disabled="appState.configSaving || (isAddingOpenAIModel && !selectedOpenAIEndpointGroupID)" @click="handleSave">
           {{ appState.configSaving ? "Saving..." : "Save" }}
         </Button>
       </div>
@@ -351,7 +441,7 @@ onMounted(async () => {
             />
           </label>
 
-          <label v-if="draft.type !== 'codex'" class="flex flex-col gap-1">
+          <label v-if="draft.type !== 'codex' && !isAddingOpenAIModel" class="flex flex-col gap-1">
             <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
               <Tooltip :content="fieldTips.apiKey" />
               <span>API Key</span>
@@ -365,7 +455,19 @@ onMounted(async () => {
             />
           </label>
 
-          <label v-if="draft.type !== 'codex'" class="flex flex-col gap-1">
+          <label v-if="isAddingOpenAIModel" class="flex flex-col gap-1">
+            <span class="text-sm text-[#d4d4d4]">Endpoint</span>
+            <Select
+              v-model="selectedOpenAIEndpointGroupID"
+              :options="configuredOpenAIEndpointOptions"
+              :disabled="configuredOpenAIEndpointOptions.length === 0"
+              placeholder="Select configured endpoint"
+              @change="applySelectedOpenAIEndpoint"
+            />
+            <span v-if="configuredOpenAIEndpointOptions.length === 0" class="text-xs text-[#e0a458]">No configured endpoint. Add an endpoint first.</span>
+          </label>
+
+          <label v-if="draft.type !== 'codex' && !isAddingOpenAIModel" class="flex flex-col gap-1">
             <span class="center-row justify-start gap-1.5 text-sm text-[#d4d4d4]">
               <Tooltip :content="fieldTips.baseURL" />
               <span>Base URL</span>
