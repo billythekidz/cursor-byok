@@ -50,6 +50,7 @@ func (service *Service) handleInteractionToolInvocation(stream *ActiveStream, in
 		removePending()
 		return err
 	}
+	service.scheduleStreamTimer(stream, providerTimerKey(streamTimerInteractionRecovery, pendingInteraction.InteractionID), interactionRecoveryTimeout, streamTimerInteractionRecovery, pendingInteraction.InteractionID, 0, "interaction_timeout")
 	return nil
 }
 
@@ -63,21 +64,29 @@ func (service *Service) handleInteractionResult(intent InboundIntent) error {
 	}
 	pending, found := selectPendingInteraction(intent.InteractionResponse, stream)
 	if !found {
+		if recentlyCompletedInteractionExists(stream, fmt.Sprintf("%d", intent.InteractionResponse.GetId())) {
+			return nil
+		}
 		return fmt.Errorf("pending interaction not found")
 	}
 	result, err := service.interactionBridge.ApplyInteractionResponse(intent.InteractionResponse, pending)
 	if err != nil {
 		return err
 	}
+	clearStreamTimer(stream, providerTimerKey(streamTimerInteractionRecovery, pending.InteractionID))
 	markInteractionCompleted(stream, pending)
 	toolName := strings.TrimSpace(deriveToolNameFromPendingInteraction(pending))
+	resultText := strings.TrimSpace(result.ToolResultPayload)
+	if resultText == "" {
+		resultText = fmt.Sprintf("%s error: interaction returned an empty result", toolName)
+	}
 	if result.ToolCall != nil {
 		applySwitchModeMetadata(stream, result.ToolCall)
-		if err := service.appendToolResult(stream, result.ToolCallID, toolName, pending.ArgsJSON, result.ToolResultPayload, pending.ReasoningContent, result.ToolCall); err != nil {
+		if err := service.appendToolResult(stream, result.ToolCallID, toolName, pending.ArgsJSON, resultText, pending.ReasoningContent, result.ToolCall); err != nil {
 			return err
 		}
-	} else if strings.TrimSpace(result.ToolResultPayload) != "" {
-		if err := service.appendToolResult(stream, pending.ToolCallID, toolName, pending.ArgsJSON, result.ToolResultPayload, pending.ReasoningContent, nil); err != nil {
+	} else {
+		if err := service.appendToolResult(stream, pending.ToolCallID, toolName, pending.ArgsJSON, resultText, pending.ReasoningContent, nil); err != nil {
 			return err
 		}
 	}
@@ -174,10 +183,82 @@ func markInteractionCompleted(stream *ActiveStream, pending runtimecore.PendingI
 	if stream == nil {
 		return
 	}
+	now := time.Now().UTC()
+	cutoff := now.Add(-completedInteractionRetention)
 	stream.mu.Lock()
 	delete(stream.PendingInteractions, pending.InteractionID)
-	stream.UpdatedAt = time.Now().UTC()
+	if stream.RecentCompletedInteractions == nil {
+		stream.RecentCompletedInteractions = make(map[string]time.Time)
+	}
+	for interactionID, completedAt := range stream.RecentCompletedInteractions {
+		if completedAt.Before(cutoff) {
+			delete(stream.RecentCompletedInteractions, interactionID)
+		}
+	}
+	stream.RecentCompletedInteractions[pending.InteractionID] = now
+	stream.UpdatedAt = now
 	stream.mu.Unlock()
+}
+
+func recentlyCompletedInteractionExists(stream *ActiveStream, interactionID string) bool {
+	if stream == nil || strings.TrimSpace(interactionID) == "" {
+		return false
+	}
+	now := time.Now().UTC()
+	cutoff := now.Add(-completedInteractionRetention)
+	stream.mu.Lock()
+	defer stream.mu.Unlock()
+	completedAt, ok := stream.RecentCompletedInteractions[strings.TrimSpace(interactionID)]
+	for id, timestamp := range stream.RecentCompletedInteractions {
+		if timestamp.Before(cutoff) {
+			delete(stream.RecentCompletedInteractions, id)
+		}
+	}
+	return ok && !completedAt.Before(cutoff)
+}
+
+func pendingInteractionByID(stream *ActiveStream, interactionID string) (runtimecore.PendingInteraction, bool) {
+	if stream == nil || strings.TrimSpace(interactionID) == "" {
+		return runtimecore.PendingInteraction{}, false
+	}
+	stream.mu.Lock()
+	defer stream.mu.Unlock()
+	pending, ok := stream.PendingInteractions[strings.TrimSpace(interactionID)]
+	return pending, ok
+}
+
+func (service *Service) recoverPendingInteraction(stream *ActiveStream, interactionID string, reason string) error {
+	pending, found := pendingInteractionByID(stream, interactionID)
+	if !found {
+		return nil
+	}
+	clearStreamTimer(stream, providerTimerKey(streamTimerInteractionRecovery, pending.InteractionID))
+	markInteractionCompleted(stream, pending)
+	toolName := deriveToolNameFromPendingInteraction(pending)
+	resultText := fmt.Sprintf("%s error: %s", firstNonEmpty(strings.TrimSpace(toolName), "interaction"), strings.TrimSpace(reason))
+	if err := service.appendToolResult(stream, pending.ToolCallID, toolName, pending.ArgsJSON, resultText, pending.ReasoningContent, nil); err != nil {
+		return err
+	}
+	if err := service.publishToolCallCompleted(stream.RequestID, pending.ToolCallID, pending.ModelCallID, nil); err != nil {
+		return err
+	}
+	if err := service.syncSummaryCarryForward(stream.ConversationID, stream.RequestID, pending.ModelCallID); err != nil {
+		return err
+	}
+	if err := service.publishCheckpoint(stream.RequestID, stream.ConversationID); err != nil {
+		return err
+	}
+	if !shouldAutoResumeAfterInteraction(pending) {
+		rememberPendingProviderCompletion(stream, pendingTurnCompletion{
+			ConversationID: stream.ConversationID,
+			RequestID:      stream.RequestID,
+			TurnSeq:        stream.TurnSeq,
+			ModelCallID:    pending.ModelCallID,
+			ProviderPass:   pending.ProviderPass,
+			Disposition:    completionDispositionCompleteAfterExternal,
+		})
+	}
+	return service.reconcileStream(stream)
 }
 
 func deriveToolNameFromPendingInteraction(pending runtimecore.PendingInteraction) string {

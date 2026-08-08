@@ -154,7 +154,7 @@ tasks:
     summary: Update build assets based on config
     dir: '{{.BUILD_DIR}}'
     cmds:
-      - wails3 update build-assets -name "{{.APP_NAME}}" -binaryname "{{.APP_NAME}}" -config config.yml -dir .
+      - wails3 update build-assets -name "{{.APP_NAME}}" -binaryname "{{.BINARY_NAME}}" -config config.yml -dir .
       - rm -rf ios
 
   setup:docker:

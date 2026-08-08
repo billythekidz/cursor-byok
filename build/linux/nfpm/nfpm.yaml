@@ -17,8 +17,8 @@ license: "MIT"
 release: "1"
 
 contents:
-  - src: "./bin/Cursor Helper"
-    dst: "/usr/local/bin/Cursor Helper"
+  - src: "./bin/cursor-byok"
+    dst: "/usr/local/bin/cursor-byok"
   - src: "./build/appicon.png"
     dst: "/usr/share/icons/hicolor/128x128/apps/Cursor Helper.png"
   - src: "./build/linux/Cursor Helper.desktop"

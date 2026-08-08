@@ -17,13 +17,13 @@ type DefaultReminderInjector struct {
 }
 
 const (
-	promptContextSourcePlanTurnContract          = "plan_turn_contract"
-	promptContextSourceActiveModeContract        = "active_mode_contract"
-	promptContextSourceLatestUserIntent          = "latest_user_intent"
-	promptContextSourceCurrentUserRequest        = "current_user_request"
-	promptContextSourceSubagentContract          = "subagent_contract"
-	promptContextSourceSubagentEmptyStopRecovery = "subagent_empty_stop_recovery"
-	promptContextSourceDebugModeReminder         = "debug_mode_reminder"
+	promptContextSourcePlanTurnContract     = "plan_turn_contract"
+	promptContextSourceActiveModeContract   = "active_mode_contract"
+	promptContextSourceLatestUserIntent     = "latest_user_intent"
+	promptContextSourceCurrentUserRequest   = "current_user_request"
+	promptContextSourceSubagentContract     = "subagent_contract"
+	promptContextSourceProviderLoopRecovery = "provider_loop_recovery"
+	promptContextSourceDebugModeReminder    = "debug_mode_reminder"
 )
 
 // NewReminderInjector creates the default reminder injector.
@@ -40,11 +40,12 @@ func (injector *DefaultReminderInjector) Inject(mode agentv1.AgentMode, conversa
 		normalizedMode = agentv1.AgentMode_AGENT_MODE_AGENT
 	}
 	if conversation != nil && isChildConversationSubagentTypeName(conversation.SubagentTypeName) {
+		role := resolveAgentRole(conversation.SubagentTypeName)
 		return appendCurrentTurnAttentionReminders(PromptReminders{
 			SystemParts: reminders,
 			PromptContexts: []PromptContextMessage{
-				newPromptContextReminder(promptContextSourceSubagentContract, subagentContractText()),
-				newPromptContextReminder(promptContextSourceActiveModeContract, currentModeContractText(normalizedMode, true)),
+				newPromptContextReminder(promptContextSourceSubagentContract, subagentContractText(role)),
+				newPromptContextReminder(promptContextSourceActiveModeContract, currentModeContractText(normalizedMode, role)),
 			},
 		}, latestUserText)
 	}
@@ -77,7 +78,7 @@ func (injector *DefaultReminderInjector) Inject(mode agentv1.AgentMode, conversa
 	result := PromptReminders{
 		SystemParts: reminders,
 		PromptContexts: []PromptContextMessage{
-			newPromptContextReminder(promptContextSourceActiveModeContract, currentModeContractText(normalizedMode, false)),
+			newPromptContextReminder(promptContextSourceActiveModeContract, currentModeContractText(normalizedMode, agentRoleMain)),
 		},
 	}
 	if normalizedMode == agentv1.AgentMode_AGENT_MODE_PLAN {
@@ -172,17 +173,24 @@ func newPromptContextReminder(source string, content string) PromptContextMessag
 	)
 }
 
-func subagentContractText() string {
+func subagentContractText(role agentRole) string {
 	return strings.Join([]string{
-		"The turn that contains this reminder runs inside a subagent child conversation. Work as an investigator for the parent agent, not as the final user-facing assistant.",
-		"Return a short textual result: lead with the conclusion, keep only the key evidence, and do not produce a long response.",
-		"Use the available agent tools when they materially improve correctness or efficiency. Do not ask the user questions. If required information is missing, report the gap to the parent agent instead of asking the user directly.",
+		"The turn that contains this reminder runs inside a subagent child conversation.",
+		agentRoleSystemPrompt(role),
+		"Lead with the conclusion and keep the result concise. If required information is missing or recovery is exhausted, report the gap and evidence to the parent agent instead of asking the user directly.",
 	}, "\n\n")
 }
 
-func currentModeContractText(mode agentv1.AgentMode, childSubagent bool) string {
-	if childSubagent {
-		return "For the turn that contains this reminder, the active mode is a subagent child conversation. Use the available agent tools, but do not call AskQuestion. Return only a concise investigation result for the parent agent."
+func currentModeContractText(mode agentv1.AgentMode, role agentRole) string {
+	if isChildAgentRole(role) {
+		switch role {
+		case agentRoleExplorer:
+			return "For the turn that contains this reminder, the child role is Explore. Use only the exposed read-only tools and return evidence; do not perform edits or state-changing execution."
+		case agentRolePlanner:
+			return "For the turn that contains this reminder, the child role is Plan. Use only the exposed read-only tools and return a concrete plan with evidence; do not perform edits or state-changing execution."
+		default:
+			return "For the turn that contains this reminder, the child role is an implementation worker. Continue through the required tool calls, changes, and verification; do not return only an investigation summary or a promise to act."
+		}
 	}
 	switch normalizeMode(mode) {
 	case agentv1.AgentMode_AGENT_MODE_PLAN:

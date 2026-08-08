@@ -50,12 +50,14 @@ var releaseAssets = []assetSpec{
 
 func main() {
 	if len(os.Args) < 2 {
-		exitf("usage: go run ./scripts/release <version|notes|manifest> [flags]")
+		exitf("usage: go run ./scripts/release <version|binary-name|notes|manifest> [flags]")
 	}
 
 	switch os.Args[1] {
 	case "version":
 		runVersion(os.Args[2:])
+	case "binary-name":
+		runBinaryName(os.Args[2:])
 	case "notes":
 		runNotes(os.Args[2:])
 	case "manifest":
@@ -76,6 +78,19 @@ func runVersion(args []string) {
 	}
 
 	fmt.Print(version)
+}
+
+func runBinaryName(args []string) {
+	flags := flag.NewFlagSet("binary-name", flag.ExitOnError)
+	configPath := flags.String("config", "build/artifacts.yml", "path to artifact config")
+	_ = flags.Parse(args)
+
+	binaryName, err := readBinaryName(*configPath)
+	if err != nil {
+		exitErr(err)
+	}
+
+	fmt.Print(binaryName)
 }
 
 func runNotes(args []string) {
@@ -111,7 +126,7 @@ func runManifest(args []string) {
 	assetsDir := flags.String("assets-dir", "", "directory containing release assets")
 	outputPath := flags.String("out", "", "manifest output file")
 	repo := flags.String("repo", "", "GitHub repo in owner/repo form")
-	baseName := flags.String("base-name", "cursor-byok", "release asset basename")
+	baseName := flags.String("base-name", "", "release asset basename")
 	notesPath := flags.String("notes", "", "release notes file")
 	_ = flags.Parse(args)
 
@@ -132,6 +147,14 @@ func runManifest(args []string) {
 	if err != nil {
 		exitErr(err)
 	}
+	assetBaseName, err := readBinaryName("build/artifacts.yml")
+	if err != nil {
+		exitErr(err)
+	}
+	requestedBaseName := strings.TrimSpace(*baseName)
+	if requestedBaseName != "" && requestedBaseName != assetBaseName {
+		exitf("release asset basename must be %q", assetBaseName)
+	}
 
 	notes, err := resolveReleaseNotes(*notesPath)
 	if err != nil {
@@ -147,7 +170,7 @@ func runManifest(args []string) {
 	}
 
 	for _, spec := range releaseAssets {
-		filename := fmt.Sprintf("%s-%s-%s%s", *baseName, version, spec.platform, spec.suffix)
+		filename := fmt.Sprintf("%s-%s-%s%s", assetBaseName, version, spec.platform, spec.suffix)
 		fullpath := filepath.Join(*assetsDir, filename)
 		asset, err := buildManifestAsset(fullpath, *repo, version, filename)
 		if err != nil {
@@ -190,6 +213,26 @@ func readVersion(configPath string) (string, error) {
 		return "", errors.New("build/config.yml info.version is empty")
 	}
 	return version, nil
+}
+
+func readBinaryName(configPath string) (string, error) {
+	content, err := os.ReadFile(configPath)
+	if err != nil {
+		return "", err
+	}
+
+	var cfg struct {
+		BinaryName string `yaml:"binary_name"`
+	}
+	if err := yaml.Unmarshal(content, &cfg); err != nil {
+		return "", err
+	}
+
+	binaryName := strings.TrimSpace(cfg.BinaryName)
+	if binaryName == "" {
+		return "", fmt.Errorf("%s binary_name is empty", configPath)
+	}
+	return binaryName, nil
 }
 
 func resolveReleaseNotes(sourcePath string) (string, error) {

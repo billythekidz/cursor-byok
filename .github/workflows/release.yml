@@ -64,6 +64,7 @@ jobs:
             echo "Tag version $VERSION does not match build/config.yml version $CONFIG_VERSION" >&2
             exit 1
           fi
+          BINARY_NAME="$(go run ./scripts/release binary-name -config ./build/artifacts.yml)"
           mkdir -p bin release_dist
 
           wails3 generate icons -input build/appicon.png -macfilename build/darwin/icons.icns -windowsfilename build/windows/icon.ico
@@ -75,8 +76,8 @@ jobs:
             --output internal/search/openserp/assets/openserp-linux-amd64 \
             --goos linux \
             --goarch amd64
-          GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -tags production,openserp_embedded -trimpath -buildvcs=false -ldflags="-w -s -X cursor/internal/buildinfo.Version=${VERSION}" -o bin/cursor-byok-linux-amd64 .
-          tar -czf "release_dist/cursor-byok-${VERSION}-linux-amd64.tar.gz" -C bin cursor-byok-linux-amd64
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -tags production,openserp_embedded -trimpath -buildvcs=false -ldflags="-w -s -X cursor/internal/buildinfo.Version=${VERSION}" -o "bin/${BINARY_NAME}" .
+          tar -czf "release_dist/${BINARY_NAME}-${VERSION}-linux-amd64.tar.gz" -C bin "${BINARY_NAME}"
 
           python scripts/build/openserp_cache.py \
             --source-dir submodules/openserp \
@@ -84,15 +85,17 @@ jobs:
             --output internal/search/openserp/assets/openserp-windows-amd64 \
             --goos windows \
             --goarch amd64
-          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -tags production,openserp_embedded -trimpath -buildvcs=false -ldflags="-w -s -H windowsgui -X cursor/internal/buildinfo.Version=${VERSION}" -o bin/cursor-byok-windows-amd64.exe
-          python - <<'PY'
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -tags production,openserp_embedded -trimpath -buildvcs=false -ldflags="-w -s -H windowsgui -X cursor/internal/buildinfo.Version=${VERSION}" -o "bin/${BINARY_NAME}.exe"
+          BINARY_NAME="$BINARY_NAME" python - <<'PY'
+          import os
           import pathlib
           import zipfile
 
           version = pathlib.Path("build/config.yml").read_text(encoding="utf-8").split('version: "', 1)[1].split('"', 1)[0]
-          archive = pathlib.Path(f"release_dist/cursor-byok-{version}-windows-amd64.zip")
+          binary_name = os.environ["BINARY_NAME"]
+          archive = pathlib.Path(f"release_dist/{binary_name}-{version}-windows-amd64.zip")
           with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as zf:
-              zf.write("bin/cursor-byok-windows-amd64.exe", "cursor-byok-windows-amd64.exe")
+              zf.write(f"bin/{binary_name}.exe", f"{binary_name}.exe")
           PY
 
       - name: Generate update.json Manifest
@@ -102,7 +105,7 @@ jobs:
             -assets-dir release_dist \
             -out release_dist/update.json \
             -repo "${{ github.repository }}" \
-            -base-name cursor-byok \
+            -base-name "$(go run ./scripts/release binary-name -config ./build/artifacts.yml)" \
             -notes release-notes.md
 
       - name: Upload Release Assets and Manifest

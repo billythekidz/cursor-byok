@@ -6,7 +6,7 @@
         <key>CFBundleName</key>
             <string>Cursor Helper</string>
         <key>CFBundleExecutable</key>
-            <string>Cursor Helper</string>
+            <string>cursor-byok</string>
         <key>CFBundleIdentifier</key>
             <string>com.cursor.wuxianxubei</string>
         <key>CFBundleVersion</key>

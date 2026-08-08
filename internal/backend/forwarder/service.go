@@ -30,6 +30,8 @@ import (
 const (
 	providerResumeDebounce         = 200 * time.Millisecond
 	completedExecRetention         = 15 * time.Second
+	completedInteractionRetention  = 15 * time.Second
+	interactionRecoveryTimeout     = 90 * time.Second
 	nonStreamingExecCloseGrace     = 1500 * time.Millisecond
 	defaultSummaryCompletedThought = "Chat context summarized"
 	providerDefaultMaxOutputTokens = 131072
@@ -764,6 +766,7 @@ func (service *Service) handleRunIntent(intent InboundIntent) error {
 	stream.PendingExecs = make(map[string]runtimecore.PendingExec)
 	stream.PendingInteractions = make(map[string]runtimecore.PendingInteraction)
 	stream.RecentCompletedExecs = make(map[uint32]time.Time)
+	stream.RecentCompletedInteractions = make(map[string]time.Time)
 	stream.BackgroundShells = make(map[string]*BackgroundShellState)
 	stream.BackgroundShellsByMessageID = make(map[uint32]string)
 	stream.BackgroundShellsByExecID = make(map[string]string)
@@ -781,7 +784,16 @@ func (service *Service) handleRunIntent(intent InboundIntent) error {
 	stream.ProviderSyntheticThinkingPublished = false
 	stream.ProviderFinishReason = ""
 	stream.ProviderUsage = turnUsageSnapshot{}
+	stream.ProviderPassCount = 0
 	stream.ToolInvocationCount = 0
+	stream.ProviderPassProgress = providerProgressNone
+	stream.ProviderPassLastToolName = ""
+	stream.ProviderPassLastToolFingerprint = ""
+	stream.ProviderLastWebSearchFailureClass = ""
+	stream.ProviderLastProgressFingerprint = ""
+	stream.ProviderNoProgressPasses = 0
+	stream.ProviderRecoveryNudgeIssued = false
+	stream.ProviderLoopTerminalReason = ""
 	stream.UpdatedAt = time.Now().UTC()
 	stream.mu.Unlock()
 	service.setTurnPhase(stream, TurnPhaseIdle)
@@ -850,7 +862,16 @@ func (service *Service) handleCancelIntent(intent InboundIntent) error {
 	for _, pending := range stream.PendingExecs {
 		pendingExecs = append(pendingExecs, pending)
 	}
+	pendingInteractions := make([]runtimecore.PendingInteraction, 0, len(stream.PendingInteractions))
+	for _, pending := range stream.PendingInteractions {
+		pendingInteractions = append(pendingInteractions, pending)
+	}
 	stream.mu.Unlock()
+	if hasCheckpoint {
+		if err := service.appendCanceledPendingToolResults(stream, pendingExecs, pendingInteractions, firstNonEmpty(intent.CancelReason, "user aborted")); err != nil {
+			return err
+		}
+	}
 	for _, pending := range pendingExecs {
 		_ = service.broker.Publish(intent.RequestID, StreamEvent{
 			Message: buildExecAbortMessage(pending),
@@ -868,6 +889,30 @@ func (service *Service) handleCancelIntent(intent InboundIntent) error {
 	stream.mu.Unlock()
 	service.setTurnPhase(stream, TurnPhaseCanceled)
 	return service.broker.Cancel(intent.RequestID, firstNonEmpty(intent.CancelReason, "[canceled] User aborted request"))
+}
+
+func (service *Service) appendCanceledPendingToolResults(stream *ActiveStream, pendingExecs []runtimecore.PendingExec, pendingInteractions []runtimecore.PendingInteraction, reason string) error {
+	for _, pending := range pendingExecs {
+		toolName := deriveToolNameFromPendingExec(pending)
+		if strings.TrimSpace(pending.ToolCallID) == "" || strings.TrimSpace(toolName) == "" {
+			continue
+		}
+		resultText := fmt.Sprintf("%s error: canceled before completion: %s", toolName, strings.TrimSpace(reason))
+		if err := service.appendToolResult(stream, pending.ToolCallID, toolName, pending.ArgsJSON, resultText, pending.ReasoningContent, nil); err != nil {
+			return err
+		}
+	}
+	for _, pending := range pendingInteractions {
+		toolName := deriveToolNameFromPendingInteraction(pending)
+		if strings.TrimSpace(pending.ToolCallID) == "" || strings.TrimSpace(toolName) == "" {
+			continue
+		}
+		resultText := fmt.Sprintf("%s error: canceled before completion: %s", toolName, strings.TrimSpace(reason))
+		if err := service.appendToolResult(stream, pending.ToolCallID, toolName, pending.ArgsJSON, resultText, pending.ReasoningContent, nil); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // handleExecResult handles execution-bridge results returned by the client and writes tool_result back to history at terminal state.
@@ -1273,6 +1318,14 @@ func (service *Service) driveProvider(stream *ActiveStream) error {
 		stream.mu.Unlock()
 		return nil
 	}
+	role := streamAgentRoleLocked(stream)
+	if providerProgressGuardEnabled() && isChildAgentRole(role) && stream.ProviderPassCount >= maxProviderPasses {
+		noProgressPasses := stream.ProviderNoProgressPasses
+		providerPass := stream.ProviderPassCount
+		lastToolName := stream.ProviderPassLastToolName
+		stream.mu.Unlock()
+		return service.terminateProviderLoop(stream, "max_provider_passes", role, providerProgressNone, noProgressPasses, providerPass, lastToolName)
+	}
 	stream.ProviderPassCount++
 	currentPass := stream.ProviderPassCount
 	stream.Status = StreamStatusStreaming
@@ -1293,6 +1346,10 @@ func (service *Service) driveProvider(stream *ActiveStream) error {
 	stream.ProviderFinishReason = ""
 	stream.ProviderUsage = turnUsageSnapshot{}
 	stream.ToolInvocationCount = 0
+	stream.ProviderPassProgress = providerProgressNone
+	stream.ProviderPassLastToolName = ""
+	stream.ProviderPassLastToolFingerprint = ""
+	stream.ProviderLastWebSearchFailureClass = ""
 	modelCallID := stream.CurrentModelCallID
 	conversationID := stream.ConversationID
 	requestID := stream.RequestID
@@ -1387,10 +1444,16 @@ func (service *Service) driveProvider(stream *ActiveStream) error {
 		Observer:           service.recorder,
 		ArtifactPaths:      &modeladapter.LLMArtifactPaths{},
 	}
+	subagentTypeName := ""
+	if conversation != nil {
+		subagentTypeName = strings.TrimSpace(conversation.SubagentTypeName)
+	}
 	providerRequest.ThinkingEffort = thinkingEffort
 	service.debug.LogProvider(context.Background(), requestID, conversationID, "provider_request_prepared", map[string]any{
 		"model_call_id":          strings.TrimSpace(modelCallID),
 		"provider_pass":          currentPass,
+		"agent_role":             string(resolveAgentRole(subagentTypeName)),
+		"subagent_type_name":     subagentTypeName,
 		"model_id":               strings.TrimSpace(modelID),
 		"model_name":             strings.TrimSpace(modelName),
 		"mode":                   compiled.Mode.String(),
@@ -1638,7 +1701,8 @@ func (service *Service) handleToolInvocation(stream *ActiveStream, invocation ru
 	stream.ToolInvocationCount++
 	stream.UpdatedAt = time.Now().UTC()
 	stream.mu.Unlock()
-	if !isToolAllowedInMode(mode, subagentTypeName, trimmedToolName) {
+	role := resolveAgentRole(subagentTypeName)
+	if !isToolAllowedInMode(mode, subagentTypeName, trimmedToolName) || (isChildAgentRole(role) && !isAgentRoleInvocationAllowed(role, trimmedToolName, invocation.ArgsJSON)) {
 		return service.completePreDispatchToolError(stream, invocation, nil, false, false, fmt.Errorf("tool invocation is not enabled in mode %s: %s", mode.String(), invocation.ToolName))
 	}
 	var err error
@@ -1897,6 +1961,9 @@ func (service *Service) appendToolResult(stream *ActiveStream, toolCallID string
 	_, err := service.appendConversationEntries(stream, stream.ConversationID, []HistoryEntry{
 		newToolResultEntry(stream.TurnSeq, stream.RequestID, toolCallID, toolName, string(argsJSON), resultText, reasoningContent, payload),
 	})
+	if err == nil {
+		service.recordToolResultProgress(stream, toolName, argsJSON, resultText)
+	}
 	return err
 }
 

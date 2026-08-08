@@ -160,10 +160,6 @@ var planModeToolNames = map[string]struct{}{
 	"WebSearch":            {},
 }
 
-var childConversationDisallowedAgentToolNames = map[string]struct{}{
-	"AskQuestion": {},
-}
-
 func supportedToolNamesForMode(mode agentv1.AgentMode) map[string]struct{} {
 	switch normalizeMode(mode) {
 	case agentv1.AgentMode_AGENT_MODE_AGENT:
@@ -186,12 +182,8 @@ func isToolAllowedInMode(mode agentv1.AgentMode, subagentTypeName string, toolNa
 	if trimmedToolName == "" {
 		return false
 	}
-	if isChildConversationSubagentTypeName(subagentTypeName) {
-		if _, disallowed := childConversationDisallowedAgentToolNames[trimmedToolName]; disallowed {
-			return false
-		}
-		_, ok := agentModeToolNames[trimmedToolName]
-		return ok
+	if role := resolveAgentRole(subagentTypeName); isChildAgentRole(role) {
+		return isAgentRoleToolAllowed(role, trimmedToolName)
 	}
 	supported := supportedToolNamesForMode(mode)
 	if supported == nil {

@@ -67,16 +67,16 @@ tasks:
       - task: build
         vars:
           ARCH: amd64
-          BINARY_NAME: "{{.APP_NAME}}-amd64"
-          OUTPUT: "{{.BIN_DIR}}/{{.APP_NAME}}-amd64"
+          BINARY_NAME: "{{.BINARY_NAME}}-amd64"
+          OUTPUT: "{{.BIN_DIR}}/{{.BINARY_NAME}}-amd64"
       - task: build
         vars:
           ARCH: arm64
-          BINARY_NAME: "{{.APP_NAME}}-arm64"
-          OUTPUT: "{{.BIN_DIR}}/{{.APP_NAME}}-arm64"
+          BINARY_NAME: "{{.BINARY_NAME}}-arm64"
+          OUTPUT: "{{.BIN_DIR}}/{{.BINARY_NAME}}-arm64"
     cmds:
-      - lipo -create -output "{{.BIN_DIR}}/{{.APP_NAME}}" "{{.BIN_DIR}}/{{.APP_NAME}}-amd64" "{{.BIN_DIR}}/{{.APP_NAME}}-arm64"
-      - rm -f "{{.BIN_DIR}}/{{.APP_NAME}}-amd64" "{{.BIN_DIR}}/{{.APP_NAME}}-arm64"
+      - lipo -create -output "{{.BIN_DIR}}/{{.BINARY_NAME}}" "{{.BIN_DIR}}/{{.BINARY_NAME}}-amd64" "{{.BIN_DIR}}/{{.BINARY_NAME}}-arm64"
+      - rm -f "{{.BIN_DIR}}/{{.BINARY_NAME}}-amd64" "{{.BIN_DIR}}/{{.BINARY_NAME}}-arm64"
 
   package:
     summary: Package macOS .app (output bundle name can be specified via APP_BUNDLE)
@@ -206,7 +206,7 @@ tasks:
       APP_BUNDLE: '{{.APP_BUNDLE | default (printf "%s.app" .APP_NAME)}}'
       BINARY_NAME: '{{.BINARY_NAME | default .APP_NAME}}'
       BINARY_PATH: '{{.OUTPUT | default (printf "%s/%s" .BIN_DIR .BINARY_NAME)}}'
-      EXECUTABLE_NAME: '{{.EXECUTABLE_NAME | default .APP_NAME}}'
+      EXECUTABLE_NAME: '{{.EXECUTABLE_NAME | default .BINARY_NAME}}'
     cmds:
       - rm -rf "{{.BIN_DIR}}/{{.APP_BUNDLE}}"
       - mkdir -p "{{.BIN_DIR}}/{{.APP_BUNDLE}}/Contents/MacOS"
@@ -279,7 +279,7 @@ tasks:
     summary: Run local dev package
     vars:
       BINARY_NAME: '{{.BINARY_NAME | default .APP_NAME}}'
-      EXECUTABLE_NAME: '{{.EXECUTABLE_NAME | default .APP_NAME}}'
+      EXECUTABLE_NAME: '{{.EXECUTABLE_NAME | default .BINARY_NAME}}'
     cmds:
       - mkdir -p "{{.BIN_DIR}}/{{.APP_NAME}}.dev.app/Contents/MacOS"
       - mkdir -p "{{.BIN_DIR}}/{{.APP_NAME}}.dev.app/Contents/Resources"

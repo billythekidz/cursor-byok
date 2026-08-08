@@ -10,7 +10,7 @@ import (
 
 const (
 	defaultChannelTimeoutMS           = int((2 * 60 * 60) * 1000)
-	defaultChannelContextWindowTokens = 1_000_000
+	defaultChannelContextWindowTokens = 256_000
 	defaultChannelMaxTokens           = 131_072
 	defaultChannelThinkingBudget      = 4_096
 	defaultChannelAnthropicEffort     = "xhigh"

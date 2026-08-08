@@ -38,6 +38,65 @@ const (
 
 var ErrTooManyErrors = errors.New("openserp search stopped after three engine errors")
 
+// FailureClass describes whether a search failure can be retried by the
+// interaction bridge without repeating an unproductive provider pass.
+type FailureClass string
+
+const (
+	FailureRetryableStartup         FailureClass = "retryable_startup"
+	FailureRetryableTransport       FailureClass = "retryable_transport"
+	FailureTerminalRateLimitOrBlock FailureClass = "terminal_rate_limit_or_block"
+	FailureTerminalNoResults        FailureClass = "terminal_no_results"
+	FailureTerminalTooManyErrors    FailureClass = "terminal_too_many_errors"
+)
+
+// SearchError preserves a bounded failure classification and the engines
+// attempted during one Search invocation.
+type SearchError struct {
+	Class            FailureClass
+	Retryable        bool
+	AttemptedEngines []string
+	Cause            error
+}
+
+func (err *SearchError) Error() string {
+	if err == nil || err.Cause == nil {
+		return string(FailureTerminalNoResults)
+	}
+	return err.Cause.Error()
+}
+
+func (err *SearchError) Unwrap() error {
+	if err == nil {
+		return nil
+	}
+	return err.Cause
+}
+
+// FailureDetails returns a normalized failure class for a Search error.
+func FailureDetails(err error) (FailureClass, bool, []string) {
+	if err == nil {
+		return "", false, nil
+	}
+	var searchErr *SearchError
+	if errors.As(err, &searchErr) && searchErr != nil {
+		return searchErr.Class, searchErr.Retryable, append([]string(nil), searchErr.AttemptedEngines...)
+	}
+	if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
+		return FailureRetryableTransport, true, nil
+	}
+	return FailureRetryableTransport, true, nil
+}
+
+func newSearchError(class FailureClass, retryable bool, attemptedEngines []string, cause error) error {
+	return &SearchError{
+		Class:            class,
+		Retryable:        retryable,
+		AttemptedEngines: append([]string(nil), attemptedEngines...),
+		Cause:            cause,
+	}
+}
+
 // Result is a normalized result returned by one OpenSERP engine.
 type Result struct {
 	Title   string `json:"title"`
@@ -113,7 +172,7 @@ func (client *Client) Search(ctx context.Context, query string) ([]EngineResults
 	}
 	baseURL, err := client.manager.ensureRunning(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("start OpenSERP: %w", err)
+		return nil, newSearchError(FailureRetryableStartup, true, nil, fmt.Errorf("start OpenSERP: %w", err))
 	}
 
 	primary := []string{"google", "baidu", "duckduckgo", "yandex"}
@@ -138,7 +197,7 @@ func (client *Client) Search(ctx context.Context, query string) ([]EngineResults
 		}
 	}
 	if errorCount >= 3 {
-		return nil, fmt.Errorf("%w: %s", ErrTooManyErrors, describeErrors(primary, byEngine))
+		return nil, newSearchError(FailureTerminalTooManyErrors, false, primary, fmt.Errorf("%w: %s", ErrTooManyErrors, describeErrors(primary, byEngine)))
 	}
 
 	fallbackCandidates := []string{"yandex", "ecosia"}
@@ -175,7 +234,7 @@ func (client *Client) Search(ctx context.Context, query string) ([]EngineResults
 					errorCount++
 				}
 				if errorCount >= 3 {
-					return nil, fmt.Errorf("%w: %s", ErrTooManyErrors, describeErrors(primary, byEngine))
+					return nil, newSearchError(FailureTerminalTooManyErrors, false, primary, fmt.Errorf("%w: %s", ErrTooManyErrors, describeErrors(primary, byEngine)))
 				}
 				continue
 			}
@@ -194,7 +253,7 @@ func (client *Client) Search(ctx context.Context, query string) ([]EngineResults
 	}
 
 	if len(results) == 0 {
-		return nil, errors.New("OpenSERP returned no parseable results")
+		return nil, newSearchError(FailureTerminalNoResults, false, primary, errors.New("OpenSERP returned no parseable results"))
 	}
 	return results, nil
 }

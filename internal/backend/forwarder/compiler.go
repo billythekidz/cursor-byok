@@ -45,6 +45,7 @@ func (compiler *DefaultPromptCompiler) Compile(conversation *ConversationFile, m
 	if conversation != nil {
 		subagentTypeName = conversation.SubagentTypeName
 	}
+	role := resolveAgentRole(subagentTypeName)
 	assetMode, err := promptAssetModeForConversation(normalizedMode, subagentTypeName)
 	if err != nil {
 		return CompiledConversation{}, err
@@ -72,6 +73,9 @@ func (compiler *DefaultPromptCompiler) Compile(conversation *ConversationFile, m
 	}
 	messages := make([]modeladapter.Message, 0, len(replayMessages)+1)
 	systemParts := []string{sanitizePromptAsset(systemPrompt, modelName)}
+	if rolePrompt := agentRoleSystemPrompt(role); strings.TrimSpace(rolePrompt) != "" {
+		systemParts = append(systemParts, rolePrompt)
+	}
 	if strings.TrimSpace(sharedRulesPrompt) != "" {
 		systemParts = append(systemParts, sharedRulesPrompt)
 	}
@@ -92,7 +96,7 @@ func (compiler *DefaultPromptCompiler) Compile(conversation *ConversationFile, m
 		Messages:           messages,
 		StableMessageCount: stableReplayCount,
 		Tools:              tools,
-		CompileSummary:     fmt.Sprintf("mode=%s asset_mode=%s child=%t messages=%d tools=%d shared_rules_total=%d shared_rules_deduped=%d", normalizedMode.String(), string(assetMode), isChildConversationSubagentTypeName(subagentTypeName), len(messages), len(tools), sharedRuleTotal, sharedRuleCount),
+		CompileSummary:     fmt.Sprintf("mode=%s asset_mode=%s child=%t role=%s subagent_type=%s messages=%d tools=%d shared_rules_total=%d shared_rules_deduped=%d", normalizedMode.String(), string(assetMode), isChildAgentRole(role), role, strings.TrimSpace(subagentTypeName), len(messages), len(tools), sharedRuleTotal, sharedRuleCount),
 	}, nil
 }
 

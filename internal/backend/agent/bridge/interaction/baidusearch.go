@@ -1,6 +1,7 @@
 package interaction
 
 import (
+	"context"
 	"net/http"
 	neturl "net/url"
 	"strings"
@@ -79,26 +80,26 @@ func normalizeBaiduSearchURL(rawURL string) string {
 }
 
 // resolveBaiduWebSearchRedirects resolves Baidu redirect links to their final destination addresses, updating the reference list in place.
-func resolveBaiduWebSearchRedirects(client *http.Client, references []*agentv1.WebSearchReference) {
+func resolveBaiduWebSearchRedirects(ctx context.Context, client *http.Client, references []*agentv1.WebSearchReference) {
 	for _, reference := range references {
 		if reference == nil {
 			continue
 		}
-		reference.Url = resolveBaiduRedirectURL(client, reference.GetUrl())
+		reference.Url = resolveBaiduRedirectURL(ctx, client, reference.GetUrl())
 	}
 }
 
 // resolveBaiduRedirectURL determines whether a link is a Baidu redirect link and attempts to resolve its real destination.
-func resolveBaiduRedirectURL(client *http.Client, rawURL string) string {
+func resolveBaiduRedirectURL(ctx context.Context, client *http.Client, rawURL string) string {
 	resultURL := normalizeBaiduSearchURL(rawURL)
 	if !isBaiduRedirectURL(resultURL) {
 		return resultURL
 	}
 	redirectClient := baiduRedirectHTTPClient(client)
-	if location := requestBaiduRedirectLocation(redirectClient, http.MethodHead, resultURL); location != "" {
+	if location := requestBaiduRedirectLocation(ctx, redirectClient, http.MethodHead, resultURL); location != "" {
 		return location
 	}
-	if location := requestBaiduRedirectLocation(redirectClient, http.MethodGet, resultURL); location != "" {
+	if location := requestBaiduRedirectLocation(ctx, redirectClient, http.MethodGet, resultURL); location != "" {
 		return location
 	}
 	return resultURL
@@ -120,8 +121,8 @@ func baiduRedirectHTTPClient(base *http.Client) *http.Client {
 }
 
 // requestBaiduRedirectLocation issues a request and reads the redirect destination from the response headers.
-func requestBaiduRedirectLocation(client *http.Client, method string, rawURL string) string {
-	request, err := http.NewRequest(method, rawURL, nil)
+func requestBaiduRedirectLocation(ctx context.Context, client *http.Client, method string, rawURL string) string {
+	request, err := http.NewRequestWithContext(ctx, method, rawURL, nil)
 	if err != nil {
 		return ""
 	}

@@ -10,8 +10,8 @@ export GOARCH=amd64
 export CGO_ENABLED=1
 export CGO_CFLAGS="-w"
 
-APP=${APP_NAME:-$(basename "$(pwd)")}
-BIN_PATH="bin/${APP}-linux-amd64"
+APP=${BINARY_NAME:-$(basename "$(pwd)")}
+BIN_PATH="bin/${APP}"
 LOG_MODE=${GO_BUILD_LOG_MODE:-quiet}
 
 case "$LOG_MODE" in

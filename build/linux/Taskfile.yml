@@ -105,14 +105,15 @@ tasks:
       - sh: docker image inspect {{.CROSS_IMAGE}} >/dev/null 2>&1
         msg: "Docker image '{{.CROSS_IMAGE}}' not found, please run task setup:docker first."
     cmds:
-      - docker run --rm --platform "{{.DOCKER_PLATFORM}}" --entrypoint /bin/sh -v "{{.PROJECT_ROOT}}:/app" {{.GO_CACHE_MOUNT}} {{.REPLACE_MOUNTS}} -e GOPATH=/go -e GOMODCACHE=/go/pkg/mod -e APP_NAME="{{.APP_NAME}}" -e EXTRA_LDFLAGS="-X cursor/internal/buildinfo.Version={{.APP_VERSION}}" -e GO_BUILD_LOG_MODE="{{.GO_BUILD_LOG_MODE}}" {{if .EXTRA_TAGS}}-e EXTRA_TAGS="{{.EXTRA_TAGS}}"{{end}} "{{.CROSS_IMAGE}}" /app/build/docker/build-linux.sh
+      - docker run --rm --platform "{{.DOCKER_PLATFORM}}" --entrypoint /bin/sh -v "{{.PROJECT_ROOT}}:/app" {{.GO_CACHE_MOUNT}} {{.REPLACE_MOUNTS}} -e GOPATH=/go -e GOMODCACHE=/go/pkg/mod -e BINARY_NAME="{{.BINARY_NAME}}" -e EXTRA_LDFLAGS="-X cursor/internal/buildinfo.Version={{.APP_VERSION}}" -e GO_BUILD_LOG_MODE="{{.GO_BUILD_LOG_MODE}}" {{if .EXTRA_TAGS}}-e EXTRA_TAGS="{{.EXTRA_TAGS}}"{{end}} "{{.CROSS_IMAGE}}" /app/build/docker/build-linux.sh
       - docker run --rm --platform "{{.DOCKER_PLATFORM}}" --entrypoint chown -v "{{.PROJECT_ROOT}}:/app" "{{.CROSS_IMAGE}}" -R $(id -u):$(id -g) /app/bin
       - mkdir -p "{{.BIN_DIR}}"
-      - mv "bin/{{.APP_NAME}}-linux-{{.DOCKER_ARCH}}" "{{.OUTPUT}}"
+      - mv "bin/{{.BINARY_NAME}}" "{{.OUTPUT}}"
     vars:
       DOCKER_ARCH: '{{.ARCH | default "amd64"}}'
       DOCKER_PLATFORM: 'linux/{{.DOCKER_ARCH}}'
-      DEFAULT_OUTPUT: '{{.BIN_DIR}}/{{.APP_NAME}}'
+      BINARY_NAME: '{{.BINARY_NAME | default .APP_NAME}}'
+      DEFAULT_OUTPUT: '{{.BIN_DIR}}/{{.BINARY_NAME}}'
       GO_BUILD_LOG_MODE: '{{.GO_BUILD_LOG_MODE | default "quiet"}}'
       OUTPUT: '{{.OUTPUT | default .DEFAULT_OUTPUT}}'
       GO_CACHE_MOUNT:
@@ -174,8 +175,8 @@ tasks:
     vars:
       BINARY_NAME: '{{.BINARY_NAME | default .APP_NAME}}'
       BINARY_PATH: '{{.OUTPUT | default (printf "%s/%s" .BIN_DIR .BINARY_NAME)}}'
-      ARCHIVE_BINARY_NAME: '{{.ARCHIVE_BINARY_NAME | default .APP_NAME}}'
-      ARCHIVE_PATH: '{{.ARCHIVE_PATH | default (printf "%s/%s.tar.gz" .BIN_DIR .APP_NAME)}}'
+      ARCHIVE_BINARY_NAME: '{{.ARCHIVE_BINARY_NAME | default .BINARY_NAME}}'
+      ARCHIVE_PATH: '{{.ARCHIVE_PATH | default (printf "%s/%s.tar.gz" .BIN_DIR .BINARY_NAME)}}'
       STAGING_DIR: '{{.BIN_DIR}}/.linux-archive-{{.ARCH | default ARCH}}'
     cmds:
       - rm -rf "{{.STAGING_DIR}}"
@@ -198,7 +199,7 @@ tasks:
   run:
     summary: Run Linux executable
     vars:
-      OUTPUT: '{{.OUTPUT | default (printf "%s/%s" .BIN_DIR .APP_NAME)}}'
+      OUTPUT: '{{.OUTPUT | default (printf "%s/%s" .BIN_DIR .BINARY_NAME)}}'
     preconditions:
       - sh: '[ "{{OS}}" = "linux" ]'
         msg: "Linux run task is only supported on Linux host."

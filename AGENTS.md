@@ -18,6 +18,16 @@ and validation material.
   guidance.
 <!-- HARNESS:END -->
 
+## Desktop build artifact naming
+
+- The canonical compiled desktop executable basename is `cursor-byok`, defined
+  only in `build/artifacts.yml`.
+- Build and release tasks, CI workflows, and packaging scripts must consume
+  that value; do not derive executable filenames from the display name
+  `APP_NAME` or append platform/version suffixes to the executable itself.
+- Platform and version suffixes are allowed only on outer distribution archive
+  names, such as `cursor-byok-<version>-windows-amd64.zip`.
+
 # Rust/codex-rs
 
 In the codex-rs folder where the rust code lives:

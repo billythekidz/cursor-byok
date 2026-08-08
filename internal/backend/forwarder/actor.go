@@ -66,6 +66,7 @@ const (
 	streamTimerNonStreamingRecovery streamTimerKind = "non_streaming_recovery"
 	streamTimerShellForeground      streamTimerKind = "shell_foreground"
 	streamTimerShellTransportClose  streamTimerKind = "shell_transport_close"
+	streamTimerInteractionRecovery  streamTimerKind = "interaction_recovery"
 	streamTimerOrphanCancel         streamTimerKind = "orphan_cancel"
 )
 
@@ -409,12 +410,16 @@ func (service *Service) reconcileStream(stream *ActiveStream) error {
 		if completion.Disposition == completionDispositionResumeAfterExternal {
 			stream.mu.Lock()
 			stream.PendingProviderCompletion = nil
-			if stream.PendingProviderAction != providerActionStart {
-				stream.PendingProviderAction = providerActionResume
+			shouldStart := stream.PendingProviderAction == providerActionStart
+			if !shouldStart {
+				stream.PendingProviderAction = providerActionNone
 			}
 			stream.UpdatedAt = time.Now().UTC()
 			stream.mu.Unlock()
-			action = providerActionResume
+			if !shouldStart {
+				return service.continueProviderAfterToolPass(stream)
+			}
+			action = providerActionStart
 		} else {
 			clearPendingProviderCompletion(stream)
 			if err := service.completeSuccessfulTurn(stream, *completion); err != nil {
@@ -757,7 +762,7 @@ func (service *Service) handleProviderDoneEvent(stream *ActiveStream, payload *s
 			ModelCallID:    modelCallID,
 			ProviderPass:   currentProviderPass(stream),
 			Usage:          usage,
-			Disposition:    completionDispositionForExternalResults(finishReason, forceComplete, hadToolInvocation),
+			Disposition:    completionDispositionForExternalResults(finishReason, forceComplete),
 		})
 		if awaitingUser {
 			service.setTurnPhase(stream, TurnPhaseAwaitingUser)
@@ -768,16 +773,6 @@ func (service *Service) handleProviderDoneEvent(stream *ActiveStream, payload *s
 			return service.failStreamIfNonTerminal(stream, "unknown", err)
 		}
 		return nil
-	}
-
-	if existingCompletion == nil {
-		handled, err := service.handleSubagentEmptyStopAfterToolResult(stream, conversationID, turnSeq, requestID, modelCallID, finishReason, accumulatedText)
-		if err != nil {
-			return service.failStreamIfNonTerminal(stream, "unknown", err)
-		}
-		if handled {
-			return nil
-		}
 	}
 
 	if existingCompletion != nil {
@@ -794,7 +789,7 @@ func (service *Service) handleProviderDoneEvent(stream *ActiveStream, payload *s
 			if err := service.publishCheckpoint(requestID, conversationID); err != nil {
 				return service.failStreamIfNonTerminal(stream, "unknown", err)
 			}
-			if err := service.requestProviderAction(stream, providerActionResume); err != nil {
+			if err := service.continueProviderAfterToolPass(stream); err != nil {
 				return service.failStreamIfNonTerminal(stream, "unknown", err)
 			}
 			return nil
@@ -809,7 +804,7 @@ func (service *Service) handleProviderDoneEvent(stream *ActiveStream, payload *s
 		if err := service.publishCheckpoint(requestID, conversationID); err != nil {
 			return service.failStreamIfNonTerminal(stream, "unknown", err)
 		}
-		if err := service.requestProviderAction(stream, providerActionResume); err != nil {
+		if err := service.continueProviderAfterToolPass(stream); err != nil {
 			return service.failStreamIfNonTerminal(stream, "unknown", err)
 		}
 		return nil
@@ -827,57 +822,6 @@ func (service *Service) handleProviderDoneEvent(stream *ActiveStream, payload *s
 		return service.failStreamIfNonTerminal(stream, "unknown", err)
 	}
 	return nil
-}
-
-const subagentEmptyStopErrorText = "subagent returned empty response after tool result"
-
-func (service *Service) handleSubagentEmptyStopAfterToolResult(stream *ActiveStream, conversationID string, turnSeq int64, requestID string, modelCallID string, finishReason string, accumulatedText string) (bool, error) {
-	if stream == nil || strings.TrimSpace(finishReason) != "stop" || strings.TrimSpace(accumulatedText) != "" {
-		return false, nil
-	}
-	conversation, _, _, err := service.snapshotCheckpointConversation(stream)
-	if err != nil {
-		return true, err
-	}
-	if conversation == nil || !isChildConversationSubagentTypeName(conversation.SubagentTypeName) || !currentTurnHasToolResult(conversation, turnSeq) {
-		return false, nil
-	}
-	if currentTurnHasPromptContextSource(conversation, turnSeq, promptContextSourceSubagentEmptyStopRecovery) {
-		service.setTurnPhase(stream, TurnPhaseFailed)
-		return true, service.failStream(stream, "empty_response", errors.New(subagentEmptyStopErrorText))
-	}
-	context := newPromptContextReminder(promptContextSourceSubagentEmptyStopRecovery, subagentEmptyStopRecoveryText())
-	if _, err := service.appendConversationEntries(stream, conversationID, []HistoryEntry{
-		newPromptContextEntry(turnSeq, requestID, context),
-	}); err != nil {
-		return true, err
-	}
-	if err := service.syncSummaryCarryForward(conversationID, requestID, modelCallID); err != nil {
-		return true, err
-	}
-	if err := service.publishCheckpoint(requestID, conversationID); err != nil {
-		return true, err
-	}
-	if err := service.requestProviderAction(stream, providerActionResume); err != nil {
-		return true, err
-	}
-	return true, nil
-}
-
-func subagentEmptyStopRecoveryText() string {
-	return "During this subagent turn, a prior provider pass stopped after tool results without visible assistant output. Continue from the latest tool result and return a concise investigation result for the parent. Only call another allowed read-only tool if necessary."
-}
-
-func currentTurnHasToolResult(conversation *ConversationFile, turnSeq int64) bool {
-	if conversation == nil || turnSeq <= 0 {
-		return false
-	}
-	for _, entry := range conversation.Entries {
-		if entry.TurnSeq == turnSeq && strings.TrimSpace(entry.Kind) == "tool_result" {
-			return true
-		}
-	}
-	return false
 }
 
 func currentTurnHasPromptContextSource(conversation *ConversationFile, turnSeq int64, source string) bool {
@@ -1008,6 +952,8 @@ func (service *Service) handleTimerEvent(stream *ActiveStream, payload *streamTi
 			return nil
 		}
 		return service.recoverShellWithoutTerminal(stream, current, shellRecoveryReasonTransportClosed)
+	case streamTimerInteractionRecovery:
+		return service.recoverPendingInteraction(stream, payload.ExecID, "interaction timed out before a client response")
 	case streamTimerOrphanCancel:
 		stream.mu.Lock()
 		subscriberCount := len(stream.Subscribers)
@@ -1137,14 +1083,11 @@ func mergeCompletionDisposition(existing pendingCompletionDisposition, incoming 
 	return completionDispositionCompleteAfterExternal
 }
 
-func completionDispositionForExternalResults(_ string, forceComplete bool, hadToolInvocation bool) pendingCompletionDisposition {
+func completionDispositionForExternalResults(_ string, forceComplete bool) pendingCompletionDisposition {
 	if forceComplete {
 		return completionDispositionCompleteAfterExternal
 	}
-	if hadToolInvocation {
-		return completionDispositionResumeAfterExternal
-	}
-	return completionDispositionCompleteAfterExternal
+	return completionDispositionResumeAfterExternal
 }
 
 func clearPendingProviderCompletion(stream *ActiveStream) {

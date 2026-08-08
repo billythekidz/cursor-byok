@@ -67,6 +67,9 @@ func (broker *StreamBroker) OpenStream(requestID string, conversationID string, 
 		if existing.BackgroundShells == nil {
 			existing.BackgroundShells = make(map[string]*BackgroundShellState)
 		}
+		if existing.RecentCompletedInteractions == nil {
+			existing.RecentCompletedInteractions = make(map[string]time.Time)
+		}
 		if existing.BackgroundShellsByMessageID == nil {
 			existing.BackgroundShellsByMessageID = make(map[uint32]string)
 		}
@@ -98,6 +101,7 @@ func (broker *StreamBroker) OpenStream(requestID string, conversationID string, 
 		PatchEditQueues:             make(map[string][]queuedPatchEditOperation),
 		MCPToolServers:              make(map[string]string),
 		RecentCompletedExecs:        make(map[uint32]time.Time),
+		RecentCompletedInteractions: make(map[string]time.Time),
 		BackgroundShells:            make(map[string]*BackgroundShellState),
 		BackgroundShellsByMessageID: make(map[uint32]string),
 		BackgroundShellsByExecID:    make(map[string]string),

@@ -13,3 +13,6 @@
 [submodule "submodules/openserp"]
 	path = submodules/openserp
 	url = https://github.com/karust/openserp.git
+[submodule "submodules/claude-cli"]
+	path = submodules/claude-cli
+	url = https://github.com/billythekidz/claude-cli.git

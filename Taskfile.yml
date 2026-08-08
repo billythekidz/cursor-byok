@@ -9,20 +9,22 @@ includes:
 vars:
   APP_NAME: "Cursor Helper"
   BIN_DIR: "bin"
+  BINARY_NAME:
+    sh: 'python -c "import pathlib; print(pathlib.Path(\"build/artifacts.yml\").read_text().split(\": \", 1)[1].strip().strip(chr(34)))"'
   APP_VERSION:
     sh: 'go run ./scripts/release version -config ./build/config.yml'
   RELEASE_REPO: "billythekidz/cursor-byok"
-  RELEASE_BASE_NAME: "cursor-byok"
+  RELEASE_BASE_NAME: '{{.BINARY_NAME}}'
   RELEASE_SOURCE_PATH: "release-notes.md"
   RELEASE_DIR: '{{.BIN_DIR}}/release/{{.APP_VERSION}}'
   RELEASE_NOTES_PATH: '{{.RELEASE_DIR}}/.release-notes.md'
   VITE_PORT: '{{.WAILS_VITE_PORT | default 9245}}'
   SCAN: '{{.SCAN | default "false"}}'
   CURRENT_WINDOWS_ARCH: '{{if eq ARCH "386"}}386{{else}}amd64{{end}}'
-  CURRENT_WINDOWS_NAME: '{{if eq .CURRENT_WINDOWS_ARCH "386"}}windows-32{{else}}windows-64{{end}}'
-  CURRENT_DARWIN_NAME: '{{if eq ARCH "arm64"}}macos-arm64{{else}}macos-intel{{end}}'
+  CURRENT_WINDOWS_PACKAGE: '{{if eq .CURRENT_WINDOWS_ARCH "386"}}{{.BINARY_NAME}}-windows-386{{else}}{{.BINARY_NAME}}-windows-amd64{{end}}'
+  CURRENT_DARWIN_PACKAGE: '{{if eq ARCH "arm64"}}{{.BINARY_NAME}}-macos-arm64{{else}}{{.BINARY_NAME}}-macos-amd64{{end}}'
   CURRENT_LINUX_ARCH: "amd64"
-  CURRENT_LINUX_NAME: "linux-amd64"
+  CURRENT_LINUX_PACKAGE: '{{.BINARY_NAME}}-linux-amd64'
 
 tasks:
   build:
@@ -62,10 +64,11 @@ tasks:
       - task: darwin:package:dmg
         vars:
           ARCH: '{{ARCH}}'
-          BINARY_NAME: '{{.CURRENT_DARWIN_NAME}}'
-          OUTPUT: '{{.BIN_DIR}}/{{.CURRENT_DARWIN_NAME}}'
-          APP_BUNDLE: '{{.CURRENT_DARWIN_NAME}}.app'
-          DMG_NAME: '{{.CURRENT_DARWIN_NAME}}.dmg'
+          BINARY_NAME: '{{.BINARY_NAME}}'
+          OUTPUT: '{{.BIN_DIR}}/{{.BINARY_NAME}}'
+          EXECUTABLE_NAME: '{{.BINARY_NAME}}'
+          APP_BUNDLE: '{{.CURRENT_DARWIN_PACKAGE}}.app'
+          DMG_NAME: '{{.CURRENT_DARWIN_PACKAGE}}.dmg'
           SCAN: '{{.SCAN}}'
 
   build:darwin:arm64:
@@ -74,10 +77,11 @@ tasks:
       - task: darwin:package:dmg
         vars:
           ARCH: arm64
-          BINARY_NAME: macos-arm64
-          OUTPUT: '{{.BIN_DIR}}/macos-arm64'
-          APP_BUNDLE: macos-arm64.app
-          DMG_NAME: macos-arm64.dmg
+          BINARY_NAME: '{{.BINARY_NAME}}'
+          OUTPUT: '{{.BIN_DIR}}/{{.BINARY_NAME}}'
+          EXECUTABLE_NAME: '{{.BINARY_NAME}}'
+          APP_BUNDLE: '{{.BINARY_NAME}}-macos-arm64.app'
+          DMG_NAME: '{{.BINARY_NAME}}-macos-arm64.dmg'
           SCAN: '{{.SCAN}}'
 
   build:darwin:amd64:
@@ -86,10 +90,11 @@ tasks:
       - task: darwin:package:dmg
         vars:
           ARCH: amd64
-          BINARY_NAME: macos-intel
-          OUTPUT: '{{.BIN_DIR}}/macos-intel'
-          APP_BUNDLE: macos-intel.app
-          DMG_NAME: macos-intel.dmg
+          BINARY_NAME: '{{.BINARY_NAME}}'
+          OUTPUT: '{{.BIN_DIR}}/{{.BINARY_NAME}}'
+          EXECUTABLE_NAME: '{{.BINARY_NAME}}'
+          APP_BUNDLE: '{{.BINARY_NAME}}-macos-amd64.app'
+          DMG_NAME: '{{.BINARY_NAME}}-macos-amd64.dmg'
           SCAN: '{{.SCAN}}'
 
   build:windows:current:
@@ -98,8 +103,8 @@ tasks:
       - task: windows:create:zip
         vars:
           ARCH: '{{.CURRENT_WINDOWS_ARCH}}'
-          OUTPUT: '{{.BIN_DIR}}/{{.CURRENT_WINDOWS_NAME}}.exe'
-          ZIP_NAME: '{{.CURRENT_WINDOWS_NAME}}.zip'
+          OUTPUT: '{{.BIN_DIR}}/{{.BINARY_NAME}}.exe'
+          ZIP_NAME: '{{.CURRENT_WINDOWS_PACKAGE}}.zip'
           SCAN: '{{.SCAN}}'
 
   build:windows:386:
@@ -108,8 +113,8 @@ tasks:
       - task: windows:create:zip
         vars:
           ARCH: 386
-          OUTPUT: '{{.BIN_DIR}}/windows-32.exe'
-          ZIP_NAME: windows-32.zip
+          OUTPUT: '{{.BIN_DIR}}/{{.BINARY_NAME}}.exe'
+          ZIP_NAME: '{{.BINARY_NAME}}-windows-386.zip'
           SCAN: '{{.SCAN}}'
 
   build:windows:amd64:
@@ -117,8 +122,8 @@ tasks:
       - task: windows:create:zip
         vars:
           ARCH: amd64
-          OUTPUT: '{{.BIN_DIR}}/windows-64.exe'
-          ZIP_NAME: windows-64.zip
+          OUTPUT: '{{.BIN_DIR}}/{{.BINARY_NAME}}.exe'
+          ZIP_NAME: '{{.BINARY_NAME}}-windows-amd64.zip'
           SCAN: '{{.SCAN}}'
 
   build:linux:current:
@@ -127,10 +132,10 @@ tasks:
       - task: linux:package:archive
         vars:
           ARCH: '{{.CURRENT_LINUX_ARCH}}'
-          BINARY_NAME: '{{.CURRENT_LINUX_NAME}}'
-          OUTPUT: '{{.BIN_DIR}}/{{.CURRENT_LINUX_NAME}}'
-          ARCHIVE_BINARY_NAME: '{{.APP_NAME}}'
-          ARCHIVE_PATH: '{{.BIN_DIR}}/{{.CURRENT_LINUX_NAME}}.tar.gz'
+          BINARY_NAME: '{{.BINARY_NAME}}'
+          OUTPUT: '{{.BIN_DIR}}/{{.BINARY_NAME}}'
+          ARCHIVE_BINARY_NAME: '{{.BINARY_NAME}}'
+          ARCHIVE_PATH: '{{.BIN_DIR}}/{{.CURRENT_LINUX_PACKAGE}}.tar.gz'
           SCAN: '{{.SCAN}}'
 
   build:linux:amd64:
@@ -138,10 +143,10 @@ tasks:
       - task: linux:package:archive
         vars:
           ARCH: amd64
-          BINARY_NAME: linux-amd64
-          OUTPUT: '{{.BIN_DIR}}/linux-amd64'
-          ARCHIVE_BINARY_NAME: '{{.APP_NAME}}'
-          ARCHIVE_PATH: '{{.BIN_DIR}}/linux-amd64.tar.gz'
+          BINARY_NAME: '{{.BINARY_NAME}}'
+          OUTPUT: '{{.BIN_DIR}}/{{.BINARY_NAME}}'
+          ARCHIVE_BINARY_NAME: '{{.BINARY_NAME}}'
+          ARCHIVE_PATH: '{{.BIN_DIR}}/{{.BINARY_NAME}}-linux-amd64.tar.gz'
           SCAN: '{{.SCAN}}'
 
   cursor-tab-server:docker:amd64:
@@ -168,11 +173,12 @@ tasks:
     internal: true
     cmds:
       - mkdir -p "{{.BIN_DIR}}"
-      - rm -f "{{.BIN_DIR}}/macos-arm64.dmg" "{{.BIN_DIR}}/macos-intel.dmg" "{{.BIN_DIR}}/windows-32.zip" "{{.BIN_DIR}}/windows-64.zip" "{{.BIN_DIR}}/linux-amd64.tar.gz"
-      - rm -f "{{.BIN_DIR}}/macos-arm64" "{{.BIN_DIR}}/macos-intel" "{{.BIN_DIR}}/windows-32.exe" "{{.BIN_DIR}}/windows-64.exe" "{{.BIN_DIR}}/linux-amd64"
+      - rm -f "{{.BIN_DIR}}/{{.BINARY_NAME}}-macos-arm64.dmg" "{{.BIN_DIR}}/{{.BINARY_NAME}}-macos-amd64.dmg" "{{.BIN_DIR}}/{{.BINARY_NAME}}-windows-386.zip" "{{.BIN_DIR}}/{{.BINARY_NAME}}-windows-amd64.zip" "{{.BIN_DIR}}/{{.BINARY_NAME}}-linux-amd64.tar.gz"
+      - rm -f "{{.BIN_DIR}}/{{.BINARY_NAME}}" "{{.BIN_DIR}}/{{.BINARY_NAME}}.exe"
+      - rm -f "{{.BIN_DIR}}/macos-arm64" "{{.BIN_DIR}}/macos-intel" "{{.BIN_DIR}}/windows-32.exe" "{{.BIN_DIR}}/windows-64.exe" "{{.BIN_DIR}}/linux-amd64" "{{.BIN_DIR}}/cursor-byok-windows-amd64.exe" "{{.BIN_DIR}}/cursor-byok-linux-amd64" "{{.BIN_DIR}}/cursor-release-macos-arm64" "{{.BIN_DIR}}/cursor-release-macos-amd64" "{{.BIN_DIR}}/cursor-release-linux-amd64" "{{.BIN_DIR}}/Cursor Helper" "{{.BIN_DIR}}/Cursor Helper.exe"
       - rm -f "{{.BIN_DIR}}/{{.APP_NAME}}" "{{.BIN_DIR}}/{{.APP_NAME}}.exe"
       - rm -f "internal/search/openserp/assets/openserp-windows-386" "internal/search/openserp/assets/openserp-windows-amd64" "internal/search/openserp/assets/openserp-windows-arm64" "internal/search/openserp/assets/openserp-darwin-amd64" "internal/search/openserp/assets/openserp-darwin-arm64" "internal/search/openserp/assets/openserp-linux-amd64" "internal/search/openserp/assets/openserp-linux-arm64" "internal/search/openserp/assets/openserp-linux-386"
-      - rm -rf "{{.BIN_DIR}}/macos-arm64.app" "{{.BIN_DIR}}/macos-intel.app" "{{.BIN_DIR}}/{{.APP_NAME}}.app" "{{.BIN_DIR}}/{{.APP_NAME}}.dev.app"
+      - rm -rf "{{.BIN_DIR}}/{{.BINARY_NAME}}-macos-arm64.app" "{{.BIN_DIR}}/{{.BINARY_NAME}}-macos-amd64.app" "{{.BIN_DIR}}/{{.APP_NAME}}.app" "{{.BIN_DIR}}/{{.APP_NAME}}.dev.app"
 
   clean:openserp:
     summary: Remove cached OpenSERP sidecars and force their next rebuild
@@ -244,9 +250,10 @@ tasks:
       - task: darwin:package:archive
         vars:
           ARCH: arm64
-          BINARY_NAME: cursor-release-macos-arm64
-          OUTPUT: '{{.BIN_DIR}}/cursor-release-macos-arm64'
+          BINARY_NAME: '{{.BINARY_NAME}}'
+          OUTPUT: '{{.BIN_DIR}}/{{.BINARY_NAME}}'
           APP_BUNDLE: '{{.APP_NAME}}.app'
+          EXECUTABLE_NAME: '{{.BINARY_NAME}}'
           ARCHIVE_PATH: '{{.RELEASE_DIR}}/{{.RELEASE_BASE_NAME}}-{{.APP_VERSION}}-macos-arm64.tar.gz'
           SCAN: '{{.SCAN}}'
 
@@ -256,9 +263,10 @@ tasks:
       - task: darwin:package:archive
         vars:
           ARCH: amd64
-          BINARY_NAME: cursor-release-macos-amd64
-          OUTPUT: '{{.BIN_DIR}}/cursor-release-macos-amd64'
+          BINARY_NAME: '{{.BINARY_NAME}}'
+          OUTPUT: '{{.BIN_DIR}}/{{.BINARY_NAME}}'
           APP_BUNDLE: '{{.APP_NAME}}.app'
+          EXECUTABLE_NAME: '{{.BINARY_NAME}}'
           ARCHIVE_PATH: '{{.RELEASE_DIR}}/{{.RELEASE_BASE_NAME}}-{{.APP_VERSION}}-macos-amd64.tar.gz'
           SCAN: '{{.SCAN}}'
 
@@ -267,7 +275,7 @@ tasks:
       - task: windows:create:zip
         vars:
           ARCH: amd64
-          OUTPUT: '{{.BIN_DIR}}/{{.RELEASE_BASE_NAME}}-windows-amd64.exe'
+          OUTPUT: '{{.BIN_DIR}}/{{.BINARY_NAME}}.exe'
           ZIP_NAME: 'release/{{.APP_VERSION}}/{{.RELEASE_BASE_NAME}}-{{.APP_VERSION}}-windows-amd64.zip'
           SCAN: '{{.SCAN}}'
 
@@ -276,9 +284,9 @@ tasks:
       - task: linux:package:archive
         vars:
           ARCH: amd64
-          BINARY_NAME: cursor-release-linux-amd64
-          OUTPUT: '{{.BIN_DIR}}/cursor-release-linux-amd64'
-          ARCHIVE_BINARY_NAME: '{{.APP_NAME}}'
+          BINARY_NAME: '{{.BINARY_NAME}}'
+          OUTPUT: '{{.BIN_DIR}}/{{.BINARY_NAME}}'
+          ARCHIVE_BINARY_NAME: '{{.BINARY_NAME}}'
           ARCHIVE_PATH: '{{.RELEASE_DIR}}/{{.RELEASE_BASE_NAME}}-{{.APP_VERSION}}-linux-amd64.tar.gz'
           SCAN: '{{.SCAN}}'
 
@@ -286,7 +294,7 @@ tasks:
     summary: Generate update.json
     internal: true
     cmds:
-      - go run ./scripts/release manifest -config ./build/config.yml -assets-dir "{{.RELEASE_DIR}}" -out "{{.RELEASE_DIR}}/update.json" -repo "{{.RELEASE_REPO}}" -base-name "{{.RELEASE_BASE_NAME}}" -notes "{{.RELEASE_NOTES_PATH}}"
+      - go run ./scripts/release manifest -config ./build/config.yml -assets-dir "{{.RELEASE_DIR}}" -out "{{.RELEASE_DIR}}/update.json" -repo "{{.RELEASE_REPO}}" -base-name "{{.BINARY_NAME}}" -notes "{{.RELEASE_NOTES_PATH}}"
 
   release:prepare:
     summary: Generate corresponding release assets on current host

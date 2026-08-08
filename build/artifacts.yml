@@ -1,0 +1,3 @@
+# Canonical names for compiled desktop executables.
+# Keep platform and version suffixes on archive files only.
+binary_name: "cursor-byok"

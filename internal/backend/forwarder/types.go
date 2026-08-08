@@ -161,6 +161,14 @@ type ActiveStream struct {
 	ProviderFinishReason                        string
 	ProviderUsage                               turnUsageSnapshot
 	ProviderTerminalToolInvocation              bool
+	ProviderPassProgress                        providerProgressKind
+	ProviderPassLastToolName                    string
+	ProviderPassLastToolFingerprint             string
+	ProviderLastProgressFingerprint             string
+	ProviderLastWebSearchFailureClass           string
+	ProviderNoProgressPasses                    int
+	ProviderRecoveryNudgeIssued                 bool
+	ProviderLoopTerminalReason                  string
 	PendingCompaction                           *PendingCompaction
 
 	Backlog                     []StreamEvent
@@ -175,6 +183,7 @@ type ActiveStream struct {
 	TerminalsFolder             string
 	RequestFileContents         map[string]string
 	RecentCompletedExecs        map[uint32]time.Time
+	RecentCompletedInteractions map[string]time.Time
 	BackgroundShells            map[string]*BackgroundShellState
 	BackgroundShellsByMessageID map[uint32]string
 	BackgroundShellsByExecID    map[string]string

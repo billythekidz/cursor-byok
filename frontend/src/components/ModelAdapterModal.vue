@@ -198,7 +198,7 @@ function handleSave() {
                   v-model="contextWindowTokensInput"
                   type="text"
                   inputmode="numeric"
-                  placeholder="Default 1000000 when empty"
+                  placeholder="Default 256000 when empty"
                   class="h-9 rounded-[6px] border border-[#3f3f3f] bg-[#232323] px-3 text-sm text-[#e5e5e5] outline-none focus:border-[#10AD5D]"
                 />
               </label>

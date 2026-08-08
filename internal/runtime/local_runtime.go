@@ -24,7 +24,7 @@ const (
 	// configurableChannelTimeoutMS represents the configurableChannelTimeoutMS field in this declaration.
 	configurableChannelTimeoutMS = int((2 * time.Hour) / time.Millisecond)
 	// configurableChannelContextWindowTokens represents the default context window size in this declaration.
-	configurableChannelContextWindowTokens = 1_000_000
+	configurableChannelContextWindowTokens = 256_000
 	// configurableChannelMaxTokens represents the configurableChannelMaxTokens field in this declaration.
 	configurableChannelMaxTokens = 131_072
 	// configurableChannelThinkingBudgetTokens represents the configurableChannelThinkingBudgetTokens field in this declaration.

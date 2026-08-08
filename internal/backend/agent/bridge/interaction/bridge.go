@@ -4,8 +4,8 @@ package interaction
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"html"
 	"io"
@@ -15,6 +15,7 @@ import (
 	neturl "net/url"
 	"regexp"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 	"unicode/utf8"
@@ -58,15 +59,24 @@ type Bridge struct {
 	// httpClient is responsible for operations that require external network access, such as web search / web fetch.
 	httpClient *http.Client
 	// openSERP is the local OpenSERP-backed web search client.
-	openSERP *openserp.Client
+	openSERP          *openserp.Client
+	openSERPMu        sync.Mutex
+	webSearchAttempts map[string]webSearchAttempt
+}
+
+type webSearchAttempt struct {
+	Count         int
+	TerminalClass openserp.FailureClass
+	UpdatedAt     time.Time
 }
 
 // NewBridge creates an interaction bridge instance.
 func NewBridge() *Bridge {
 	httpClient := netproxy.NewHTTPClient(15 * time.Second)
 	return &Bridge{
-		httpClient: httpClient,
-		openSERP:   openserp.NewClient(httpClient),
+		httpClient:        httpClient,
+		openSERP:          openserp.NewClient(httpClient),
+		webSearchAttempts: make(map[string]webSearchAttempt),
 	}
 }
 
@@ -332,7 +342,7 @@ func (bridge *Bridge) openSwitchMode(toolCall runtimecore.ToolInvocation) (*agen
 			},
 		},
 	}
-	argsPayload, _ := json.Marshal(args)
+	argsPayload, _ := json.Marshal(&args)
 	return serverMessage, runtimecore.PendingInteraction{
 		InteractionID:   fmt.Sprintf("%d", messageID),
 		ArgsJSON:        argsPayload,
@@ -424,41 +434,70 @@ func summarizeWebSearchResponse(response *agentv1.WebSearchRequestResponse) stri
 // applyWebSearchResponse converts the WebSearch approval response into the final tool result.
 func (bridge *Bridge) applyWebSearchResponse(response *agentv1.WebSearchRequestResponse, args *agentv1.WebSearchArgs) (*agentv1.WebSearchResult, string) {
 	if response == nil {
+		message := "web search response missing"
 		return &agentv1.WebSearchResult{
 			Result: &agentv1.WebSearchResult_Error{
-				Error: &agentv1.WebSearchError{Error: "web search response missing"},
+				Error: &agentv1.WebSearchError{Error: message},
 			},
-		}, "web search response missing"
+		}, formatWebSearchFailurePayload("", openserp.FailureTerminalNoResults, false, nil, message)
 	}
 	switch item := response.GetResult().(type) {
 	case *agentv1.WebSearchRequestResponse_Approved_:
 		_ = item
-		references, payload, err := bridge.executeWebSearch(strings.TrimSpace(args.GetSearchTerm()))
-		if err != nil {
+		searchTerm := strings.TrimSpace(args.GetSearchTerm())
+		if searchTerm == "" {
+			message := "web search search_term is required"
 			return &agentv1.WebSearchResult{
 				Result: &agentv1.WebSearchResult_Error{
-					Error: &agentv1.WebSearchError{Error: err.Error()},
+					Error: &agentv1.WebSearchError{Error: message},
 				},
-			}, err.Error()
+			}, formatWebSearchFailurePayload("", openserp.FailureTerminalNoResults, false, nil, message)
 		}
+		queryKey := normalizedWebSearchQueryKey(searchTerm)
+		queryFingerprint := webSearchQueryFingerprint(queryKey)
+		if allowed, terminalClass := bridge.beginWebSearchAttempt(queryKey); !allowed {
+			message := "web search blocked after a previous terminal failure for the same query"
+			if terminalClass == "" {
+				terminalClass = openserp.FailureTerminalTooManyErrors
+			}
+			return &agentv1.WebSearchResult{
+				Result: &agentv1.WebSearchResult_Error{
+					Error: &agentv1.WebSearchError{Error: message},
+				},
+			}, formatWebSearchFailurePayload(queryFingerprint, terminalClass, false, nil, message)
+		}
+		references, payload, err := bridge.executeWebSearch(searchTerm)
+		if err != nil {
+			failureClass, retryable, attemptedEngines := classifyWebSearchFailure(err)
+			bridge.finishWebSearchAttempt(queryKey, failureClass, retryable)
+			message := boundedWebSearchMessage(err.Error())
+			return &agentv1.WebSearchResult{
+				Result: &agentv1.WebSearchResult_Error{
+					Error: &agentv1.WebSearchError{Error: message},
+				},
+			}, formatWebSearchFailurePayload(queryFingerprint, failureClass, retryable, attemptedEngines, message)
+		}
+		bridge.clearWebSearchAttempt(queryKey)
 		references, payload = truncateWebSearchReplay(strings.TrimSpace(args.GetSearchTerm()), references, payload)
 		return &agentv1.WebSearchResult{
 			Result: &agentv1.WebSearchResult_Success{
 				Success: &agentv1.WebSearchSuccess{References: references},
 			},
-		}, payload
+		}, formatWebSearchSuccessPayload(queryFingerprint, payload)
 	case *agentv1.WebSearchRequestResponse_Rejected_:
+		message := item.Rejected.GetReason()
 		return &agentv1.WebSearchResult{
 			Result: &agentv1.WebSearchResult_Rejected{
 				Rejected: &agentv1.WebSearchRejected{Reason: item.Rejected.GetReason()},
 			},
-		}, item.Rejected.GetReason()
+		}, formatWebSearchFailurePayload("", openserp.FailureTerminalRateLimitOrBlock, false, nil, message)
 	default:
+		message := "unknown web search response"
 		return &agentv1.WebSearchResult{
 			Result: &agentv1.WebSearchResult_Error{
-				Error: &agentv1.WebSearchError{Error: "unknown web search response"},
+				Error: &agentv1.WebSearchError{Error: message},
 			},
-		}, "unknown web search response"
+		}, formatWebSearchFailurePayload("", openserp.FailureTerminalNoResults, false, nil, message)
 	}
 }
 
@@ -581,7 +620,142 @@ const (
 	webSearchPayloadLimit = 16 * 1024
 	webSearchTitleLimit   = 512
 	webSearchChunkLimit   = 2 * 1024
+	webSearchTimeout      = 45 * time.Second
+	maxWebSearchAttempts  = 2
+	maxTrackedWebSearches = 128
 )
+
+type webSearchFailure struct {
+	Class            openserp.FailureClass
+	Retryable        bool
+	AttemptedEngines []string
+	Cause            error
+}
+
+func (err *webSearchFailure) Error() string {
+	if err == nil || err.Cause == nil {
+		return "web search failed"
+	}
+	return err.Cause.Error()
+}
+
+func (err *webSearchFailure) Unwrap() error {
+	if err == nil {
+		return nil
+	}
+	return err.Cause
+}
+
+func (bridge *Bridge) beginWebSearchAttempt(queryKey string) (bool, openserp.FailureClass) {
+	if bridge == nil {
+		return false, openserp.FailureTerminalTooManyErrors
+	}
+	bridge.openSERPMu.Lock()
+	defer bridge.openSERPMu.Unlock()
+	if bridge.webSearchAttempts == nil {
+		bridge.webSearchAttempts = make(map[string]webSearchAttempt)
+	}
+	if _, exists := bridge.webSearchAttempts[queryKey]; !exists && len(bridge.webSearchAttempts) >= maxTrackedWebSearches {
+		oldestKey := ""
+		var oldestAt time.Time
+		for key, candidate := range bridge.webSearchAttempts {
+			if oldestKey == "" || candidate.UpdatedAt.Before(oldestAt) {
+				oldestKey = key
+				oldestAt = candidate.UpdatedAt
+			}
+		}
+		if oldestKey != "" {
+			delete(bridge.webSearchAttempts, oldestKey)
+		}
+	}
+	state := bridge.webSearchAttempts[queryKey]
+	if state.TerminalClass != "" || state.Count >= maxWebSearchAttempts {
+		return false, state.TerminalClass
+	}
+	state.Count++
+	state.UpdatedAt = time.Now().UTC()
+	bridge.webSearchAttempts[queryKey] = state
+	return true, ""
+}
+
+func (bridge *Bridge) finishWebSearchAttempt(queryKey string, class openserp.FailureClass, retryable bool) {
+	if bridge == nil {
+		return
+	}
+	bridge.openSERPMu.Lock()
+	defer bridge.openSERPMu.Unlock()
+	state := bridge.webSearchAttempts[queryKey]
+	if !retryable || state.Count >= maxWebSearchAttempts {
+		state.TerminalClass = class
+	}
+	state.UpdatedAt = time.Now().UTC()
+	bridge.webSearchAttempts[queryKey] = state
+}
+
+func (bridge *Bridge) clearWebSearchAttempt(queryKey string) {
+	if bridge == nil {
+		return
+	}
+	bridge.openSERPMu.Lock()
+	delete(bridge.webSearchAttempts, queryKey)
+	bridge.openSERPMu.Unlock()
+}
+
+func classifyWebSearchFailure(err error) (openserp.FailureClass, bool, []string) {
+	if typed, ok := err.(*webSearchFailure); ok && typed != nil {
+		return typed.Class, typed.Retryable, append([]string(nil), typed.AttemptedEngines...)
+	}
+	if err == nil {
+		return openserp.FailureTerminalNoResults, false, nil
+	}
+	normalized := strings.ToLower(strings.TrimSpace(err.Error()))
+	switch {
+	case strings.Contains(normalized, "captcha"), strings.Contains(normalized, "http status 403"), strings.Contains(normalized, "http status 429"):
+		return openserp.FailureTerminalRateLimitOrBlock, false, []string{"duckduckgo", "baidu"}
+	case strings.Contains(normalized, "no parseable results"):
+		return openserp.FailureTerminalNoResults, false, []string{"duckduckgo", "baidu"}
+	}
+	if class, retryable, attempted := openserp.FailureDetails(err); class != "" {
+		return class, retryable, attempted
+	}
+	return openserp.FailureRetryableTransport, true, []string{"duckduckgo", "baidu"}
+}
+
+func normalizedWebSearchQueryKey(searchTerm string) string {
+	return strings.Join(strings.Fields(strings.ToLower(strings.TrimSpace(searchTerm))), " ")
+}
+
+func webSearchQueryFingerprint(queryKey string) string {
+	sum := sha256.Sum256([]byte(queryKey))
+	return fmt.Sprintf("%x", sum[:8])
+}
+
+func formatWebSearchFailurePayload(queryFingerprint string, class openserp.FailureClass, retryable bool, attemptedEngines []string, message string) string {
+	if len(attemptedEngines) > 8 {
+		attemptedEngines = attemptedEngines[:8]
+	}
+	payload, _ := json.Marshal(map[string]any{
+		"status":            "error",
+		"failure_class":     string(class),
+		"retryable":         retryable,
+		"query_fingerprint": queryFingerprint,
+		"attempted_engines": attemptedEngines,
+		"message":           boundedWebSearchMessage(message),
+	})
+	return "<web_search_result>" + string(payload) + "</web_search_result>"
+}
+
+func boundedWebSearchMessage(message string) string {
+	message = strings.TrimSpace(message)
+	if len(message) > 512 {
+		return message[:512] + "..."
+	}
+	return message
+}
+
+func formatWebSearchSuccessPayload(queryFingerprint string, payload string) string {
+	return fmt.Sprintf("<web_search_result status=success query_fingerprint=%s>\n%s\n</web_search_result>", queryFingerprint, strings.TrimSpace(payload))
+}
 
 func (bridge *Bridge) executeWebSearch(searchTerm string) ([]*agentv1.WebSearchReference, string, error) {
 	searchTerm = strings.TrimSpace(searchTerm)
@@ -593,41 +767,53 @@ func (bridge *Bridge) executeWebSearch(searchTerm string) ([]*agentv1.WebSearchR
 		client = netproxy.NewHTTPClient(15 * time.Second)
 	}
 
+	searchContext, cancel := context.WithTimeout(context.Background(), webSearchTimeout)
+	defer cancel()
+	bridge.openSERPMu.Lock()
 	if bridge.openSERP == nil {
 		bridge.openSERP = openserp.NewClient(client)
 	}
-	openSERPGroups, openSERPErr := bridge.openSERP.Search(context.Background(), searchTerm)
+	openSERPClient := bridge.openSERP
+	bridge.openSERPMu.Unlock()
+	openSERPGroups, openSERPErr := openSERPClient.Search(searchContext, searchTerm)
 	if openSERPErr == nil {
 		references := openSERPReferences(openSERPGroups)
 		if len(references) > 0 {
 			return references, formatWebSearchPayload(searchTerm, references), nil
 		}
 	}
-	if errors.Is(openSERPErr, openserp.ErrTooManyErrors) {
-		return nil, "", openSERPErr
-	}
 
-	// Keep the direct HTML path as a last-resort compatibility fallback when
-	// OpenSERP itself cannot be downloaded, built, or started.
-	duckReferences, _, duckErr := bridge.tryDuckDuckGoWebSearch(client, searchTerm)
+	// Keep the direct HTML path as a single bounded fallback when OpenSERP
+	// cannot start or its engine set is unavailable, including ErrTooManyErrors.
+	duckReferences, _, duckErr := bridge.tryDuckDuckGoWebSearch(searchContext, client, searchTerm)
 	if duckErr == nil && len(duckReferences) > 0 {
 		// Append up to five Baidu results after the primary results when available.
-		baiduReferences, _, _ := bridge.tryBaiduWebSearch(client, searchTerm)
+		baiduReferences, _, _ := bridge.tryBaiduWebSearch(searchContext, client, searchTerm)
 		references := append(duckReferences, baiduReferences...)
 		return references, formatWebSearchPayload(searchTerm, references), nil
 	}
 
 	// DuckDuckGo failed, fall back to Baidu.
-	baiduReferences, baiduPayload, baiduErr := bridge.tryBaiduWebSearch(client, searchTerm)
+	baiduReferences, baiduPayload, baiduErr := bridge.tryBaiduWebSearch(searchContext, client, searchTerm)
 	if baiduErr == nil && len(baiduReferences) > 0 {
 		return baiduReferences, baiduPayload, nil
 	}
 
 	// Both failed, return a combined error.
 	if baiduErr != nil && duckErr != nil {
-		return nil, "", fmt.Errorf("web search failed: baidu=%v, duckduckgo=%v", baiduErr, duckErr)
+		cause := fmt.Errorf("web search failed: baidu=%v, duckduckgo=%v", baiduErr, duckErr)
+		class, retryable, attempted := classifyWebSearchFailure(openSERPErr)
+		if openSERPErr == nil {
+			class, retryable, attempted = classifyWebSearchFailure(cause)
+		}
+		return nil, "", &webSearchFailure{Class: class, Retryable: retryable, AttemptedEngines: attempted, Cause: cause}
 	}
-	return nil, "", fmt.Errorf("web search returned no parseable results")
+	return nil, "", &webSearchFailure{
+		Class:            openserp.FailureTerminalNoResults,
+		Retryable:        false,
+		AttemptedEngines: []string{"duckduckgo", "baidu"},
+		Cause:            fmt.Errorf("web search returned no parseable results"),
+	}
 }
 
 func openSERPReferences(groups []openserp.EngineResults) []*agentv1.WebSearchReference {
@@ -670,9 +856,9 @@ func displaySearchEngine(engine string) string {
 	}
 }
 
-func (bridge *Bridge) tryBaiduWebSearch(client *http.Client, searchTerm string) ([]*agentv1.WebSearchReference, string, error) {
+func (bridge *Bridge) tryBaiduWebSearch(ctx context.Context, client *http.Client, searchTerm string) ([]*agentv1.WebSearchReference, string, error) {
 	requestURL := baiduWebSearchBaseURL + neturl.QueryEscape(searchTerm)
-	request, err := http.NewRequest(http.MethodGet, requestURL, nil)
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, requestURL, nil)
 	if err != nil {
 		return nil, "", err
 	}
@@ -699,13 +885,13 @@ func (bridge *Bridge) tryBaiduWebSearch(client *http.Client, searchTerm string) 
 	if len(references) > 5 {
 		references = references[:5]
 	}
-	resolveBaiduWebSearchRedirects(client, references)
+	resolveBaiduWebSearchRedirects(ctx, client, references)
 	return references, formatWebSearchPayload(searchTerm, references), nil
 }
 
-func (bridge *Bridge) tryDuckDuckGoWebSearch(client *http.Client, searchTerm string) ([]*agentv1.WebSearchReference, string, error) {
+func (bridge *Bridge) tryDuckDuckGoWebSearch(ctx context.Context, client *http.Client, searchTerm string) ([]*agentv1.WebSearchReference, string, error) {
 	requestURL := webSearchURLOverride + neturl.QueryEscape(searchTerm)
-	request, err := http.NewRequest(http.MethodGet, requestURL, nil)
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, requestURL, nil)
 	if err != nil {
 		return nil, "", err
 	}
@@ -799,15 +985,16 @@ func truncateWebSearchReplay(searchTerm string, references []*agentv1.WebSearchR
 		if reference == nil {
 			continue
 		}
-		next := *reference
-		title := truncateInteractionText("WebSearch title", next.GetTitle(), webSearchTitleLimit)
-		chunk := truncateInteractionText("WebSearch snippet", next.GetChunk(), webSearchChunkLimit)
-		if title != next.GetTitle() || chunk != next.GetChunk() {
+		title := truncateInteractionText("WebSearch title", reference.GetTitle(), webSearchTitleLimit)
+		chunk := truncateInteractionText("WebSearch snippet", reference.GetChunk(), webSearchChunkLimit)
+		if title != reference.GetTitle() || chunk != reference.GetChunk() {
 			truncated = true
 		}
-		next.Title = title
-		next.Chunk = chunk
-		nextReferences = append(nextReferences, &next)
+		nextReferences = append(nextReferences, &agentv1.WebSearchReference{
+			Title: title,
+			Url:   reference.GetUrl(),
+			Chunk: chunk,
+		})
 	}
 	nextPayload := formatWebSearchPayload(searchTerm, nextReferences)
 	if strings.TrimSpace(payload) != "" && len(nextPayload) == 0 {
